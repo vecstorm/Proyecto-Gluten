@@ -8,14 +8,109 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerState currentState = PlayerState.Idle;
     public PlayerState CurrentState => currentState;
 
+    private GlutenActionControls glutenActionControls;
+    private float movementDirection;
+
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private float walkSpeed = 5f;
+    [SerializeField] private float airborneSpeed = 4f;
+    [SerializeField] private float runSpeed = 7f;
+
+    [SerializeField] private float jumpForce = 8f;
+    private bool jumpPressed;
+    private bool runPressed;
+    private bool dashPressed;
+
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float groundCheckRadius = 0.2f;
+
+    [SerializeField] private bool isGrounded;
+
+    [SerializeField] private float dashSpeed = 15f;
+    [SerializeField] private float dashDuration = 0.2f;
+
+    private float dashTimer;
+    [SerializeField] private float dashCooldown = 0.5f;
+    private float dashCooldownTimer;
+    private float dashDirection;
+    private bool canDash;
+
+    private int facingDirection = 1;
+
+    private float originalGravity;
+
+    private void Awake()
+    {
+        glutenActionControls = new GlutenActionControls();
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (groundCheck == null)
+            return;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+    }
+
+    private void OnEnable()
+    {
+        glutenActionControls.Enable();
+    }
+
+    private void OnDisable()
+    {
+        glutenActionControls.Disable();
+    }
 
     private void Start()
     {
+        canDash = true;
+        originalGravity = rb.gravityScale;
         EnterState(currentState);
     }
 
     private void Update()
     {
+        movementDirection = glutenActionControls.Player.Move.ReadValue<Vector2>().x;
+
+        if (movementDirection > 0)
+        {
+            facingDirection = 1;
+        }
+        else if (movementDirection < 0)
+        {
+            facingDirection = -1;
+        }
+
+        if (glutenActionControls.Player.Jump.WasPressedThisFrame())
+        {
+            jumpPressed = true;
+        }
+
+        runPressed = glutenActionControls.Player.Sprint.IsPressed();
+
+        if (glutenActionControls.Player.Dash.WasPressedThisFrame())
+        {
+            dashPressed = true;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        if (isGrounded)
+        {
+            canDash = true;
+        }
+
+        if (dashCooldownTimer > 0)
+        {
+            dashCooldownTimer -= Time.fixedDeltaTime;
+        }
+
         switch (currentState)
         {
             case PlayerState.Idle:
@@ -85,11 +180,10 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Dead:
                 Dead();
                 break;
-
-
-
-
         }
+
+        jumpPressed = false;
+        dashPressed = false;
     }
 
     public bool ChangeState(PlayerState newState)
@@ -107,7 +201,6 @@ public class PlayerController : MonoBehaviour
         currentState = newState; //Actualiza el estado
         EnterState(currentState); //Entra en el nuevo estado
         return true;
-
     }
 
     //Metodo que comprueba 
@@ -115,7 +208,6 @@ public class PlayerController : MonoBehaviour
     {
         if (from == to) //Para evitar que el personaje cambie a un estado el cual ya esta
             return false;
-
 
         //Desde cualquier estado excepto Hurt y Dead, el jugador puede pasar a Hurt o Dead
         ///Ejemplo: no puede pasar de dead a hurt porque en esta condicion no esta permitido
@@ -242,15 +334,40 @@ public class PlayerController : MonoBehaviour
     private void EnterState(PlayerState state)
     {
         //Preparar el estado al entrar: por ejemplo, iniciar un temporizador o activar una animación.
+        switch (state)
+        {
+            case PlayerState.Dash:
+
+                dashTimer = dashDuration;
+
+                dashDirection = movementDirection;
+
+                if (Mathf.Abs(dashDirection) < 0.01f)
+                    dashDirection = facingDirection;
+
+                rb.gravityScale = 0f;
+
+                break;
+        }
     }
 
     private void ExitState(PlayerState state)
     {
         // Limpiar el estado al salir: por ejemplo, cancelar un temporizador o detener una acción.
+        
+        switch (state)
+        {
+            case PlayerState.Dash:
+
+                rb.gravityScale = originalGravity;
+
+                break;
+        }
     }
 
     //METER TODA LA LOGIDA DENTRO DE LOS METODOS DE ABAJO
 
+    #region Estados
     private void Dead()
     {
         throw new NotImplementedException();
@@ -303,7 +420,39 @@ public class PlayerController : MonoBehaviour
 
     private void Dash()
     {
-        throw new NotImplementedException();
+        dashTimer -= Time.fixedDeltaTime;
+
+        rb.linearVelocity = new Vector2(dashDirection * dashSpeed, 0f);
+
+        if (dashTimer <= 0f)
+        {
+            if (isGrounded)
+            {
+                if (Mathf.Abs(movementDirection) > 0.01f)
+                {
+                    if (runPressed)
+                    {
+                        ChangeState(PlayerState.Run);
+                        return;
+                    }
+                    else
+                    {
+                        ChangeState(PlayerState.Walk);
+                        return;
+                    }
+                }
+                else
+                {
+                    ChangeState(PlayerState.Idle);
+                    return;
+                }
+            }
+            else
+            {
+                ChangeState(PlayerState.Airborne);
+                return;
+            }
+        }
     }
 
     private void DoubleJump()
@@ -313,28 +462,156 @@ public class PlayerController : MonoBehaviour
 
     private void Airborne()
     {
-        throw new NotImplementedException();
+        rb.linearVelocity = new Vector2(movementDirection * airborneSpeed, rb.linearVelocity.y);
+
+        if (isGrounded && rb.linearVelocity.y <= 0)
+        {
+            if (Mathf.Abs(movementDirection) > 0.01f)
+            {
+                if (runPressed)
+                {
+                    ChangeState(PlayerState.Run);
+                    return;
+                }
+                else
+                {
+                    ChangeState(PlayerState.Walk);
+                    return;
+                }
+            }
+            else
+            {
+                ChangeState(PlayerState.Idle);
+                return;
+            }
+        }
+
+        if (dashPressed && canDash && dashCooldownTimer <= 0)
+        {
+            canDash = false;
+            dashPressed = false;
+
+            dashCooldownTimer = dashCooldown;
+
+            ChangeState(PlayerState.Dash);
+            return;
+        }
     }
 
     private void Jump()
     {
-        throw new NotImplementedException();
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+        ChangeState(PlayerState.Airborne);
+        return;
     }
 
     private void Run()
     {
-        throw new NotImplementedException();
+        rb.linearVelocity = new Vector2(movementDirection * runSpeed, rb.linearVelocity.y);
+
+        if (Mathf.Abs(movementDirection) < 0.01f)
+        {
+            ChangeState(PlayerState.Idle);
+            return;
+        }
+
+        if (!runPressed)
+        {
+            ChangeState(PlayerState.Walk);
+            return;
+        }
+
+        if (jumpPressed && isGrounded)
+        {
+            jumpPressed = false;
+            ChangeState(PlayerState.Jump);
+            return;
+        }
+
+        if (dashPressed && canDash && dashCooldownTimer <= 0)
+        {
+            canDash = false;
+            dashPressed = false;
+
+            dashCooldownTimer = dashCooldown;
+
+            ChangeState(PlayerState.Dash);
+            return;
+        }
     }
 
     private void Walk()
     {
-        throw new NotImplementedException();
+        rb.linearVelocity = new Vector2(movementDirection * walkSpeed, rb.linearVelocity.y);
+
+        if (runPressed)
+        {
+            ChangeState(PlayerState.Run);
+            return;
+        }
+
+        if (Mathf.Abs(movementDirection) < 0.01f)
+        {
+            ChangeState(PlayerState.Idle);
+            return;
+        }
+
+        if (jumpPressed && isGrounded)
+        {
+            jumpPressed = false;
+            ChangeState(PlayerState.Jump);
+            return;
+        }
+
+        if (dashPressed && canDash && dashCooldownTimer <= 0)
+        {
+            canDash = false;
+            dashPressed = false;
+
+            dashCooldownTimer = dashCooldown;
+
+            ChangeState(PlayerState.Dash);
+            return;
+        }
     }
 
     private void Idle()
     {
-        throw new NotImplementedException();
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+
+        if (Mathf.Abs(movementDirection) > 0.01f)
+        {
+            if (runPressed)
+            {
+                ChangeState(PlayerState.Run);
+                return;
+            }
+            else
+            {
+                ChangeState(PlayerState.Walk);
+                return;
+            }
+        }
+
+        if (jumpPressed && isGrounded)
+        {
+            jumpPressed = false;
+            ChangeState(PlayerState.Jump);
+            return;
+        }
+
+        if (dashPressed && canDash && dashCooldownTimer <= 0)
+        {
+            canDash = false;
+            dashPressed = false;
+
+            dashCooldownTimer = dashCooldown;
+
+            ChangeState(PlayerState.Dash);
+            return;
+        }
     }
 
-    
+    #endregion
 }
