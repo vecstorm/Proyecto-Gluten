@@ -119,6 +119,7 @@ public class PlayerController : MonoBehaviour
 
         //Desde cualquier estado excepto Hurt y Dead, el jugador puede pasar a Hurt o Dead
         ///Ejemplo: no puede pasar de dead a hurt porque en esta condicion no esta permitido
+        ///Por ello no hace falta poner en el switch las condiciones de dead y hurt, se controlan aqui
         if (from != PlayerState.Hurt && from != PlayerState.Dead && (to == PlayerState.Hurt || to == PlayerState.Dead))
             return true;
 
