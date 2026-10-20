@@ -79,6 +79,14 @@ public class SkillUnlockManager : MonoBehaviour
             : "El Dash ya estaba desbloqueado o no se encontró.");
     }
 
+    [ContextMenu("Pruebas/Comprobar Dash")]
+    private void TestCheckDash()
+    {
+        bool unloked = IsSkillUnlocked("DASH");
+
+        Debug.Log(unloked ? "El dash está desbloqueado" : "El dash está bloqueado");
+    }
+
     [ContextMenu("Pruebas/Mostrar habilidades desbloqueadas")]
     private void TestLogUnlockedSkills()
     {
