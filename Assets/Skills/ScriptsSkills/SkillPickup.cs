@@ -27,8 +27,14 @@ public class SkillPickup : MonoBehaviour
         {
             collected = true;
             Debug.Log("Habilidad desbloqueada: " + skillToUnlock.skillName);
-            Destroy(gameObject);
+            DestroyPickeable();
         }
 
+    }
+
+    public void DestroyPickeable()
+    {
+        //Animaciones sonidos y particulas
+        Destroy(gameObject);
     }
 }
