@@ -8,9 +8,9 @@ public class SkillPickup : MonoBehaviour
 
     private bool collected = false;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collected || !CompareTag("Player"))
+        if (collected || !other.CompareTag("Player"))
         {
             return;
         }

@@ -69,27 +69,4 @@ public class SkillUnlockManager : MonoBehaviour
         }
     }
 
-    [ContextMenu("Pruebas/Desbloquear Dash")]
-    private void TestUnlockDash()
-    {
-        bool unlocked = UnlockSkillById("DASH");
-
-        Debug.Log(unlocked
-            ? "Dash desbloqueado correctamente."
-            : "El Dash ya estaba desbloqueado o no se encontró.");
-    }
-
-    [ContextMenu("Pruebas/Comprobar Dash")]
-    private void TestCheckDash()
-    {
-        bool unloked = IsSkillUnlocked("DASH");
-
-        Debug.Log(unloked ? "El dash está desbloqueado" : "El dash está bloqueado");
-    }
-
-    [ContextMenu("Pruebas/Mostrar habilidades desbloqueadas")]
-    private void TestLogUnlockedSkills()
-    {
-        LogUnlockedSkills();
-    }
 }
