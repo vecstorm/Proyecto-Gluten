@@ -82,10 +82,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float runSpeed = 7f;
 
     [Tooltip("Control horizontal en el aire")]
-    [SerializeField] private float airborneSpeed = 4f;
+    [SerializeField] private float airborneSpeed = 5f;
 
     [Tooltip("Fuerza aplicada al salto")]
-    [SerializeField] private float jumpForce = 8f;
+    [SerializeField] private float jumpForce = 16f;
 
     #endregion
 
@@ -118,13 +118,13 @@ public class PlayerController : MonoBehaviour
     [Header("Dash")]
 
     [Tooltip("Velocidad del dash")]
-    [SerializeField] private float dashSpeed = 15f;
+    [SerializeField] private float dashSpeed = 30f;
 
     [Tooltip("Duración del dash en segundos")]
-    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashDuration = 0.15f;
 
     [Tooltip("Tiempo de espera entre dashes")]
-    [SerializeField] private float dashCooldown = 0.5f;
+    [SerializeField] private float dashCooldown = 0.4f;
 
     /// <summary>
     /// Tiempo restante hasta que el dash vuelva a estar disponible.

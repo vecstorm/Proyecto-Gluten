@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 3079317257263090006}
   - component: {fileID: 8289747894546773210}
   - component: {fileID: 8159199639849780383}
-  - component: {fileID: 8346105843077652431}
+  - component: {fileID: 6317816238346914269}
   - component: {fileID: 6413751089638512161}
   m_Layer: 0
   m_Name: Player
@@ -142,7 +142,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -154,8 +154,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!70 &8346105843077652431
-CapsuleCollider2D:
+--- !u!61 &6317816238346914269
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -164,7 +164,7 @@ CapsuleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 4f3a392e601dda8478468e16b70fcc49, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -188,9 +188,18 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 2}
-  m_Direction: 0
+  m_Offset: {x: 0, y: -0.125}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 2}
+    newSize: {x: 1, y: 2}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1.75}
+  m_EdgeRadius: 0
 --- !u!114 &6413751089638512161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,20 +214,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   currentState: 0
   rb: {fileID: 8159199639849780383}
+  skillManager: {fileID: 0}
   walkSpeed: 5
-  airborneSpeed: 4
   runSpeed: 7
-  jumpForce: 8
+  airborneSpeed: 5
+  jumpForce: 16
+  isGrounded: 0
   groundCheck: {fileID: 1791381231280308761}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   groundCheckRadius: 0.2
-  isGrounded: 0
   dashSpeed: 15
   dashDuration: 0.2
   dashCooldown: 0.5
-  skillManager: {fileID: 0}
 --- !u!1 &7199685487588891584
 GameObject:
   m_ObjectHideFlags: 0
@@ -229,6 +238,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6088361053222664066}
   - component: {fileID: 7038073308045348556}
+  - component: {fileID: 2524931569011919003}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -275,7 +285,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 60
+    FieldOfView: 75
     OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
@@ -294,3 +304,18 @@ MonoBehaviour:
       BarrelClipping: 0.25
       Anamorphism: 0
   BlendHint: 0
+--- !u!114 &2524931569011919003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7199685487588891584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCameraOffset
+  Offset: {x: 0, y: 5, z: 0}
+  ApplyAfter: 1
+  PreserveComposition: 0
