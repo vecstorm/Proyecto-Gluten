@@ -1,7 +1,7 @@
-using Unity.Netcode;
+
 using UnityEngine;
 
-public class StayBumperVidaScript : NetworkBehaviour
+public class StayBumperVidaScript : MonoBehaviour
 {
     // Creamos una variable para indicar cuanta vida quitamos
     [SerializeField] private int DañoJugador = 1;
@@ -14,8 +14,6 @@ public class StayBumperVidaScript : NetworkBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
-        if (!IsServer) return;
-
         // Aqui comprobamos si el jugador esta tocando el obstaculo
         if (collision.gameObject.TryGetComponent<PlayerController>(out PlayerController player))
         {
@@ -39,8 +37,6 @@ public class StayBumperVidaScript : NetworkBehaviour
 
     private void OnCollisionExit(Collision collision)
     {
-        if (!IsServer) return;
-
         // Reiniciamos el tiempo cuando el jugador se aleja del obstaculo
         if (collision.gameObject.GetComponent<PlayerController>() != null)
         {
