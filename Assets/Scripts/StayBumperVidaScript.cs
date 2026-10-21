@@ -7,7 +7,7 @@ public class StayBumperVidaScript : MonoBehaviour
     [SerializeField] private int DañoJugador = 1;
 
     // Creamos una variable para indicar cada cuanto tiempo quitamos vida
-    [SerializeField] private float TiempoDaño = 1f;
+    [SerializeField] private float TiempoDaño = 1.5f;
 
     // Creamos una variable para saber el tiempo que recibe daño el jugador
     private float TiempoJugadorDaño = 0f;
@@ -15,7 +15,9 @@ public class StayBumperVidaScript : MonoBehaviour
     private void OnCollisionStay(Collision collision)
     {
         // Aqui comprobamos si el jugador esta tocando el obstaculo
-        if (collision.gameObject.TryGetComponent<PlayerController>(out PlayerController player))
+        PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+
+        if (player != null)
         {
             // Sumamos el tiempo que ha pasado
             TiempoJugadorDaño += Time.fixedDeltaTime;
@@ -38,7 +40,9 @@ public class StayBumperVidaScript : MonoBehaviour
     private void OnCollisionExit(Collision collision)
     {
         // Reiniciamos el tiempo cuando el jugador se aleja del obstaculo
-        if (collision.gameObject.GetComponent<PlayerController>() != null)
+        PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+
+        if (player != null)
         {
             TiempoJugadorDaño = 0f;
         }
