@@ -40,6 +40,8 @@ public class PlayerController : MonoBehaviour
 
     private float originalGravity;
 
+    [SerializeField] private SkillUnlockManager skillManager;
+
     private void Awake()
     {
         glutenActionControls = new GlutenActionControls();
@@ -420,6 +422,8 @@ public class PlayerController : MonoBehaviour
 
     private void Dash()
     {
+        
+
         dashTimer -= Time.fixedDeltaTime;
 
         rb.linearVelocity = new Vector2(dashDirection * dashSpeed, 0f);
@@ -488,6 +492,14 @@ public class PlayerController : MonoBehaviour
 
         if (dashPressed && canDash && dashCooldownTimer <= 0)
         {
+            bool canUseDash = skillManager.IsSkillUnlocked("DASH");
+
+            if (!canUseDash)
+            {
+                Debug.Log("DASH no está desbloqueado: el jugador no puede utilizarlo.");
+                return;
+            }
+
             canDash = false;
             dashPressed = false;
 
@@ -531,6 +543,14 @@ public class PlayerController : MonoBehaviour
 
         if (dashPressed && canDash && dashCooldownTimer <= 0)
         {
+            bool canUseDash = skillManager.IsSkillUnlocked("DASH");
+
+            if (!canUseDash)
+            {
+                Debug.Log("DASH no está desbloqueado: el jugador no puede utilizarlo.");
+                return;
+            }
+
             canDash = false;
             dashPressed = false;
 
@@ -564,8 +584,11 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (dashPressed && canDash && dashCooldownTimer <= 0)
+        if (dashPressed && canDash && dashCooldownTimer <= 0 )
         {
+            
+            if (!CanUseSkill("DASH")) return;
+
             canDash = false;
             dashPressed = false;
 
@@ -574,6 +597,18 @@ public class PlayerController : MonoBehaviour
             ChangeState(PlayerState.Dash);
             return;
         }
+    }
+    /// <summary>
+    /// Metodo para saber si tienes una skill y asi poder usarla 
+    /// JOEL PONLO DONDE TE QUEPA
+    /// </summary>
+    /// <param name="skill"></param>
+    /// <returns></returns>
+    private bool CanUseSkill(string skill)
+    {
+        bool canUseSkill = skillManager.IsSkillUnlocked(skill);
+        return canUseSkill;
+        
     }
 
     private void Idle()
