@@ -65,6 +65,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1791381231280308761}
+  - {fileID: 4854839456935298327}
   - {fileID: 6088361053222664066}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -150,9 +151,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!61 &6317816238346914269
 BoxCollider2D:
@@ -218,16 +219,60 @@ MonoBehaviour:
   walkSpeed: 5
   runSpeed: 7
   airborneSpeed: 5
-  jumpForce: 16
+  jumpForce: 16.5
+  doubleJumpForce: 14
+  canDoubleJump: 0
   isGrounded: 0
   groundCheck: {fileID: 1791381231280308761}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   groundCheckRadius: 0.2
-  dashSpeed: 15
-  dashDuration: 0.2
-  dashCooldown: 0.5
+  isTouchingWall: 0
+  wallCheck: {fileID: 4854839456935298327}
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  wallCheckDistance: 0.6
+  dashSpeed: 30
+  dashDuration: 0.15
+  dashCooldown: 0.4
+  wallGrabDuration: 0.5
+  wallSlideMaxSpeed: 3
+  wallSlideAcceleration: 1.5
+  wallJumpForceX: 30
+  wallJumpForceY: 12
+--- !u!1 &5582248330238213830
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4854839456935298327}
+  m_Layer: 0
+  m_Name: WallCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4854839456935298327
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5582248330238213830}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3079317257263090006}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7199685487588891584
 GameObject:
   m_ObjectHideFlags: 0
@@ -285,7 +330,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 75
+    FieldOfView: 80
     OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
@@ -316,6 +361,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCameraOffset
-  Offset: {x: 0, y: 5, z: 0}
+  Offset: {x: 0, y: 4, z: 0}
   ApplyAfter: 1
   PreserveComposition: 0

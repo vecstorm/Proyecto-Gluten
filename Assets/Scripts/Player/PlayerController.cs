@@ -14,9 +14,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("State")]
 
-    /// <summary>
-    /// Estado actual de la máquina de estados del jugador.
-    /// </summary>
+    [Tooltip("Estado actual de la máquina de estados del jugador")]
     [SerializeField] private PlayerState currentState = PlayerState.Idle;
 
     /// <summary>
@@ -30,9 +28,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("References")]
 
-    /// <summary>
-    /// Referencia al Rigidbody2D utilizado para mover al personaje.
-    /// </summary>
+    [Tooltip("Referencia al Rigidbody2D utilizado para mover al personaje")]
     [SerializeField] private Rigidbody2D rb;
 
     /// <summary>
@@ -60,6 +56,11 @@ public class PlayerController : MonoBehaviour
     private bool jumpPressed;
 
     /// <summary>
+    /// Indica si se ha soltado el salto durante este frame.
+    /// </summary>
+    private bool jumpReleased;
+
+    /// <summary>
     /// Indica si el jugador mantiene pulsado el botón de correr.
     /// </summary>
     private bool runPressed;
@@ -85,7 +86,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float airborneSpeed = 5f;
 
     [Tooltip("Fuerza aplicada al salto")]
-    [SerializeField] private float jumpForce = 16f;
+    [SerializeField] private float jumpForce = 16.5f;
+
+    [Tooltip("Fuerza aplicada al doble salto")]
+    [SerializeField] private float doubleJumpForce = 14f;
+
+    [Tooltip("Indica si el jugador puede realizar un doble salto")]
+    [SerializeField] private bool canDoubleJump;
 
     #endregion
 
@@ -95,21 +102,33 @@ public class PlayerController : MonoBehaviour
 
     [Tooltip("Indica si el personaje está tocando el suelo")]
     [SerializeField] private bool isGrounded;
-    
-    /// <summary>
-    /// Punto desde el cual se comprueba si el jugador está tocando el suelo.
-    /// </summary>
+
+    [Tooltip("Punto desde el cual se comprueba si el jugador está tocando el suelo")]
     [SerializeField] private Transform groundCheck;
 
-    /// <summary>
-    /// Capas consideradas como suelo.
-    /// </summary>
+    [Tooltip("Capa considerada como suelo")]
     [SerializeField] private LayerMask groundLayer;
 
-    /// <summary>
-    /// Radio de detección del Ground Check.
-    /// </summary>
+    [Tooltip("Radio de detección del Ground Check")]
     [SerializeField] private float groundCheckRadius = 0.2f;
+
+    #endregion
+
+    #region Wall Check
+
+    [Header("Wall Check")]
+
+    [Tooltip("Indica si el personaje está tocando la pared")]
+    [SerializeField] private bool isTouchingWall;
+
+    [Tooltip("Punto desde el cual se comprueba si el jugador está tocando una pared")]
+    [SerializeField] private Transform wallCheck;
+
+    [Tooltip("Capa considerada como pared")]
+    [SerializeField] private LayerMask wallLayer;
+
+    [Tooltip("Distancia de detección del Wall Check")]
+    [SerializeField] private float wallCheckDistance = 0.6f;
 
     #endregion
 
@@ -145,6 +164,37 @@ public class PlayerController : MonoBehaviour
     /// Determina si el jugador puede utilizar el dash.
     /// </summary>
     private bool canDash;
+
+    #endregion
+
+    #region Wall
+
+    [Header("Wall")]
+
+    [Tooltip("Duración del deslizamiento en la pared")]
+    [SerializeField] private float wallGrabDuration = 0.5f;
+
+    [Tooltip("Velocidad de deslizamiento en la pared")]
+    [SerializeField] private float wallSlideMaxSpeed = 3f;
+
+    [Tooltip("Velocidad de deslizamiento en la pared")]
+    [SerializeField] private float wallSlideAcceleration = 1.5f;
+
+    [Tooltip("Fuerza aplicada al salto en la pared en X")]
+    [SerializeField] private float wallJumpForceX = 30f;
+
+    [Tooltip("Fuerza aplicada al salto en la pared en Y")]
+    [SerializeField] private float wallJumpForceY = 12f;
+
+    /// <summary>
+    /// Tiempo restante de duración del wall grab actual.
+    /// </summary>
+    private float wallGrabTimer;
+
+    /// <summary>
+    /// Velocidad del wall slide actual.
+    /// </summary>
+    private float wallSlideSpeed;
 
     #endregion
 
@@ -198,13 +248,14 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         CheckGround();
+        CheckWall();
 
         UpdateCooldowns();
-
         UpdateState();
 
         // Desactivamos los indicadores de salto y dash
         jumpPressed = false;
+        jumpReleased = false;
         dashPressed = false;
     }
 
@@ -220,6 +271,7 @@ public class PlayerController : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        Gizmos.DrawLine(wallCheck.position, wallCheck.position + Vector3.right * facingDirection * wallCheckDistance);
     }
 
     #endregion
@@ -237,6 +289,9 @@ public class PlayerController : MonoBehaviour
 
         if (glutenActionControls.Player.Jump.WasPressedThisFrame())
             jumpPressed = true;
+
+        if (glutenActionControls.Player.Jump.WasReleasedThisFrame())
+            jumpReleased = true;
 
         if (glutenActionControls.Player.Dash.WasPressedThisFrame())
             dashPressed = true;
@@ -312,10 +367,10 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Defend, PlayerState.Hook);
 
             case PlayerState.Walk:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Defend, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Defend, PlayerState.Hook);
 
             case PlayerState.Run:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Defend, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Defend, PlayerState.Hook);
 
             case PlayerState.Jump:
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack);
@@ -330,10 +385,10 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Hook);
 
             case PlayerState.WallGrab:
-                return IsOneOf(to, PlayerState.WallSlide, PlayerState.WallJump, PlayerState.Airborne, PlayerState.Hook, PlayerState.Dash);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.WallSlide, PlayerState.WallJump, PlayerState.Airborne, PlayerState.Hook, PlayerState.Dash);
 
             case PlayerState.WallSlide:
-                return IsOneOf(to, PlayerState.WallJump, PlayerState.WallGrab, PlayerState.Airborne, PlayerState.Hook, PlayerState.Dash);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.WallJump, PlayerState.WallGrab, PlayerState.Airborne, PlayerState.Hook, PlayerState.Dash);
 
             case PlayerState.WallJump:
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack);
@@ -405,6 +460,24 @@ public class PlayerController : MonoBehaviour
                 rb.gravityScale = 0f;
 
                 break;
+
+            // Definimos timer y desactivamos la gravedad
+            case PlayerState.WallGrab:
+
+                wallGrabTimer = wallGrabDuration;
+
+                rb.gravityScale = 0f;
+
+                break;
+
+            // Definimos velocidad y reacti la gravedad
+            case PlayerState.WallSlide:
+
+                wallSlideSpeed = 0f;
+
+                rb.gravityScale = originalGravity;
+
+                break;
         }
     }
 
@@ -416,8 +489,14 @@ public class PlayerController : MonoBehaviour
     {
         switch (state)
         {
-            // Reiniciamos la gravedad
+            // Reiniciamos la gravedad en los estados necesarios
             case PlayerState.Dash:
+
+                rb.gravityScale = originalGravity;
+
+                break;
+
+            case PlayerState.WallGrab:
 
                 rb.gravityScale = originalGravity;
 
@@ -447,7 +526,18 @@ public class PlayerController : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
         if (isGrounded)
+        {
             canDash = true;
+            canDoubleJump = true;
+        }
+    }
+
+    /// <summary>
+    /// Comprueba si el jugador está tocando la pared.
+    /// </summary>
+    private void CheckWall()
+    {
+        isTouchingWall = Physics2D.Raycast(wallCheck.position, Vector2.right * facingDirection, wallCheckDistance, wallLayer);
     }
 
     /// <summary>
@@ -651,6 +741,12 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        if (!isGrounded)
+        {
+            ChangeState(PlayerState.Airborne);
+            return;
+        }
+
         if (TryJump())
             return;
 
@@ -679,6 +775,12 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        if (!isGrounded)
+        {
+            ChangeState(PlayerState.Airborne);
+            return;
+        }
+
         if (TryJump())
             return;
 
@@ -703,11 +805,12 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Jump()
     {
+        jumpPressed = false;
+
         // Actualizamos velocidad lineal a jumpForce en Y
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
         ChangeState(PlayerState.Airborne);
-        return;
     }
 
     /// <summary>
@@ -717,6 +820,29 @@ public class PlayerController : MonoBehaviour
     {
         // Actualizamos velocidad lineal a airborneSpeed en X
         rb.linearVelocity = new Vector2(movementDirection * airborneSpeed, rb.linearVelocity.y);
+
+        // Si se ha soltado el salto, bajamos antes
+        if (jumpReleased && rb.linearVelocity.y > 0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+
+            jumpReleased = false;
+        }
+
+        // Si se ha presionado el salto en el aire, se puede realizar un doble salto y tenemos la habilidad, se ejecuta
+        if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
+        {
+            canDoubleJump = false;
+            ChangeState(PlayerState.DoubleJump);
+            return;
+        }
+
+        // Si estamos tocando la pared, no estamos en el suelo y tenemos la habilidad, hacemos wall grab
+        if (isTouchingWall && !isGrounded && rb.linearVelocity.y <= 0 && CanUseSkill("WALL_SKILL"))
+        {
+            ChangeState(PlayerState.WallGrab);
+            return;
+        }
 
         // Si dejamos de caer, pasamos a un estado terrestre
         if (isGrounded && rb.linearVelocity.y <= 0)
@@ -734,7 +860,11 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void DoubleJump()
     {
-        throw new NotImplementedException();
+        jumpPressed = false;
+
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
+
+        ChangeState(PlayerState.Airborne);
     }
 
     /// <summary>
@@ -742,7 +872,42 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void WallGrab()
     {
-        throw new NotImplementedException();
+        canDoubleJump = true;
+        canDash = true;
+
+        wallGrabTimer -= Time.fixedDeltaTime;
+
+        rb.linearVelocity = Vector2.zero;
+
+        if (jumpPressed)
+        {
+            ChangeState(PlayerState.WallJump);
+            return;
+        }
+
+        if (!isTouchingWall)
+        {
+            ChangeState(PlayerState.Airborne);
+            return;
+        }
+
+        if (isGrounded)
+        {
+            ChangeToGroundState();
+            return;
+        }
+
+        if (wallGrabTimer <= 0)
+        {
+            ChangeState(PlayerState.WallSlide);
+            return;
+        }
+
+        if (movementDirection != facingDirection)
+        {
+            ChangeState(PlayerState.WallSlide);
+            return;
+        }
     }
 
     /// <summary>
@@ -750,7 +915,29 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void WallSlide()
     {
-        throw new NotImplementedException();
+        wallSlideSpeed += wallSlideAcceleration * Time.fixedDeltaTime;
+
+        wallSlideSpeed = Mathf.Clamp(wallSlideSpeed, 0f, wallSlideMaxSpeed);
+
+        rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
+
+        if (jumpPressed)
+        {
+            ChangeState(PlayerState.WallJump);
+            return;
+        }
+
+        if (!isTouchingWall)
+        {
+            ChangeState(PlayerState.Airborne);
+            return;
+        }
+
+        if (isGrounded)
+        {
+            ChangeToGroundState();
+            return;
+        }
     }
 
     /// <summary>
@@ -758,7 +945,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void WallJump()
     {
-        throw new NotImplementedException();
+        rb.linearVelocity = new Vector2(-facingDirection * wallJumpForceX, wallJumpForceY);
+
+        ChangeState(PlayerState.Airborne);
     }
 
     #endregion
