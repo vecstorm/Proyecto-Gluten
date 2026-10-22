@@ -1,50 +1,52 @@
-
 using UnityEngine;
 
-public class StayBumperVidaScript : MonoBehaviour
+public class StayBumperHealthScript : MonoBehaviour
 {
-    // Creamos una variable para indicar cuanta vida quitamos
-    [SerializeField] private int DañoJugador = 1;
+    // Cantidad de vida que quitamos al jugador
+    [SerializeField] private float damageAmount = 1f;
 
-    // Creamos una variable para indicar cada cuanto tiempo quitamos vida
-    [SerializeField] private float TiempoDaño = 1.5f;
+    // Tiempo entre cada daño
+    [SerializeField] private float damageInterval = 1.5f;
 
-    // Creamos una variable para saber el tiempo que recibe daño el jugador
-    private float TiempoJugadorDaño = 0f;
+    // Tiempo que el jugador permanece en contacto
+    private float damageTimer = 0f;
 
     private void OnCollisionStay(Collision collision)
     {
-        // Aqui comprobamos si el jugador esta tocando el obstaculo
-        PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+        // Comprobamos si el objeto tiene el sistema de vida
+        CharacterStats characterStats = collision.gameObject.GetComponent<CharacterStats>();
 
-        if (player != null)
+        if (characterStats != null)
         {
-            // Sumamos el tiempo que ha pasado
-            TiempoJugadorDaño += Time.fixedDeltaTime;
+            // Sumamos el tiempo transcurrido
+            damageTimer += Time.fixedDeltaTime;
 
-            // Comprobamos que cuando pase el tiempo quite vida
-            if (TiempoJugadorDaño >= TiempoDaño)
+            // Comprobamos si ha pasado el intervalo de daño
+            if (damageTimer >= damageInterval)
             {
                 // Quitamos vida al jugador
-                player.RecibirDaño(DañoJugador);
+                characterStats.TakeDamage(damageAmount);
 
-                // Mostramos el daño en el mensaje
-                Debug.Log("El jugador recibe " + DañoJugador + " de daño");
+                // Mostramos el daño en la consola
+                Debug.Log("El jugador recibe " + damageAmount + " de daño");
 
-                // Reiniciamos el tiempo
-                TiempoJugadorDaño = 0f;
+                // Comprobamos la vida actual del jugador
+                Debug.Log("Vida actual: " + characterStats.CurrentHealth);
+
+                // Reiniciamos el temporizador
+                damageTimer = 0f;
             }
         }
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        // Reiniciamos el tiempo cuando el jugador se aleja del obstaculo
-        PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+        // Reiniciamos el tiempo cuando el jugador deja de tocar el obstáculo
+        CharacterStats characterStats = collision.gameObject.GetComponent<CharacterStats>();
 
-        if (player != null)
+        if (characterStats != null)
         {
-            TiempoJugadorDaño = 0f;
+            damageTimer = 0f;
         }
     }
 }
