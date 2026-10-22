@@ -1,7 +1,7 @@
-using Unity.Netcode;
+
 using UnityEngine;
 
-public class StayBumperScript : NetworkBehaviour
+public class StayBumperScript : MonoBehaviour
 {
     [SerializeField] private float bounceForce = 15f;
 
@@ -14,8 +14,6 @@ public class StayBumperScript : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!IsServer) return;
-
         // Comprobamos si hemos chocado con un jugador
         if (!collision.gameObject.TryGetComponent<PlayerController>(out PlayerController player))
             return;
@@ -24,15 +22,14 @@ public class StayBumperScript : NetworkBehaviour
 
         if (playerRb == null) return;
 
-        // Lo que hacemos es que el jugador una vez que colisione con el objeto
-        // Entonces tendra el impulso hacia ateras
+        // Obtenemos el centro del jugador y el punto mas cercano del bumper
         Vector3 playerCenter = playerRb.worldCenterOfMass;
         Vector3 closestPoint = bumperCollider.ClosestPoint(playerCenter);
 
         // Calculamos la dirección desde el bumper hacia el jugador
         Vector3 direction = playerCenter - closestPoint;
 
-        // Si choca el player ira impulsado a la direcion contraria
+        // Comprobamos que exista una dirección válida
         if (direction.sqrMagnitude < 0.001f)
             return;
 

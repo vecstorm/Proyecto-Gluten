@@ -1,14 +1,10 @@
-
-using Unity.Netcode;
 using UnityEngine;
 
-public class CubeDeadPlayerScript : NetworkBehaviour
+public class CubeDeadPlayerScript : MonoBehaviour
 {
     private void OnCollisionEnter(Collision collision)
     {
-        if (!IsServer) return;
-
-        // Comprobamos si ha habido colision al jugador
+        // Comprobamos si ha habido colisión con el jugador
         PlayerController jugador = collision.collider.GetComponentInParent<PlayerController>();
         if (jugador == null) return;
 
@@ -17,7 +13,7 @@ public class CubeDeadPlayerScript : NetworkBehaviour
 
         if (playerRb != null)
         {
-            // Aquí tenemos la posicion donde reaparece el jugador al morir
+            // Posición donde reaparece el jugador al morir
             playerRb.linearVelocity = Vector3.zero;
             playerRb.angularVelocity = Vector3.zero;
             playerRb.position = new Vector3(0f, 1f, 0f);
