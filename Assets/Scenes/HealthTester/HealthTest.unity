@@ -119,63 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &187100468
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.38
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.36
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.81
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 296394292985175738, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4540678068963723960, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-      propertyPath: m_Name
-      value: Player
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
 --- !u!1 &350182323
 GameObject:
   m_ObjectHideFlags: 0
@@ -405,17 +348,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 736056708}
   m_CullTransparentMesh: 1
---- !u!114 &925470608 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8131309349782280067, guid: 46452839353bb3a4c9607a74028723fb, type: 3}
-  m_PrefabInstance: {fileID: 187100468}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8522619fae77ec2458ebb4bf4ee02d94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
 --- !u!1001 &940606234
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -438,7 +370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7839550608797745159, guid: 8aae009e2ffdb154a899b8410c186974, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.27
+      value: 3.51
       objectReference: {fileID: 0}
     - target: {fileID: 7839550608797745159, guid: 8aae009e2ffdb154a899b8410c186974, type: 3}
       propertyPath: m_LocalRotation.w
@@ -588,7 +520,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2107256712063561182, guid: c8e1e85910f5bf3439c669439bc0f528, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.92
+      value: 0.53
       objectReference: {fileID: 0}
     - target: {fileID: 2107256712063561182, guid: c8e1e85910f5bf3439c669439bc0f528, type: 3}
       propertyPath: m_LocalRotation.w
@@ -842,7 +774,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb569e93cb6b6644d87082b681515304, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthBarUI
-  characterStats: {fileID: 925470608}
+  characterStats: {fileID: 0}
   healthSlider: {fileID: 1238740533}
 --- !u!1 &1249000190
 GameObject:
@@ -1149,7 +1081,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 989619c4f7722ab479174a5ee7ddcb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StaminaBarUI
-  characterStats: {fileID: 925470608}
+  characterStats: {fileID: 0}
   staminaSlider: {fileID: 1737474969}
 --- !u!1 &1794766553
 GameObject:
@@ -1374,6 +1306,5 @@ SceneRoots:
   - {fileID: 1794766557}
   - {fileID: 350182326}
   - {fileID: 1148238218}
-  - {fileID: 187100468}
   - {fileID: 940606234}
   - {fileID: 1071989308}
