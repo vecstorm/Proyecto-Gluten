@@ -11,12 +11,11 @@ public class CubeDeadPlayerScript : MonoBehaviour
         // Buscamos el Rigidbody del jugador
         Rigidbody playerRb = jugador.GetComponent<Rigidbody>();
 
+        CharacterStats characterStats = collision.gameObject.GetComponent<CharacterStats>();
+
         if (playerRb != null)
         {
-            // Posición donde reaparece el jugador al morir
-            playerRb.linearVelocity = Vector3.zero;
-            playerRb.angularVelocity = Vector3.zero;
-            playerRb.position = new Vector3(0f, 1f, 0f);
+            characterStats.Death();
         }
         else
         {
