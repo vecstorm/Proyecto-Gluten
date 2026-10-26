@@ -14,12 +14,12 @@ GameObject:
   - component: {fileID: 5559344145416278074}
   - component: {fileID: -6857299732548403739}
   - component: {fileID: -5716597630474853820}
-  - component: {fileID: -8562950687263730652}
   - component: {fileID: 8131309349782280067}
   - component: {fileID: -3442294074222811679}
+  - component: {fileID: 8653539171829987911}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -33,7 +33,7 @@ Transform:
   m_GameObject: {fileID: 4540678068963723960}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.99401, y: 1.63, z: 0.99401}
+  m_LocalPosition: {x: 6.5111494, y: 1.0000002, z: -3.508965}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -244,20 +244,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &-8562950687263730652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4540678068963723960}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3abc143e3cd26f045bd137338c0ab298, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  speed: 5
-  jumpForce: 6
 --- !u!114 &8131309349782280067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,6 +271,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54c32b3596a2c314e8d29a7a8f9e2540, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRespawnScript
+--- !u!114 &8653539171829987911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4540678068963723960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 685a06dac2f5a8f4ebc4602dcd189ba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  currentState: 0
+  rb: {fileID: 0}
+  skillManager: {fileID: 0}
+  walkSpeed: 5
+  runSpeed: 7
+  airborneSpeed: 5
+  jumpForce: 16.5
+  doubleJumpForce: 14
+  canDoubleJump: 0
+  isGrounded: 0
+  groundCheck: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckRadius: 0.2
+  isTouchingWall: 0
+  wallCheck: {fileID: 0}
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallCheckDistance: 0.6
+  dashSpeed: 30
+  dashDuration: 0.15
+  dashCooldown: 0.4
+  wallGrabDuration: 0.5
+  wallSlideMaxSpeed: 3
+  wallSlideAcceleration: 1.5
+  wallJumpForceX: 30
+  wallJumpForceY: 12
 --- !u!1 &7871486669031355748
 GameObject:
   m_ObjectHideFlags: 0
