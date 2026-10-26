@@ -39,6 +39,7 @@ public class CharacterStats : MonoBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        Debug.Log($"Character took {amount} damage. Current Health: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0f)
         {
@@ -83,5 +84,13 @@ public class CharacterStats : MonoBehaviour
             currentStamina = Mathf.Min(maxStamina, currentStamina + staminaRegenRate * Time.deltaTime);
             OnStaminaChanged?.Invoke(currentStamina, maxStamina);
         }
+    }
+
+    // Restablece la estamina al máximo al reaparecer
+    public void ResetStaminaOnRespawn()
+    {
+        currentStamina = maxStamina;
+        Debug.Log(currentStamina);
+        OnStaminaChanged?.Invoke(currentStamina, maxStamina);
     }
 }
