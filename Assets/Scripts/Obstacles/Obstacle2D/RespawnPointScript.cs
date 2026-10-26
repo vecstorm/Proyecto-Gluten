@@ -35,7 +35,7 @@ public class RespawnPointScript : MonoBehaviour
 
     private void OnEnable()
     {
-        // NUEVO: si este objeto no tiene CharacterStats (por ejemplo el cubo), no hacemos nada
+        // Si este objeto no tiene CharacterStats, no hacemos nada
         if (characterStats == null) return;
 
         // Nos suscribimos: cuando el jugador muera, se ejecuta Respawn
@@ -44,7 +44,7 @@ public class RespawnPointScript : MonoBehaviour
 
     private void OnDisable()
     {
-        // NUEVO: misma comprobacion para no dar error al desuscribirnos
+        // Misma comprobación
         if (characterStats == null) return;
 
         // Nos desuscribimos para no dejar la funcion colgada en el evento

@@ -4,16 +4,14 @@ public class DamageBumper2DScript : MonoBehaviour
 {
     [SerializeField] private float damageAmount = 1f;
     [SerializeField] private float bounceForce = 15f;
-
-    // NUEVO: segundos que el jugador pierde el control despues del golpe
     [SerializeField] private float knockbackTime = 0.3f;
 
     private Collider2D bumperCollider;
 
-    // NUEVO: guardamos el PlayerController que hemos apagado para poder encenderlo luego
+    // Guardamos el PlayerController que hemos apagado para poder encenderlo luego
     private PlayerController playerApagado;
 
-    // NUEVO: tiempo que queda hasta devolverle el control al jugador
+    // Tiempo que queda hasta devolverle el control al jugador
     private float knockbackTimer = 0f;
 
     private void Awake()
@@ -21,7 +19,6 @@ public class DamageBumper2DScript : MonoBehaviour
         bumperCollider = GetComponent<Collider2D>();
     }
 
-    // NUEVO: Update se ejecuta en cada frame
     private void Update()
     {
         // Solo hacemos algo si hay un jugador con el control apagado
@@ -76,10 +73,10 @@ public class DamageBumper2DScript : MonoBehaviour
         // Aplicamos el impulso
         playerRb.AddForce(direction * bounceForce, ForceMode2D.Impulse);
 
-        // NUEVO: apagamos el script de movimiento para que no borre el impulso
+        // Apagamos el script de movimiento para que no borre el impulso
         player.enabled = false;
 
-        // NUEVO: guardamos al jugador y ponemos el temporizador en marcha
+        // Guardamos al jugador y ponemos el temporizador en marcha
         playerApagado = player;
         knockbackTimer = knockbackTime;
     }

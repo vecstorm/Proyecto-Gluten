@@ -70,10 +70,10 @@ public class CapsuleStayBumperScript : MonoBehaviour
         // Aplicamos el impulso
         playerRb.AddForce(direction * bounceForce, ForceMode2D.Impulse);
 
-        // NUEVO: apagamos el script de movimiento para que no borre el impulso
+        // Apagamos el script de movimiento para que no borre el impulso
         player.enabled = false;
 
-        // NUEVO: guardamos al jugador y ponemos el temporizador en marcha
+        // Guardamos al jugador y ponemos el temporizador en marcha
         playerApagado = player;
         knockbackTimer = knockbackTime;
     }
