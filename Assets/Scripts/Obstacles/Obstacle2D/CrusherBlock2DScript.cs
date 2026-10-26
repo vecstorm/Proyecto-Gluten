@@ -15,6 +15,9 @@ public class CrusherBlock2DScript : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         // Empezamos en modo de saber su gravedad para subirlo
         rb.bodyType = RigidbodyType2D.Kinematic;
+
+        // Lo que hafo es que no se mueva de su posición
+        rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
     }
 
     void FixedUpdate()

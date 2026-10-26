@@ -43,9 +43,6 @@ public class CubeHealtDamageScript : MonoBehaviour
                 // Quitamos vida al jugador
                 characterStats.TakeDamage(damageAmount);
 
-                Debug.Log("El jugador recibe " + damageAmount + " de daño");
-                Debug.Log("Vida actual: " + characterStats.CurrentHealth);
-
                 // Reiniciamos el temporizador para el siguiente golpe
                 damageTimer = 0f;
             }

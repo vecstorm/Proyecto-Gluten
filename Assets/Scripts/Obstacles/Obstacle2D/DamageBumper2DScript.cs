@@ -47,7 +47,6 @@ public class DamageBumper2DScript : MonoBehaviour
         if (characterStats != null)
         {
             characterStats.TakeDamage(damageAmount);
-            Debug.Log("El jugador recibe " + damageAmount + " de daño");
         }
 
         Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();

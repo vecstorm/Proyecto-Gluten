@@ -29,7 +29,6 @@ public class RespawnPointScript : MonoBehaviour
         {
             // Si no existe el cubo, usamos una posicion por defecto
             respawnPointPlayer = new Vector2(0f, 1f);
-            Debug.LogWarning("No se encontro ningun objeto con la etiqueta SpawnCube");
         }
     }
 
