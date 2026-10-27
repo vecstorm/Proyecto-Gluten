@@ -2,30 +2,30 @@ using UnityEngine;
 
 public class CheckpointZone2D : MonoBehaviour
 {
-    public static Vector2 ultimaPosicionSegura;
-    public static bool hayPuntoSeguro = false;
+    public static Vector2 lastSafePosition;
+    public static bool hasSafePoint = false;
 
     private static float maxPlayerXPosition = float.MinValue;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        PlayerController jugador = other.GetComponentInParent<PlayerController>();
+        PlayerController player = other.GetComponentInParent<PlayerController>();
 
-        if (jugador != null)
+        if (player != null)
         {
             if (transform.position.x > maxPlayerXPosition)
             {
                 maxPlayerXPosition = transform.position.x;
-                ultimaPosicionSegura = transform.position;
-                hayPuntoSeguro = true;
+                lastSafePosition = transform.position;
+                hasSafePoint = true;
 
-                Debug.Log("¡Checkpoint abanzado guardado en: " + ultimaPosicionSegura + "!");
+                Debug.Log("Checkpoint avanzado guardado en: " + lastSafePosition);
             }
             else
             {
-                ultimaPosicionSegura = transform.position;
-                hayPuntoSeguro = true;
-                Debug.Log("¡Checkpoint actualizado en: " + ultimaPosicionSegura + "!");
+                lastSafePosition = transform.position;
+                hasSafePoint = true;
+                Debug.Log("Checkpoint actualizado en: " + lastSafePosition);
             }
         }
     }

@@ -37,7 +37,7 @@ public class RespawnPointScript : MonoBehaviour
         // Si este objeto no tiene CharacterStats, no hacemos nada
         if (characterStats == null) return;
 
-        // Nos suscribimos: cuando el jugador muera, se ejecuta Respawn
+        // Cuando el jugador muera, se ejecuta Respawn
         characterStats.OnDeath += Respawn;
     }
 
@@ -81,21 +81,21 @@ public class RespawnPointScript : MonoBehaviour
             rb.angularVelocity = 0f;
         }
 
-        Vector2 posicionFinalRespawn;
+        Vector2 finalRespawnPosition;
 
         // Comprobamos si el jugador ha cruzado el checkpoint
-        if (CheckpointZone2D.hayPuntoSeguro)
+        if (CheckpointZone2D.hasSafePoint)
         {
-            posicionFinalRespawn = CheckpointZone2D.ultimaPosicionSegura;
+            finalRespawnPosition = CheckpointZone2D.lastSafePosition;
         }
         else
         {
             // Si no hay checkpoint, usamos el respawn
-            posicionFinalRespawn = respawnPointPlayer;
+            finalRespawnPosition = respawnPointPlayer;
         }
 
         // Movemos al jugador a la posición elegida, conservando su Z actual
-        transform.position = new Vector3(posicionFinalRespawn.x,posicionFinalRespawn.y,transform.position.z);
+        transform.position = new Vector3(finalRespawnPosition.x, finalRespawnPosition.y, transform.position.z);
 
         // Recuperamos toda la vida
         characterStats.FullHeal();

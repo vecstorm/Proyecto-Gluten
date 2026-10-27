@@ -5,12 +5,12 @@ public class EmptyZoneScript : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         // Comprobamos si el jugador es el que ha caido
-        CharacterStats statsJugador = other.GetComponentInParent<CharacterStats>();
+        CharacterStats playerStats = other.GetComponentInParent<CharacterStats>();
 
-        if (statsJugador != null)
+        if (playerStats != null)
         {
             // Matamos al jugador
-            statsJugador.Death();
+            playerStats.Death();
 
             Debug.Log("JAJAJAAJ HAS MUERTO");
         }
