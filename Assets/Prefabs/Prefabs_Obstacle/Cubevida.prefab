@@ -101,7 +101,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2043900784488447160}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -180,3 +180,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CubeHealtDamageScript
   damageAmount: 50
   damageInterval: 1.5
+  damageOnContact: 0

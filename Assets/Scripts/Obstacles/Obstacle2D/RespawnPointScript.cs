@@ -50,21 +50,52 @@ public class RespawnPointScript : MonoBehaviour
         characterStats.OnDeath -= Respawn;
     }
 
+    //private void Respawn()
+    //{
+    //    if (rb != null)
+    //    {
+    //        // Quitamos la velocidad lineal (movimiento) y angular (giro)
+    //        rb.linearVelocity = Vector2.zero;
+    //        rb.angularVelocity = 0f;
+    //    }
+
+    //    // Movemos al jugador al respawn, conservando su Z actual
+    //    transform.position = new Vector3(
+    //        respawnPointPlayer.x,
+    //        respawnPointPlayer.y,
+    //        transform.position.z
+    //    );
+
+    //    // Recuperamos toda la vida
+    //    characterStats.FullHeal();
+
+    //    Debug.Log("El respawn del jugador ha funcionado, ole");
+    //}
+
     private void Respawn()
     {
         if (rb != null)
         {
-            // Quitamos la velocidad lineal (movimiento) y angular (giro)
+            // Quitamos el movimiento y giro
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
 
-        // Movemos al jugador al respawn, conservando su Z actual
-        transform.position = new Vector3(
-            respawnPointPlayer.x,
-            respawnPointPlayer.y,
-            transform.position.z
-        );
+        Vector2 posicionFinalRespawn;
+
+        // Comprobamos si el jugador ha cruzado el checkpoint
+        if (CheckpointZone2D.hayPuntoSeguro)
+        {
+            posicionFinalRespawn = CheckpointZone2D.ultimaPosicionSegura;
+        }
+        else
+        {
+            // Si no hay checkpoint, usamos el respawn
+            posicionFinalRespawn = respawnPointPlayer;
+        }
+
+        // Movemos al jugador a la posición elegida, conservando su Z actual
+        transform.position = new Vector3(posicionFinalRespawn.x,posicionFinalRespawn.y,transform.position.z);
 
         // Recuperamos toda la vida
         characterStats.FullHeal();

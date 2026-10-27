@@ -11,11 +11,13 @@ public class CubeDeadPlayer2DScript : MonoBehaviour
         // Buscamos el Rigidbody del jugador
         Rigidbody2D playerRb = jugador.GetComponent<Rigidbody2D>();
 
-        CharacterStats characterStats = collision.gameObject.GetComponent<CharacterStats>();
+        // Buscamos CharacterStats a partir del jugador encontrado
+        CharacterStats characterStats = jugador.GetComponent<CharacterStats>();
 
-        if (playerRb != null)
+        // Comprobamos que existan ambos para evitar errores
+        if (playerRb != null && characterStats != null)
         {
-            characterStats.Death();
+            characterStats.Death(); 
         }
         else
         {
