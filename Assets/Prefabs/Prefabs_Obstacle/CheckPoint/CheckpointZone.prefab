@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 1987289267711975004}
   - component: {fileID: 2725879014805604376}
   - component: {fileID: 3723237122559797688}
-  - component: {fileID: 4597861063178470255}
+  - component: {fileID: 724421993776506056}
   m_Layer: 0
-  m_Name: Checkpoint_Zona1
-  m_TagString: Untagged
+  m_Name: CheckpointZone
+  m_TagString: CheckpointZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -27,13 +27,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5892100007787285818}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -5.93, y: 1.2, z: 1.25}
-  m_LocalScale: {x: 30, y: 30, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.19, y: 2.05, z: 0.72}
+  m_LocalScale: {x: 10, y: 20, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &2725879014805604376
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -139,7 +139,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &4597861063178470255
+--- !u!114 &724421993776506056
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -148,6 +148,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 5892100007787285818}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7faa34853ffe33a4ca44549c12c9be2b, type: 3}
+  m_Script: {fileID: 11500000, guid: 20da4b25bbaf22347a6eb0bac9ef7004, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CheckpointZone
+  m_EditorClassIdentifier: Assembly-CSharp::CheckpointZone2D
