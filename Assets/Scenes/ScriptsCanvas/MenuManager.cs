@@ -13,8 +13,7 @@ public class MenuManager : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current != null &&
-            Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             if (isPaused)
             {
@@ -54,6 +53,11 @@ public class MenuManager : MonoBehaviour
     public void ChangeSceneToGame()
     {
         SceneManager.LoadScene("GameScene");
+    }
+
+    public void ChangeSceneToMenus()
+    {
+        SceneManager.LoadScene("SceneMenus");
     }
 
     public void QuitGame()
