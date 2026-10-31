@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class CheckpointZone2D : MonoBehaviour
@@ -19,13 +20,13 @@ public class CheckpointZone2D : MonoBehaviour
                 lastSafePosition = transform.position;
                 hasSafePoint = true;
 
-                Debug.Log("Checkpoint avanzado guardado en: " + lastSafePosition);
+                Debug.Log("Advanced checkpoint saved at: " + lastSafePosition);
             }
             else
             {
                 lastSafePosition = transform.position;
                 hasSafePoint = true;
-                Debug.Log("Checkpoint actualizado en: " + lastSafePosition);
+                Debug.Log("Checkpoint updated at: " + lastSafePosition);
             }
         }
     }

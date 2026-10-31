@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class CrusherBlock2DScript : MonoBehaviour
 {
-    [Header("Movement Settings")]
     [SerializeField] private float topPosition = 5f;    // Altura máxima a la que sube
     [SerializeField] private float bottomPosition = 0f; // Altura mínima a la que baja
     [SerializeField] private float moveSpeed = 3f;      // Velocidad de subida del bloque
@@ -62,7 +61,7 @@ public class CrusherBlock2DScript : MonoBehaviour
             {
                 // Lo matamos directamente al jugador
                 stats.Death();
-                Debug.Log("Vaya, fuiste aplastado JAJAJAJAAJAJ");
+                Debug.Log("Ohh, you're dead :(");
             }
         }
     }

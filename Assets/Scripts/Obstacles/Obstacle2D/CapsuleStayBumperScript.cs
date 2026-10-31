@@ -4,15 +4,15 @@ public class CapsuleStayBumperScript : MonoBehaviour
 {
     [SerializeField] private float bounceForce = 15f;
 
-    // NUEVO: segundos que el jugador pierde el control despues del golpe
+    // Segundos que el jugador pierde el control despues del golpe
     [SerializeField] private float knockbackTime = 0.3f;
 
     private Collider2D bumperCollider;
 
-    // NUEVO: guardamos el PlayerController que hemos apagado para poder encenderlo luego
+    // Guardamos el PlayerController que hemos apagado para poder encenderlo luego
     private PlayerController playerApagado;
 
-    // NUEVO: tiempo que queda hasta devolverle el control al jugador
+    // Tiempo que queda hasta devolverle el control al jugador
     private float knockbackTimer = 0f;
 
     private void Awake()
@@ -20,7 +20,7 @@ public class CapsuleStayBumperScript : MonoBehaviour
         bumperCollider = GetComponent<Collider2D>();
     }
 
-    // NUEVO: Update se ejecuta en cada frame
+    // Actualizamos y se ejecuta en cada frame
     private void Update()
     {
         // Solo hacemos algo si hay un jugador con el control apagado
@@ -41,7 +41,7 @@ public class CapsuleStayBumperScript : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Mensaje para saber que colisiono
-        Debug.Log("La capsula ha colisionado con " + collision.gameObject.name);
+        Debug.Log("The capsule collided with " + collision.gameObject.name);
 
         // Comprobamos si hemos chocado con un jugador
         if (!collision.gameObject.TryGetComponent<PlayerController>(out PlayerController player))

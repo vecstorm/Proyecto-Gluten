@@ -72,7 +72,7 @@ public class RespawnPointScript : MonoBehaviour
     //    Debug.Log("El respawn del jugador ha funcionado, ole");
     //}
 
-    private void Respawn()
+    public void Respawn()
     {
         if (rb != null)
         {
@@ -98,8 +98,8 @@ public class RespawnPointScript : MonoBehaviour
         transform.position = new Vector3(finalRespawnPosition.x, finalRespawnPosition.y, transform.position.z);
 
         // Recuperamos toda la vida
-        characterStats.FullHeal();
+        //characterStats.FullHeal();
 
-        Debug.Log("El respawn del jugador ha funcionado, ole");
+        Debug.Log("The player respawn worked, woohoo!!!!");
     }
 }

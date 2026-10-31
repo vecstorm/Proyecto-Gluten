@@ -44,6 +44,8 @@ GameObject:
   - component: {fileID: 8159199639849780383}
   - component: {fileID: 6317816238346914269}
   - component: {fileID: 6413751089638512161}
+  - component: {fileID: 8423836771344621866}
+  - component: {fileID: 5047421725330285529}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -242,6 +244,33 @@ MonoBehaviour:
   wallSlideAcceleration: 1.5
   wallJumpForceX: 30
   wallJumpForceY: 12
+--- !u!114 &8423836771344621866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755780057282232126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e4782ff42d05c245981a7142a8e2eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RespawnPointScript
+--- !u!114 &5047421725330285529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755780057282232126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8522619fae77ec2458ebb4bf4ee02d94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
+  maxHealth: 100
+  maxStamina: 100
+  staminaRegenRate: 15
 --- !u!1 &5582248330238213830
 GameObject:
   m_ObjectHideFlags: 0

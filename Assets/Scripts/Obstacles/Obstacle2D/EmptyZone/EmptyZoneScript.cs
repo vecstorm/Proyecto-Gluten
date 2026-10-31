@@ -9,10 +9,18 @@ public class EmptyZoneScript : MonoBehaviour
 
         if (playerStats != null)
         {
-            // Matamos al jugador
-            playerStats.Death();
+            // Hacemos daño al jugador
+            playerStats.TakeDamage(10);
 
-            Debug.Log("JAJAJAAJ HAS MUERTO");
+            // NUEVOOO PARA APLICAR
+            // Buscamos el script de respawn del jugador
+            RespawnPointScript respawn = playerStats.GetComponent<RespawnPointScript>();
+
+            if (respawn != null)
+            {
+                // Devolvemos al player a su punto de respawn
+                respawn.Respawn();
+            }
         }
     }
 }
