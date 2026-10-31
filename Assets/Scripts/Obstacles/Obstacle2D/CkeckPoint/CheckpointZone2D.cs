@@ -14,19 +14,23 @@ public class CheckpointZone2D : MonoBehaviour
 
         if (player != null)
         {
-            if (transform.position.x > maxPlayerXPosition)
+            // Comprobamos si el jugador ha llegado a una posición nueva
+            if (!hasSafePoint || (Vector2)transform.position != lastSafePosition)
             {
-                maxPlayerXPosition = transform.position.x;
-                lastSafePosition = transform.position;
-                hasSafePoint = true;
+                if (transform.position.x > maxPlayerXPosition)
+                {
+                    maxPlayerXPosition = transform.position.x;
+                    lastSafePosition = transform.position;
+                    hasSafePoint = true;
 
-                Debug.Log("Advanced checkpoint saved at: " + lastSafePosition);
-            }
-            else
-            {
-                lastSafePosition = transform.position;
-                hasSafePoint = true;
-                Debug.Log("Checkpoint updated at: " + lastSafePosition);
+                    Debug.Log("Advanced checkpoint saved at: " + lastSafePosition);
+                }
+                else
+                {
+                    lastSafePosition = transform.position;
+                    hasSafePoint = true;
+                    Debug.Log("Checkpoint updated at: " + lastSafePosition);
+                }
             }
         }
     }
