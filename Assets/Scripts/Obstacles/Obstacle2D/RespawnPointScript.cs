@@ -50,29 +50,29 @@ public class RespawnPointScript : MonoBehaviour
         characterStats.OnDeath -= Respawn;
     }
 
-    //private void Respawn()
-    //{
-    //    if (rb != null)
-    //    {
-    //        // Quitamos la velocidad lineal (movimiento) y angular (giro)
-    //        rb.linearVelocity = Vector2.zero;
-    //        rb.angularVelocity = 0f;
-    //    }
+    private void Respawn()
+    {
+        if (rb != null)
+        {
+            // Quitamos la velocidad lineal (movimiento) y angular (giro)
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
 
-    //    // Movemos al jugador al respawn, conservando su Z actual
-    //    transform.position = new Vector3(
-    //        respawnPointPlayer.x,
-    //        respawnPointPlayer.y,
-    //        transform.position.z
-    //    );
+        // Movemos al jugador al respawn, conservando su Z actual
+        transform.position = new Vector3(
+            respawnPointPlayer.x,
+            respawnPointPlayer.y,
+            transform.position.z
+        );
 
-    //    // Recuperamos toda la vida
-    //    characterStats.FullHeal();
+        // Recuperamos toda la vida
+        characterStats.FullHeal();
 
-    //    Debug.Log("El respawn del jugador ha funcionado, ole");
-    //}
+        Debug.Log("El respawn del jugador ha funcionado, ole");
+    }
 
-    public void Respawn()
+    public void Respawn_Without_Health()
     {
         if (rb != null)
         {
@@ -98,7 +98,7 @@ public class RespawnPointScript : MonoBehaviour
         transform.position = new Vector3(finalRespawnPosition.x, finalRespawnPosition.y, transform.position.z);
 
         // Recuperamos toda la vida
-        //characterStats.FullHeal();
+        characterStats.FullHeal();
 
         Debug.Log("The player respawn worked, woohoo!!!!");
     }
