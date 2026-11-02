@@ -2,62 +2,63 @@ using UnityEngine;
 
 public class PlatformMoveScript : MonoBehaviour
 {
-    [Header("Límites del Recorrido (Arrastra aquí los puntos)")]
-    [SerializeField] private Transform pointA;
-    [SerializeField] private Transform pointB;
+    [SerializeField] private float speed = 3f; // velocidad de la plataforma
+    [SerializeField] private string limitTag = "PlatformLimit"; // tag de PointA y PointB
 
-    [Header("Configuración")]
-    [SerializeField] private float speed = 3f;
-
-    private float minX, maxX;
-    private int direction = 1;
+    private Rigidbody2D rb;
+    private BoxCollider2D boxCollider; // Para saber donde esta el borde superior
+    private Rigidbody2D playerUp; // el jugador que va encima de la plataforma
+    private int direction = 1; // 1 = derecha, -1 = izquierda
 
     void Start()
     {
-        if (pointA == null || pointB == null)
-        {
-            Debug.LogError("¡Falta asignar Point A o Point B en el inspector!", this);
-            enabled = false;
-            return;
-        }
+        rb = GetComponent<Rigidbody2D>();
+        boxCollider = GetComponent<BoxCollider2D>();
 
-        // Calcula los límites basándose en la posición de los puntos
-        minX = Mathf.Min(pointA.position.x, pointB.position.x);
-        maxX = Mathf.Max(pointA.position.x, pointB.position.x);
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        // Mueve la plataforma horizontalmente
-        transform.Translate(Vector3.right * direction * speed * Time.deltaTime);
+        // Aquí tenemos para cuando avanza la plataforma
+        Vector2 step = Vector2.right * direction * speed * Time.fixedDeltaTime;
 
-        // Si llega al límite derecho, rebota a la izquierda
-        if (transform.position.x >= maxX)
+        rb.MovePosition(rb.position + step); // Esto mueve la plataforma
+
+        // En este casi si le jugador esta encima entonces lo mueve a la misma velocidad de la plataforma
+        if (playerUp != null)
         {
-            transform.position = new Vector3(maxX, transform.position.y, transform.position.z);
-            direction = -1;
-        }
-        // Si llega al límite izquierdo, rebota a la derecha
-        else if (transform.position.x <= minX)
-        {
-            transform.position = new Vector3(minX, transform.position.y, transform.position.z);
-            direction = 1;
+            playerUp.position += step;
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    // Al tocar algún punto A o B da la vuelta
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (other.CompareTag(limitTag))
         {
-            collision.transform.SetParent(transform);
+            direction = -direction;
         }
     }
 
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        // Si la plataforma tiene al jugador encima entonces el juagdor va con él
+        if (!collision.gameObject.CompareTag("Player") || collision.rigidbody == null) return;
+
+        // Si los pies del jugador están en lo alto de la plataforma, va montado
+        bool isOnTop = collision.collider.bounds.min.y >= boxCollider.bounds.max.y - 0.1f;
+
+        playerUp = isOnTop ? collision.rigidbody : null;
+    }
+
+    // Cuando el jugador deja de tocar la plataforma ya no va montado
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.transform.SetParent(null);
+            playerUp = null;
         }
     }
 }

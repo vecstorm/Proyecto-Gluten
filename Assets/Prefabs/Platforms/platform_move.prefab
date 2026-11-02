@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 1322726559319029260}
   - component: {fileID: -4379417901214292940}
   - component: {fileID: 4971932701168657243}
-  m_Layer: 0
+  - component: {fileID: 6179026510900140128}
+  m_Layer: 3
   m_Name: platform_move
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 1}
-  m_LocalScale: {x: 1.3654, y: 0.2557, z: 1}
+  m_LocalScale: {x: 1.3654, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -150,6 +151,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39e7205cbb3437479d78bce22601533, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlatformMoveScript
-  pointA: {fileID: 112814487806028751, guid: cf21b8e20e214b34bb91cb32adc99542, type: 3}
-  pointB: {fileID: 3030722413104151840, guid: 88b624d7983260946afbea162f0673ef, type: 3}
   speed: 3
+  limitTag: PlatformLimit
+  playerTag: Player
+--- !u!50 &6179026510900140128
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538201595315764529}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
