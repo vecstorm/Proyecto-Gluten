@@ -349,7 +349,12 @@ public class EnemyAI : MonoBehaviour
     {
         if (collision.transform.CompareTag("Ground"))
         {
-            Flip();
+            ContactPoint2D contact = collision.GetContact(0);
+
+            if (Mathf.Abs(contact.normal.x) > 0.5f)
+            {
+                Flip();
+            }
         }
     }
 
