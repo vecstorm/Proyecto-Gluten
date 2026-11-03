@@ -131,13 +131,17 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 428843642018601953, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Name
       value: R_1x3_Block (1)
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_TagString
@@ -256,7 +260,8 @@ GameObject:
   - component: {fileID: 498508378}
   - component: {fileID: 498508377}
   - component: {fileID: 498508381}
-  m_Layer: 0
+  - component: {fileID: 498508382}
+  m_Layer: 2
   m_Name: Enemy2D
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -289,7 +294,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!70 &498508378
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -395,7 +400,7 @@ Transform:
   m_GameObject: {fileID: 498508376}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.99, y: 0.53, z: -2}
+  m_LocalPosition: {x: -2.99, y: 0.32, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -431,6 +436,21 @@ MonoBehaviour:
   maxPatrolDelay: 2
   minChaseDelay: 0.2
   maxChaseDelay: 0.7
+--- !u!114 &498508382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498508376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a48324bdb6793a47a01cdbf0fe904a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VisionCone
+  coneRange: 10
+  coneAngle: 45
+  rayNumber: 20
 --- !u!1001 &827558329
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -443,6 +463,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 428843642018601953, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 3639962502025492660, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -453,7 +477,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_TagString
@@ -571,13 +595,17 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 428843642018601953, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Name
       value: R_1x3_Block (3)
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_TagString
@@ -695,6 +723,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 428843642018601953, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 3639962502025492660, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -705,7 +737,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_TagString
@@ -823,13 +855,17 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 428843642018601953, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Name
       value: R_1x3_Block (2)
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_TagString
@@ -1036,7 +1072,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1873689124}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1070,13 +1106,17 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 2028514594507901208, guid: ac67f96becffce341b6b5f13bf9f3b31, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 2360657771720351460, guid: ac67f96becffce341b6b5f13bf9f3b31, type: 3}
       propertyPath: m_Name
       value: 1x1_Block
       objectReference: {fileID: 0}
     - target: {fileID: 2360657771720351460, guid: ac67f96becffce341b6b5f13bf9f3b31, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2360657771720351460, guid: ac67f96becffce341b6b5f13bf9f3b31, type: 3}
       propertyPath: m_TagString

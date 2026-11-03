@@ -341,7 +341,7 @@ public class EnemyAI : MonoBehaviour
     private bool DetectedGround()
     {
         Debug.DrawRay(groundCheck.position, Vector3.down, Color.red);
-        return Physics.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
+        return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
     }
 
     // Gira al enemigo si colisiona con un elemento del escenario
