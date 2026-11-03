@@ -436,6 +436,8 @@ MonoBehaviour:
   maxPatrolDelay: 2
   minChaseDelay: 0.2
   maxChaseDelay: 0.7
+  minIdleDelay: 7
+  maxIdleDelay: 20
 --- !u!114 &498508382
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -728,7 +730,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!58 &1456553373
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1248,7 +1250,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2360657771720351460, guid: ac67f96becffce341b6b5f13bf9f3b31, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2360657771720351460, guid: ac67f96becffce341b6b5f13bf9f3b31, type: 3}
       propertyPath: m_TagString
@@ -1260,7 +1262,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7364712602909072512, guid: ac67f96becffce341b6b5f13bf9f3b31, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.21
+      value: 2.76
       objectReference: {fileID: 0}
     - target: {fileID: 7364712602909072512, guid: ac67f96becffce341b6b5f13bf9f3b31, type: 3}
       propertyPath: m_LocalPosition.z

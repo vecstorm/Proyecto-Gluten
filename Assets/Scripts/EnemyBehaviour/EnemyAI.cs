@@ -33,6 +33,8 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float maxPatrolDelay = 2f;
     [SerializeField] private float minChaseDelay = 0.2f;
     [SerializeField] private float maxChaseDelay = 0.7f;
+    [SerializeField] private float minIdleDelay = 7f;
+    [SerializeField] private float maxIdleDelay = 20f;
 
     private bool alreadyAttacking = false;
     private bool hitboxCreated = false;
@@ -43,6 +45,7 @@ public class EnemyAI : MonoBehaviour
 
     private bool waitingToPatrol = false;
     private bool waitingToChase = false;
+    private bool waitingToDecideIdle = false;
 
     private Vector3 lastTargetPos;
 
@@ -95,7 +98,7 @@ public class EnemyAI : MonoBehaviour
         if (detectedAreaActive)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, state == ENEMY_STATE.PATROL ? areaRadius : detectedAreaRadius);
+            Gizmos.DrawWireSphere(transform.position, state == ENEMY_STATE.PATROL || state == ENEMY_STATE.IDLE ? areaRadius : detectedAreaRadius);
         }
 
         if (lastTargetPos != Vector3.zero)
@@ -110,7 +113,9 @@ public class EnemyAI : MonoBehaviour
     // Comportamiento en estado IDLE
     private void OnIdle()
     {
-        if (TargetDetected()) ToChasing();
+        if (TargetDetected() || TargetDetectedOnArea(areaRadius)) ToChasing();
+
+        ToPatrol();
 
         rb.linearVelocity = Vector3.zero;
     }
@@ -119,6 +124,8 @@ public class EnemyAI : MonoBehaviour
     private void OnPatrol()
     {
         if (TargetDetected() || TargetDetectedOnArea(areaRadius)) ToChasing();
+
+        ToIdle();
 
         rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
@@ -215,7 +222,16 @@ public class EnemyAI : MonoBehaviour
 
     private IEnumerator WaitToIdle()
     {
-        yield return new WaitForSeconds(0);
+        waitingToDecideIdle = true;
+
+        yield return new WaitForSeconds(Random.Range(minIdleDelay, maxIdleDelay));
+
+        if (!TargetDetected() || !TargetDetectedOnArea(detectedAreaRadius))
+        {
+            state = ENEMY_STATE.IDLE;
+        }
+
+        waitingToDecideIdle = false;
     }
 
     // Devuelve si el jugador esta detras del enemigo o no
@@ -227,6 +243,11 @@ public class EnemyAI : MonoBehaviour
     }
 
     // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
+
+    private void ToIdle()
+    {
+        if (!waitingToDecideIdle) StartCoroutine(WaitToIdle());
+    }
 
     // Comportamiento de transición a CHASING
     private void ToChasing()
