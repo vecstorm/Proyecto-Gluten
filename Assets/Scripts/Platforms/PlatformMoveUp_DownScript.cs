@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class PlatformMoveUp_DownScript : MonoBehaviour
 {
@@ -10,9 +9,6 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
     private Rigidbody2D rb;
 
     private int direction = 1; // 1 = arriba, -1 = abajo
-
-    // Guardamos los Rigidbodys de los pasajeros (el jugador) que estén encima
-    private HashSet<Rigidbody2D> passengerRbs = new HashSet<Rigidbody2D>();
 
     void Start()
     {
@@ -27,17 +23,7 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
         // Aquí tenemos para cuando avanza la plataforma
         Vector2 step = Vector2.up * direction * speed * Time.fixedDeltaTime;
 
-        // Movemos la plataforma con MovePosition
         rb.MovePosition(rb.position + step);
-
-        // Mover a los pasajeros (el Player) el mismo desplazamiento para que suban y bajen con ella sin romper su física de salto
-        foreach (Rigidbody2D passengerRb in passengerRbs)
-        {
-            if (passengerRb != null)
-            {
-                passengerRb.position += step;
-            }
-        }
     }
 
     // Al tocar algún punto A o B da la vuelta
@@ -49,32 +35,26 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
         }
     }
 
-    // Registrar al jugador al tocar la plataforma por encima sin usar SetParent
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Comprobamos que el jugador esté por encima de la plataforma
+            // Comprobamos que el jugador en la plataforma para evitar que se pegue por los lados
             if (collision.transform.position.y > transform.position.y)
             {
-                Rigidbody2D pRb = collision.gameObject.GetComponent<Rigidbody2D>();
-                if (pRb != null && !passengerRbs.Contains(pRb))
-                {
-                    passengerRbs.Add(pRb);
-                }
+                collision.transform.SetParent(transform);
             }
         }
     }
 
-    // Desregistrar al jugador cuando sale de la plataforma o cuando salta y se separa
+    // Cuando el jugador sale de la plataforma
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Rigidbody2D pRb = collision.gameObject.GetComponent<Rigidbody2D>();
-            if (pRb != null && passengerRbs.Contains(pRb))
+            if (collision.transform.parent == transform)
             {
-                passengerRbs.Remove(pRb);
+                collision.transform.SetParent(null);
             }
         }
     }
