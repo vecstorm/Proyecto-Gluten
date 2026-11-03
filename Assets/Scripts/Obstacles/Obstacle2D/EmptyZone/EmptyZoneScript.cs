@@ -19,7 +19,7 @@ public class EmptyZoneScript : MonoBehaviour
             if (respawn != null)
             {
                 // Devolvemos al player a su punto de respawn
-                respawn.Respawn();
+                respawn.Respawn_Without_Health();
             }
         }
     }

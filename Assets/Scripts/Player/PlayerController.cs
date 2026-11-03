@@ -6,6 +6,9 @@ using UnityEngine;
 /// </summary>
 public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Crouch, Attack, Defend, Parry, Hurt, Dead }
 
+/// <summary>
+/// Gestiona todo el control del jugador mediante una máquina de estados.
+/// </summary>
 public class PlayerController : MonoBehaviour
 {
     #region Variables
@@ -21,6 +24,11 @@ public class PlayerController : MonoBehaviour
     /// Devuelve el estado actual del jugador en modo lectura.
     /// </summary>
     public PlayerState CurrentState => currentState;
+
+    /// <summary>
+    /// Se utiliza para guardar el estado previo del jugador.
+    /// </summary>
+    private PlayerState previousState;
 
     #endregion
 
@@ -70,6 +78,11 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private bool dashPressed;
 
+    /// <summary>
+    /// Indica si se ha solicitado usar el gancho.
+    /// </summary>
+    private bool hookPressed;
+
     #endregion
 
     #region Movement
@@ -84,6 +97,9 @@ public class PlayerController : MonoBehaviour
 
     [Tooltip("Control horizontal en el aire")]
     [SerializeField] private float airborneSpeed = 5f;
+
+    [Tooltip("Aceleración horizontal del jugador en el aire")]
+    [SerializeField] private float airborneAcceleration = 100f;
 
     [Tooltip("Fuerza aplicada al salto")]
     [SerializeField] private float jumpForce = 16.5f;
@@ -181,7 +197,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float wallSlideAcceleration = 1.5f;
 
     [Tooltip("Fuerza aplicada al salto en la pared en X")]
-    [SerializeField] private float wallJumpForceX = 30f;
+    [SerializeField] private float wallJumpForceX = 15f;
 
     [Tooltip("Fuerza aplicada al salto en la pared en Y")]
     [SerializeField] private float wallJumpForceY = 12f;
@@ -195,6 +211,21 @@ public class PlayerController : MonoBehaviour
     /// Velocidad del wall slide actual.
     /// </summary>
     private float wallSlideSpeed;
+
+    #endregion
+
+    #region Hook
+
+    [Tooltip("Referencia al componente PlayerHook")]
+    [SerializeField] private PlayerHook playerHook;
+
+    [Tooltip("Duración de la inercia tras engancharse")]
+    [SerializeField] private float hookMomentumDuration = 0.1f;
+
+    /// <summary>
+    /// Tiempo restante de duración de la inercia tras engancharse actual.
+    /// </summary>
+    private float hookMomentumTimer;
 
     #endregion
 
@@ -251,12 +282,33 @@ public class PlayerController : MonoBehaviour
         CheckWall();
 
         UpdateCooldowns();
-        UpdateState();
+        
+        // Procesamos el gancho solo si el jugador lo tiene desbloqueado
+        if (CanUseSkill("GANCHO"))
+            playerHook.TickFixed();
 
-        // Desactivamos los indicadores de salto y dash
+        if (playerHook.WasPullingThisStep && !playerHook.IsPulling)
+        {
+            hookMomentumTimer = hookMomentumDuration;
+        }
+
+        // Mientras el gancho tira del jugador, no ejecutamos el movimiento normal de los estados
+        if (playerHook.IsPulling || hookMomentumTimer > 0f)
+        {
+            hookMomentumTimer -= Time.fixedDeltaTime;
+
+            // Permitimos procesar habilidades sin ejecutar el movimiento normal de Airborne
+            CheckHookAbilities();
+        }
+        else
+        {
+            UpdateState();
+        }
+
         jumpPressed = false;
         jumpReleased = false;
         dashPressed = false;
+        hookPressed = false;
     }
 
     private void OnDisable()
@@ -295,6 +347,9 @@ public class PlayerController : MonoBehaviour
 
         if (glutenActionControls.Player.Dash.WasPressedThisFrame())
             dashPressed = true;
+
+        if (glutenActionControls.Player.Hook.WasPressedThisFrame())
+            hookPressed = true;
     }
 
     /// <summary>
@@ -334,6 +389,7 @@ public class PlayerController : MonoBehaviour
 
         // Actualizamos el estado
         ExitState(currentState);
+        previousState = currentState;
         currentState = newState;
         EnterState(currentState);
 
@@ -452,10 +508,19 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Dash:
 
                 dashTimer = dashDuration;
-                dashDirection = movementDirection;
 
-                if (Mathf.Abs(dashDirection) < 0.01f)
-                    dashDirection = facingDirection;
+                if (IsWallState(previousState))
+                {
+                    // Desde una pared, el dash siempre se dirige hacia fuera.
+                    dashDirection = -facingDirection;
+                }
+                else
+                {
+                    dashDirection = movementDirection;
+
+                    if (Mathf.Abs(dashDirection) < 0.01f)
+                        dashDirection = facingDirection;
+                }
 
                 rb.gravityScale = 0f;
 
@@ -470,12 +535,37 @@ public class PlayerController : MonoBehaviour
 
                 break;
 
-            // Definimos velocidad y reacti la gravedad
+            // Definimos velocidad y reactivamos la gravedad
             case PlayerState.WallSlide:
 
                 wallSlideSpeed = 0f;
 
                 rb.gravityScale = originalGravity;
+
+                break;
+
+            case PlayerState.Hook:
+
+                Vector2 direction;
+
+                if (IsWallState(previousState))
+                {
+                    // Desde una pared, lanzamos el gancho hacia fuera
+                    direction = Vector2.left * facingDirection;
+                }
+                else
+                {
+                    direction = glutenActionControls.Player.Move.ReadValue<Vector2>();
+
+                    // Evitamos lanzar hacia abajo
+                    direction.y = Mathf.Max(0f, direction.y);
+
+                    // Si no hay dirección, utilizamos la orientación del jugador
+                    if (direction.sqrMagnitude < 0.01f)
+                        direction = Vector2.right * facingDirection;
+                }
+
+                playerHook.FireHook(direction);
 
                 break;
         }
@@ -645,6 +735,16 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
+    /// Se utiliza para saber si estamos en estado de pared.
+    /// </summary>
+    /// <param name="state">Estado a comprobar</param>
+    /// <returns>El estado de pared en el que se encontraba el jugador</returns>
+    private bool IsWallState(PlayerState state)
+    {
+        return state == PlayerState.WallGrab || state == PlayerState.WallSlide;
+    }
+
+    /// <summary>
     /// Intenta iniciar un salto si el jugador está en el suelo y se ha detectado una entrada de salto.
     /// </summary>
     /// <returns>
@@ -684,6 +784,56 @@ public class PlayerController : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Intenta lanzar el gancho si se cumplen todas las condiciones necesarias.
+    /// </summary>
+    /// <returns>
+    /// True si el gancho se ha lanzado correctamente.
+    /// </returns>
+    private bool TryHook()
+    {
+        if (!hookPressed)
+            return false;
+
+        if (!CanUseSkill("GANCHO"))
+            return false;
+
+        if (!playerHook.CanFire)
+            return false;
+
+        hookPressed = false;
+
+        ChangeState(PlayerState.Hook);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Comprobamos si se pueden usar las habilidades mientras se lanza el gancho
+    /// </summary>
+    private void CheckHookAbilities()
+    {
+        // Doble salto
+        if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
+        {
+            jumpPressed = false;
+            canDoubleJump = false;
+
+            playerHook.CancelHook();
+
+            ChangeState(PlayerState.DoubleJump);
+            return;
+        }
+
+        // Dash
+        if (dashPressed && canDash && dashCooldownTimer <= 0f && CanUseSkill("DASH"))
+        {
+            playerHook.CancelHook();
+
+            TryDash();
+        }
+    }
+
     #endregion
 
     #region Character States
@@ -695,8 +845,17 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Idle()
     {
-        // Actualizamos velocidad lineal a 0 en X
-        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        // Calculamos la velocidad horizontal deseada.
+        float targetSpeed = 0f;
+
+        // Ajustamos progresivamente la velocidad horizontal.
+        float newSpeed = Mathf.MoveTowards(
+            rb.linearVelocity.x,
+            targetSpeed,
+            airborneAcceleration * Time.fixedDeltaTime
+        );
+
+        rb.linearVelocity = new Vector2(newSpeed, rb.linearVelocity.y);
 
         // En cuanto se mueve, pasamos a estado de movimiento
         if (Mathf.Abs(movementDirection) > 0.01f)
@@ -717,6 +876,9 @@ public class PlayerController : MonoBehaviour
             return;
 
         if (TryDash())
+            return;
+
+        if (TryHook())
             return;
     }
 
@@ -752,6 +914,9 @@ public class PlayerController : MonoBehaviour
 
         if (TryDash())
             return;
+
+        if (TryHook())
+            return;
     }
 
     /// <summary>
@@ -786,6 +951,9 @@ public class PlayerController : MonoBehaviour
 
         if (TryDash())
             return;
+
+        if (TryHook())
+            return;
     }
 
     /// <summary>
@@ -818,13 +986,25 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Airborne()
     {
-        // Actualizamos velocidad lineal a airborneSpeed en X
-        rb.linearVelocity = new Vector2(movementDirection * airborneSpeed, rb.linearVelocity.y);
+        // Calculamos la velocidad horizontal deseada.
+        float targetSpeed = movementDirection * airborneSpeed;
+
+        // Ajustamos progresivamente la velocidad horizontal.
+        float newSpeed = Mathf.MoveTowards(
+            rb.linearVelocity.x,
+            targetSpeed,
+            airborneAcceleration * Time.fixedDeltaTime
+        );
+
+        rb.linearVelocity = new Vector2(newSpeed, rb.linearVelocity.y);
 
         // Si se ha soltado el salto, bajamos antes
         if (jumpReleased && rb.linearVelocity.y > 0)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+            rb.linearVelocity = new Vector2(
+                rb.linearVelocity.x,
+                rb.linearVelocity.y * 0.5f
+            );
 
             jumpReleased = false;
         }
@@ -852,6 +1032,9 @@ public class PlayerController : MonoBehaviour
         }
 
         if (TryDash())
+            return;
+
+        if (TryHook())
             return;
     }
 
@@ -908,6 +1091,12 @@ public class PlayerController : MonoBehaviour
             ChangeState(PlayerState.WallSlide);
             return;
         }
+
+        if (TryDash())
+            return;
+
+        if (TryHook())
+            return;
     }
 
     /// <summary>
@@ -938,6 +1127,12 @@ public class PlayerController : MonoBehaviour
             ChangeToGroundState();
             return;
         }
+
+        if (TryDash())
+            return;
+
+        if (TryHook())
+            return;
     }
 
     /// <summary>
@@ -984,7 +1179,12 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Hook()
     {
-        throw new NotImplementedException();
+        if (!isGrounded)
+        {
+            ChangeState(PlayerState.Airborne);
+        }
+        else
+            ChangeState(PlayerState.Idle);
     }
 
     #endregion
