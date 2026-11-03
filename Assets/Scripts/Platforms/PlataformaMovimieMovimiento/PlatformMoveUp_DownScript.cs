@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class PlatformMoveUp_DownScript : MonoBehaviour
 {
@@ -8,7 +7,6 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
 
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider;
-    private Rigidbody2D playerUp;
     private int direction = 1;
 
     void Start()
@@ -23,13 +21,7 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
     void FixedUpdate()
     {
         Vector2 step = Vector2.up * direction * speed * Time.fixedDeltaTime;
-
         rb.MovePosition(rb.position + step);
-
-        if (playerUp != null)
-        {
-            playerUp.position += step;
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -40,34 +32,19 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
         }
     }
 
-    private void OnCollisionStay2D(Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!collision.gameObject.CompareTag("Player") || collision.rigidbody == null) return;
-
-        float playerBottom = collision.collider.bounds.min.y;
-        float platformTop = boxCollider.bounds.max.y;
-
-        if (playerBottom < platformTop - 0.1f)
+        if (collision.gameObject.CompareTag("Player"))
         {
-            Physics2D.IgnoreCollision(collision.collider, boxCollider, true);
-            playerUp = null;
-            return;
+            collision.transform.SetParent(transform);
         }
-
-        bool isOnTop = playerBottom >= platformTop - 0.1f;
-        playerUp = isOnTop ? collision.rigidbody : null;
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            playerUp = null;
-            Collider2D playerCol = collision.collider;
-            if (playerCol != null && boxCollider != null)
-            {
-                Physics2D.IgnoreCollision(playerCol, boxCollider, false);
-            }
+            collision.transform.SetParent(null);
         }
     }
 }
