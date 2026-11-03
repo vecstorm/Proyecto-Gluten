@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class PlatformMoveUp_DownScript : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
     private Rigidbody2D rb;
 
     private int direction = 1; // 1 = arriba, -1 = abajo
+
+    private HashSet<Rigidbody2D> passengerRbs = new HashSet<Rigidbody2D>();
 
     void Start()
     {
@@ -23,7 +26,17 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
         // Aquí tenemos para cuando avanza la plataforma
         Vector2 step = Vector2.up * direction * speed * Time.fixedDeltaTime;
 
+        // Movemos la plataforma con MovePosition
         rb.MovePosition(rb.position + step);
+
+        // Mover al jugador, el mismo desplazamiento para que suban y bajen con ella sin romper el salto
+        foreach (Rigidbody2D passengerRb in passengerRbs)
+        {
+            if (passengerRb != null)
+            {
+                passengerRb.position += step;
+            }
+        }
     }
 
     // Al tocar algún punto A o B da la vuelta
@@ -39,22 +52,27 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Comprobamos que el jugador en la plataforma para evitar que se pegue por los lados
+            // Comprobamos que el jugador esta encima de la plataforma para evitar
             if (collision.transform.position.y > transform.position.y)
             {
-                collision.transform.SetParent(transform);
+                Rigidbody2D pRb = collision.gameObject.GetComponent<Rigidbody2D>();
+                if (pRb != null && !passengerRbs.Contains(pRb))
+                {
+                    passengerRbs.Add(pRb);
+                }
             }
         }
     }
 
-    // Cuando el jugador sale de la plataforma
+    // Cuando el juagdor sale de la plataforma y se separa
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            if (collision.transform.parent == transform)
+            Rigidbody2D pRb = collision.gameObject.GetComponent<Rigidbody2D>();
+            if (pRb != null && passengerRbs.Contains(pRb))
             {
-                collision.transform.SetParent(null);
+                passengerRbs.Remove(pRb);
             }
         }
     }
