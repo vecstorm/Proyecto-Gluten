@@ -13,6 +13,8 @@ public class AudioSettingsManager : MonoBehaviour
     private const string volumeKeySFX = "SFXVolume";
     private const string volumeKeyGeneral = "GeneralVolume";
 
+    private AudioSource AudioSource;
+
     public static AudioSettingsManager Instance { get; private set; }
 
 
