@@ -58,6 +58,7 @@ public class CharacterStats : MonoBehaviour
         currentHealth = maxHealth;
         currentStamina = maxStamina;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnStaminaChanged?.Invoke(currentStamina, maxStamina);
     }
 
     public void Death() {
