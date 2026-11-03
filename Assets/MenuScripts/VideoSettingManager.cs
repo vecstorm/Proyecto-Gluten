@@ -91,9 +91,11 @@ public class VideoSettingManager : MonoBehaviour
                 availableResolutions.Add(resolution);
             }
 
-            ResolutionDropdown.AddOptions(options);
+            
 
         }
+
+        ResolutionDropdown.AddOptions(options);
     }
 
     private void ApplySettings(int resolutionIndex, bool isFullscreen)

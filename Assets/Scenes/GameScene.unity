@@ -476,6 +476,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: SetCanvasNotActive
       objectReference: {fileID: 0}
+    - target: {fileID: 2561552862349236823, guid: d18291c101167b24d8d676f3116aadde, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 1468565278}
     - target: {fileID: 4591503103567173774, guid: d18291c101167b24d8d676f3116aadde, type: 3}
       propertyPath: m_Name
       value: CanvaMenuPause
@@ -501,11 +505,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d18291c101167b24d8d676f3116aadde, type: 3}
---- !u!1 &1468565277 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4591503103567173774, guid: d18291c101167b24d8d676f3116aadde, type: 3}
-  m_PrefabInstance: {fileID: 1468565276}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1468565278 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7578105316027854288, guid: d18291c101167b24d8d676f3116aadde, type: 3}
@@ -626,11 +625,11 @@ PrefabInstance:
     - target: {fileID: 3636857981711646949, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
       value: 
-      objectReference: {fileID: 1468565277}
+      objectReference: {fileID: 1468565278}
     - target: {fileID: 3636857981711646949, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
       value: 
-      objectReference: {fileID: 1565180797}
+      objectReference: {fileID: 1565180798}
     - target: {fileID: 3904352355672330594, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -656,11 +655,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
---- !u!1 &1565180797 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2788248517908220910, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
-  m_PrefabInstance: {fileID: 1565180796}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1565180798 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7254532443039618696, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
