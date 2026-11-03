@@ -45,6 +45,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "Hook",
+                    "type": "Button",
+                    "id": "6b5cadcb-721a-4067-94f1-956cf8417960",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -95,7 +105,7 @@
                 {
                     "name": "",
                     "id": "dd2cc68c-ae54-437f-b959-1d58874c5147",
-                    "path": "<Keyboard>/w",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard",
@@ -117,7 +127,7 @@
                 {
                     "name": "",
                     "id": "5c99cf3c-82de-42f8-99ed-8067191c18a2",
-                    "path": "<Keyboard>/shift",
+                    "path": "<Keyboard>/ctrl",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard",
@@ -139,7 +149,7 @@
                 {
                     "name": "",
                     "id": "99356a81-ad96-4745-898a-a961b09fa189",
-                    "path": "<Keyboard>/space",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard",
@@ -155,6 +165,28 @@
                     "processors": "",
                     "groups": ";Controller",
                     "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fd9d73ab-4e50-4a0d-b35d-ceab1a59d063",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard",
+                    "action": "Hook",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "14dccd13-33dd-433e-89f4-c2687df2eb85",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Controller",
+                    "action": "Hook",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
