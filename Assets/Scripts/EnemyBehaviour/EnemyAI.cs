@@ -285,26 +285,20 @@ public class EnemyAI : MonoBehaviour
     // Devuelve si ha detectado al objetivo dentro de un area determinada
     private bool TargetDetectedOnArea(float radius)
     {
-        Collider2D detectionArea = Physics2D.OverlapCircle(transform.position, radius);
+        Collider2D[] detectionArea = Physics2D.OverlapCircleAll(transform.position, radius);
 
-        bool detectedPlayer = false;
-
-        if (detectionArea)
+        foreach (Collider2D collider in detectionArea)
         {
-            detectedPlayer = detectionArea.CompareTag("Player");
-
-            if (detectedPlayer)
+            if (collider.CompareTag("Player"))
             {
-                lastTargetPos = detectionArea.transform.position;
-                targetTransform = detectionArea.transform;
-            }
+                lastTargetPos = collider.transform.position;
+                targetTransform = collider.transform;
 
-            Debug.Log("Detected " + detectionArea.name);
+                return true;
+            }
         }
 
-        //detectedAreaActive = detectedPlayer;
-
-        return detectedPlayer;
+        return false;
     }
 
     // Devuelve si ha detectado a su objetivo
