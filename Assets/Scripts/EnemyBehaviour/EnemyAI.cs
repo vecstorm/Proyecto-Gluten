@@ -11,7 +11,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float probabilityToTurn = 30f;
     [SerializeField] private bool showGizmos = true;
 
-    private float speed = 2f;
+    protected float speed = 2f;
 
     [Header("Target Detection:")]
     [SerializeField] private float areaRadius = 3f;
@@ -41,7 +41,7 @@ public class EnemyAI : MonoBehaviour
     private bool alreadyAttacking = false;
     private bool hitboxCreated = false;
 
-    private Rigidbody2D rb;
+    protected Rigidbody2D rb;
     private bool invertedDirection = false;
     private Transform targetTransform;
 
@@ -123,7 +123,7 @@ public class EnemyAI : MonoBehaviour
     }
 
     // Comportamiento en estado PATROL
-    private void OnPatrol()
+    protected virtual void OnPatrol()
     {
         if (TargetDetected() || TargetDetectedOnArea(areaRadius)) ToChasing();
 
@@ -374,6 +374,7 @@ public class EnemyAI : MonoBehaviour
         transform.Rotate(0, 180, 0);
     }
 
+    // Da una probabilidad de que el enemigo se de la vuelta
     private void RandomFlip()
     {
         ENEMY_STATE[] validStates = { ENEMY_STATE.IDLE };
