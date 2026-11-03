@@ -7,9 +7,20 @@ public class FlyingEnemyAI : EnemyAI
     [Header("Flying Parameters:")]
     [SerializeField] private float personalBubbleRadius = 2f;
     [SerializeField] private float transitableAreaRadius = 6f;
+    [SerializeField] private float minFloorDistance = 3f;
+    [SerializeField] private float maxFloorDistance = 7f;
+
+    [Header("Flying Movement:")]
+    [SerializeField] private float minMovementDelay = 3f;
+    [SerializeField] private float maxMovementDelay = 7f;
 
     private bool decidingDirection = false;
     private Vector3 movementPoint;
+
+    private void Awake()
+    {
+        DecideMovementPoint();
+    }
 
     private void OnDrawGizmos()
     {
@@ -28,17 +39,19 @@ public class FlyingEnemyAI : EnemyAI
 
     protected override void OnPatrol()
     {
-        if (!decidingDirection) StartCoroutine(WaitToMove());
-        //Vector3 movementDirection = Quaternion.Euler(0f, 0f, RandomAngle()) * Vector3.right;
+        rb.MovePosition(Vector3.MoveTowards(transform.position, movementPoint, speed * Time.fixedDeltaTime));
 
-        //rb.linearVelocity = movementDirection.normalized * speed;
+        if (Vector3.Distance(transform.position, movementPoint) < 0.1f)
+        {
+            if (!decidingDirection) StartCoroutine(WaitToMove());
+        }
     }
 
     private IEnumerator WaitToMove()
     {
         decidingDirection = true;
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(Random.Range(minMovementDelay, maxMovementDelay));
 
         DecideMovementPoint();
         decidingDirection = false;
@@ -46,13 +59,19 @@ public class FlyingEnemyAI : EnemyAI
 
     private void DecideMovementPoint()
     {
-        Vector3 candidatePoint = transform.position + (Vector3)Random.insideUnitCircle * transitableAreaRadius;
+        Vector3 candidatePoint = Vector3.zero;
 
-        Collider2D areaCheck = Physics2D.OverlapCircle(candidatePoint, personalBubbleRadius);
+        bool validPoint = false;
 
-        if (areaCheck != null)
+        while (!validPoint)
         {
-            
+            candidatePoint = transform.position + (Vector3)Random.insideUnitCircle * transitableAreaRadius;
+            Collider2D areaCheck = Physics2D.OverlapCircle(candidatePoint, personalBubbleRadius);
+
+            if (areaCheck == null)
+            {
+                validPoint = true;
+            }
         }
 
         movementPoint = candidatePoint;

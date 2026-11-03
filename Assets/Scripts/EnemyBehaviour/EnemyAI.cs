@@ -8,10 +8,11 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Debug:")]
     [SerializeField] private ENEMY_STATE state;
-    [SerializeField] private float probabilityToTurn = 30f;
     [SerializeField] private bool showGizmos = true;
 
-    protected float speed = 2f;
+    [Header("Movement:")]
+    [SerializeField] protected float speed = 2f;
+    [SerializeField] private float probabilityToTurn = 30f;
 
     [Header("Target Detection:")]
     [SerializeField] private float areaRadius = 3f;
