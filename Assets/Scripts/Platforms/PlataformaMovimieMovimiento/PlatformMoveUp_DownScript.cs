@@ -3,19 +3,18 @@ using System.Collections.Generic;
 
 public class PlatformMoveUp_DownScript : MonoBehaviour
 {
-
-    [SerializeField] private float speed = 3f; // velocidad de la plataforma
-    [SerializeField] private string limitTag = "PlatformPoint"; // tag de PointA y PointB
+    [SerializeField] private float speed = 3f;
+    [SerializeField] private string limitTag = "PlatformLimit";
 
     private Rigidbody2D rb;
-
-    private int direction = 1; // 1 = arriba, -1 = abajo
-
-    private HashSet<Rigidbody2D> passengerRbs = new HashSet<Rigidbody2D>();
+    private BoxCollider2D boxCollider;
+    private Rigidbody2D playerUp;
+    private int direction = 1;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        boxCollider = GetComponent<BoxCollider2D>();
 
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -23,23 +22,16 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Aquí tenemos para cuando avanza la plataforma
         Vector2 step = Vector2.up * direction * speed * Time.fixedDeltaTime;
 
-        // Movemos la plataforma con MovePosition
         rb.MovePosition(rb.position + step);
 
-        // Mover al jugador, el mismo desplazamiento para que suban y bajen con ella sin romper el salto
-        foreach (Rigidbody2D passengerRb in passengerRbs)
+        if (playerUp != null)
         {
-            if (passengerRb != null)
-            {
-                passengerRb.position += step;
-            }
+            playerUp.position += step;
         }
     }
 
-    // Al tocar algún punto A o B da la vuelta
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag(limitTag))
@@ -48,31 +40,33 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (!collision.gameObject.CompareTag("Player") || collision.rigidbody == null) return;
+
+        float playerBottom = collision.collider.bounds.min.y;
+        float platformTop = boxCollider.bounds.max.y;
+
+        if (playerBottom < platformTop - 0.1f)
         {
-            // Comprobamos que el jugador esta encima de la plataforma para evitar
-            if (collision.transform.position.y > transform.position.y)
-            {
-                Rigidbody2D pRb = collision.gameObject.GetComponent<Rigidbody2D>();
-                if (pRb != null && !passengerRbs.Contains(pRb))
-                {
-                    passengerRbs.Add(pRb);
-                }
-            }
+            Physics2D.IgnoreCollision(collision.collider, boxCollider, true);
+            playerUp = null;
+            return;
         }
+
+        bool isOnTop = playerBottom >= platformTop - 0.1f;
+        playerUp = isOnTop ? collision.rigidbody : null;
     }
 
-    // Cuando el juagdor sale de la plataforma y se separa
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Rigidbody2D pRb = collision.gameObject.GetComponent<Rigidbody2D>();
-            if (pRb != null && passengerRbs.Contains(pRb))
+            playerUp = null;
+            Collider2D playerCol = collision.collider;
+            if (playerCol != null && boxCollider != null)
             {
-                passengerRbs.Remove(pRb);
+                Physics2D.IgnoreCollision(playerCol, boxCollider, false);
             }
         }
     }
