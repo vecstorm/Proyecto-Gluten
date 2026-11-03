@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
@@ -7,6 +8,7 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Debug:")]
     [SerializeField] private ENEMY_STATE state;
+    [SerializeField] private float probabilityToTurn = 30f;
     [SerializeField] private bool showGizmos = true;
 
     private float speed = 2f;
@@ -185,63 +187,6 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // Espera un determinado tiempo a volver a estado PATROL, a menos que vuelva a detectar al objetivo
-    private IEnumerator WaitToPatrol()
-    {
-        waitingToPatrol = true;
-
-        yield return new WaitForSeconds(Random.Range(minPatrolDelay, maxPatrolDelay));
-
-        if (!TargetDetectedOnArea(detectedAreaRadius))
-        {
-            Debug.Log("Changed to PATROL");
-            lastTargetPos = Vector3.zero;
-            detection.EnableVision();
-            state = ENEMY_STATE.PATROL;
-        }
-
-        waitingToPatrol = false;
-    }
-
-    // Espera un determinado tiempo a volver a estado CHASING, a menos que vuelva a detectar al objetivo
-    private IEnumerator WaitToChase()
-    {
-        waitingToChase = true;
-
-        yield return new WaitForSeconds(Random.Range(minChaseDelay, maxChaseDelay));
-
-        if (TargetDetected() || TargetDetectedOnArea(detectedAreaRadius))
-        {
-            Debug.Log("Changed to CHASING");
-            detection.DisableVision();
-            state = ENEMY_STATE.CHASING;
-        }
-        
-        waitingToChase = false;
-    }
-
-    private IEnumerator WaitToIdle()
-    {
-        waitingToDecideIdle = true;
-
-        yield return new WaitForSeconds(Random.Range(minIdleDelay, maxIdleDelay));
-
-        if (!TargetDetected() || !TargetDetectedOnArea(detectedAreaRadius))
-        {
-            state = ENEMY_STATE.IDLE;
-        }
-
-        waitingToDecideIdle = false;
-    }
-
-    // Devuelve si el jugador esta detras del enemigo o no
-    private bool PlayerBehind()
-    {
-        float deltaX = targetTransform.position.x - transform.position.x;
-
-        return deltaX < 0;
-    }
-
     // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
 
     private void ToIdle()
@@ -252,10 +197,6 @@ public class EnemyAI : MonoBehaviour
     // Comportamiento de transición a CHASING
     private void ToChasing()
     {
-        //Debug.Log("Changed to CHASING");
-        //detection.DisableVision();
-        //state = ENEMY_STATE.CHASING;
-
         if (!waitingToChase) StartCoroutine(WaitToChase());
     }
 
@@ -277,6 +218,58 @@ public class EnemyAI : MonoBehaviour
     {
         Debug.Log("Changed to ATTACK");
         state = ENEMY_STATE.ATTACK;
+    }
+
+    // Espera un determinado tiempo a volver a estado PATROL, a menos que vuelva a detectar al objetivo
+    private IEnumerator WaitToPatrol()
+    {
+        waitingToPatrol = true;
+
+        yield return new WaitForSeconds(Random.Range(minPatrolDelay, maxPatrolDelay));
+
+        if (!TargetDetectedOnArea(detectedAreaRadius))
+        {
+            Debug.Log("Changed to PATROL");
+
+            RandomFlip();
+
+            lastTargetPos = Vector3.zero;
+            detection.EnableVision();
+            state = ENEMY_STATE.PATROL;
+        }
+
+        waitingToPatrol = false;
+    }
+
+    // Espera un determinado tiempo a volver a estado CHASING, a menos que vuelva a detectar al objetivo
+    private IEnumerator WaitToChase()
+    {
+        waitingToChase = true;
+
+        yield return new WaitForSeconds(Random.Range(minChaseDelay, maxChaseDelay));
+
+        if (TargetDetected() || TargetDetectedOnArea(detectedAreaRadius))
+        {
+            Debug.Log("Changed to CHASING");
+            detection.DisableVision();
+            state = ENEMY_STATE.CHASING;
+        }
+
+        waitingToChase = false;
+    }
+
+    private IEnumerator WaitToIdle()
+    {
+        waitingToDecideIdle = true;
+
+        yield return new WaitForSeconds(Random.Range(minIdleDelay, maxIdleDelay));
+
+        if (!TargetDetected() || !TargetDetectedOnArea(detectedAreaRadius))
+        {
+            state = ENEMY_STATE.IDLE;
+        }
+
+        waitingToDecideIdle = false;
     }
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
@@ -379,5 +372,23 @@ public class EnemyAI : MonoBehaviour
         invertedDirection = !invertedDirection;
 
         transform.Rotate(0, 180, 0);
+    }
+
+    private void RandomFlip()
+    {
+        ENEMY_STATE[] validStates = { ENEMY_STATE.IDLE };
+
+        if (validStates.Contains(state) && Random.Range(0f, 100f) <= probabilityToTurn)
+        {
+            Flip();
+        }
+    }
+
+    // Devuelve si el jugador esta detras del enemigo o no
+    private bool PlayerBehind()
+    {
+        float deltaX = targetTransform.position.x - transform.position.x;
+
+        return deltaX < 0;
     }
 }
