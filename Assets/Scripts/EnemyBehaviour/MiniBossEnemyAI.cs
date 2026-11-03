@@ -21,6 +21,10 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private float heavyAttackRadius = 6f;
     [SerializeField] private float heavyAttackDelay = 1f;
     [SerializeField] private float heavyAttackRecoverDuration = 1f;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private GameObject spikePrefab;
+    [SerializeField] private int spikeAmount = 6;
+    [SerializeField] private float spikeDistance = 6f;
 
     private bool alreadyAttacking = false;
     private bool attackHitboxActive = false;
@@ -145,6 +149,8 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         transform.localScale = new Vector3(3f, 2.8f, 3f);
 
+        StartCoroutine(SpawnSpikes());
+
         yield return new WaitForSeconds(heavyAttackRecoverDuration);
 
         transform.localScale = new Vector3(3f, 3f, 3f);
@@ -153,5 +159,32 @@ public class MiniBossEnemyAI : MonoBehaviour
         alreadyHeavyAttacking = false;
 
         state = BOSS_STATE.IDLE;
+    }
+
+    private IEnumerator SpawnSpikes()
+    {
+        float spacing = spikeDistance / (spikeAmount / 2);
+
+        for (int i = 0; i < spikeAmount / 2; i++)
+        {
+            SpawnSpikeAtOffset((i + 1) * spacing);
+            SpawnSpikeAtOffset((-i - 1) * spacing);
+
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
+    private void SpawnSpikeAtOffset(float offset)
+    {
+        Vector3 rayPoint = new Vector3(transform.position.x + offset, transform.position.y + 4f);
+
+        RaycastHit2D hit = Physics2D.Raycast(rayPoint, -Vector3.up, 8f, groundLayer);
+
+        if (hit.collider != null)
+        {
+            Vector3 spikeSpawnPoint = new Vector3(hit.point.x, hit.point.y, transform.position.z);
+
+            GameObject spike = Instantiate(spikePrefab, spikeSpawnPoint, Quaternion.identity);
+        }
     }
 }

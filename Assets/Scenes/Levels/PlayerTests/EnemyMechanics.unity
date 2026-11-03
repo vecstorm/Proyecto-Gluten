@@ -1028,6 +1028,12 @@ MonoBehaviour:
   heavyAttackRadius: 6
   heavyAttackDelay: 1
   heavyAttackRecoverDuration: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  spikePrefab: {fileID: 3035020057427038812, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
+  spikeAmount: 6
+  spikeDistance: 6
 --- !u!1 &936452364
 GameObject:
   m_ObjectHideFlags: 0
