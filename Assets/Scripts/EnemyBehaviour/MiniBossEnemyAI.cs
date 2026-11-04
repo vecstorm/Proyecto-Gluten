@@ -23,8 +23,9 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private float heavyAttackRecoverDuration = 1f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private GameObject spikePrefab;
-    [SerializeField] private int spikeAmount = 6;
+    [SerializeField] private int spikeAmount = 8;
     [SerializeField] private float spikeRange = 6f;
+    [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
     private bool alreadyAttacking = false;
     private bool attackHitboxActive = false;
@@ -161,20 +162,24 @@ public class MiniBossEnemyAI : MonoBehaviour
         state = BOSS_STATE.IDLE;
     }
 
+    // Crea dos hileras de pinchos alrededor del enemigo
     private IEnumerator SpawnSpikes()
     {
         float spacing = spikeRange / (spikeAmount / 2);
 
         for (int i = 0; i < spikeAmount / 2; i++)
         {
-            SpawnSpikeAtOffset((i + 1) * spacing);
-            SpawnSpikeAtOffset((-i - 1) * spacing);
+            float spikeScale = 1 + (i * spikeSizeMultiplier);
+
+            SpawnSpikeAtOffset((i + 1) * spacing, new Vector3(spikeScale, spikeScale, spikeScale));
+            SpawnSpikeAtOffset((-i - 1) * spacing, new Vector3(spikeScale, spikeScale, spikeScale));
 
             yield return new WaitForSeconds(0.2f);
         }
     }
 
-    private void SpawnSpikeAtOffset(float offset)
+    // Crea un pincho en el suelo a partir de un raycast
+    private void SpawnSpikeAtOffset(float offset, Vector3 scale)
     {
         Vector3 rayPoint = new Vector3(transform.position.x + offset, transform.position.y + 4f);
 
@@ -185,6 +190,7 @@ public class MiniBossEnemyAI : MonoBehaviour
             Vector3 spikeSpawnPoint = new Vector3(hit.point.x, hit.point.y, transform.position.z);
 
             GameObject spike = Instantiate(spikePrefab, spikeSpawnPoint, Quaternion.identity);
+            spike.transform.localScale = scale;
         }
     }
 }
