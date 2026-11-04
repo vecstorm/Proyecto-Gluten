@@ -69,10 +69,7 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
         // se detiene su movimiento vertical para evitar que atraviese la plataforma
         if (verticalSpeed > 0f && verticalSpeed <= speed + 0.5f)
         {
-            collision.rigidbody.linearVelocity = new Vector2(
-                collision.rigidbody.linearVelocity.x,
-                0f
-            );
+            collision.rigidbody.linearVelocity = new Vector2(collision.rigidbody.linearVelocity.x,0f);
         }
     }
 }
