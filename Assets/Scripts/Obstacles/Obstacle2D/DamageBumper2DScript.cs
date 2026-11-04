@@ -45,6 +45,7 @@ public class DamageBumper2DScript : MonoBehaviour
 
         if (characterStats != null)
         {
+            // Haremos daño al jugador
             characterStats.TakeDamage(damageAmount);
         }
 
@@ -65,5 +66,8 @@ public class DamageBumper2DScript : MonoBehaviour
         player.enabled = false;
         playerApagado = player;
         knockbackTimer = knockbackTime;
+
+        // Si el jugador muere no dara el impulso
+
     }
 }

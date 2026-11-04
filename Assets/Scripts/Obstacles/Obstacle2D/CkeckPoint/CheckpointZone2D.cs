@@ -5,8 +5,6 @@ public class CheckpointZone2D : MonoBehaviour
 {
     public static Vector2 lastSafePosition;
     public static bool hasSafePoint = false;
-
-
     private static float maxPlayerXPosition = float.MinValue;
 
     private void OnTriggerEnter2D(Collider2D other)

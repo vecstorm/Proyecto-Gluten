@@ -3701,6 +3701,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1486375401026843807, guid: 8aae009e2ffdb154a899b8410c186974, type: 3}
+      propertyPath: damageAmount
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1486375401026843807, guid: 8aae009e2ffdb154a899b8410c186974, type: 3}
+      propertyPath: damageInterval
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1486375401026843807, guid: 8aae009e2ffdb154a899b8410c186974, type: 3}
+      propertyPath: damageOnContact
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2043900784488447160, guid: 8aae009e2ffdb154a899b8410c186974, type: 3}
       propertyPath: m_Name
       value: Cubevida
