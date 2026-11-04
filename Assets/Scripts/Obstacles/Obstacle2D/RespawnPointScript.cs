@@ -62,6 +62,9 @@ public class RespawnPointScript : MonoBehaviour
             rb.angularVelocity = 0f;
         }
 
+        // Si murio en medio de un knockback, le devolvemos el control
+        ReactivatePlayerControl();
+
         Vector2 finalRespawnPosition;
 
         // Comprobamos si el jugador ha cruzado el checkpoint
@@ -93,6 +96,9 @@ public class RespawnPointScript : MonoBehaviour
             rb.angularVelocity = 0f;
         }
 
+        // Si murio en medio de un knockback, le devolvemos el control
+        ReactivatePlayerControl();
+
         Vector2 finalRespawnPosition;
 
         // Comprobamos si el jugador ha cruzado el checkpoint
@@ -113,5 +119,14 @@ public class RespawnPointScript : MonoBehaviour
         //characterStats.FullHeal();
 
         Debug.Log("The player respawn worked, woohoo!!!!");
+    }
+
+    // Nos aseguramos de que el jugador recupere el control al reaparecer
+    private void ReactivatePlayerControl()
+    {
+        PlayerController controller = GetComponent<PlayerController>();
+
+        if (controller != null)
+            controller.enabled = true;
     }
 }

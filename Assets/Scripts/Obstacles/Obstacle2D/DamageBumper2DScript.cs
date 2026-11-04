@@ -1,4 +1,5 @@
 
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DamageBumper2DScript : MonoBehaviour
@@ -45,8 +46,15 @@ public class DamageBumper2DScript : MonoBehaviour
 
         if (characterStats != null)
         {
+            // Hacemos que el golpe no haga quie el persoanje se mueva cuando hag TP
+            bool Deadly_Blow = characterStats.CurrentHealth - damageAmount <= 0f;
+
             // Haremos daño al jugador
             characterStats.TakeDamage(damageAmount);
+
+            // Hacemos que cuando aparezca el juagador en el respawn este quieto
+            if (Deadly_Blow)
+                return;
         }
 
         Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
@@ -66,8 +74,5 @@ public class DamageBumper2DScript : MonoBehaviour
         player.enabled = false;
         playerApagado = player;
         knockbackTimer = knockbackTime;
-
-        // Si el jugador muere no dara el impulso
-
     }
 }
