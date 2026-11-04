@@ -1,6 +1,8 @@
 using System.Collections;
-using UnityEditor;
+using System.Linq;
 using UnityEngine;
+using System;
+using Unity.VisualScripting;
 
 public class MiniBossEnemyAI : MonoBehaviour
 {
@@ -18,6 +20,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private float attackRadius = 3f;
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackDuration = 0.3f;
+    [SerializeField] private float attackMovementSpeed = 30f;
     [SerializeField] private float attackMovementDuration = 0.2f;
     [SerializeField] private float attackRecoverDuration = 0.6f;
     [SerializeField] private float attackDelay = 1f;
@@ -31,11 +34,15 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private float spikeRange = 6f;
     [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
-    [Header("Jump Attack: ")]
+    [Header("Jump Attack:")]
     [SerializeField] private float jumpPreparationTime = 1f;
     [SerializeField] private float jumpHeight = 7f;
     [SerializeField] private float jumpDuration = 3f;
     [SerializeField] private AnimationCurve jumpCurve;
+
+    [Header("Patterns:")]
+    [Range(0f, 100f)] public float multiAttackProbability = 70f;
+    [Range(0f, 100f)] public float heavyAfterJumpProbability = 30f;
 
     private Vector3 jumpStartPosition;
     private Vector3 jumpLandingPosition;
@@ -161,10 +168,27 @@ public class MiniBossEnemyAI : MonoBehaviour
         {
             timer = 0f;
             alreadyJumpAttacking = false;
-            state = BOSS_STATE.IDLE;
+
+            ProbabilityToAct(heavyAfterJumpProbability, ToHeavyAttack, ToIdle);
         }
 
         lastJumpVerticalPosition = jumpPosition;
+    }
+    private void ToIdle()
+    {
+        state = BOSS_STATE.IDLE;
+    }
+
+    private void ToAttack()
+    {
+        if (PlayerBehind() != invertedDirection) Flip();
+        state = BOSS_STATE.ATTACK;
+    }
+
+    private void ToHeavyAttack()
+    {
+        if (PlayerBehind() != invertedDirection) Flip();
+        state = BOSS_STATE.HEAVY_ATTACK;
     }
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
@@ -179,7 +203,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         attackHitboxActive = true;
 
-        rb.linearVelocity = transform.right * 30f;
+        rb.linearVelocity = transform.right * attackMovementSpeed;
 
         Collider2D hit = Physics2D.OverlapCircle(transform.position + transform.right * attackRange, attackRadius);
 
@@ -192,7 +216,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         attackHitboxActive = false;
         alreadyAttacking = false;
 
-        state = BOSS_STATE.IDLE;
+        ProbabilityToAct(multiAttackProbability, ToAttack, ToIdle);
     }
 
     // Seqüencia de ataque pesado del enemigo
@@ -243,15 +267,15 @@ public class MiniBossEnemyAI : MonoBehaviour
         {
             float spikeScale = 1 + (i * spikeSizeMultiplier);
 
-            SpawnSpikeAtOffset((i + 1) * spacing, new Vector3(spikeScale, spikeScale, spikeScale));
-            SpawnSpikeAtOffset((-i - 1) * spacing, new Vector3(spikeScale, spikeScale, spikeScale));
+            SpawnSpikeAtOffset((i + 1) * spacing, spikeScale);
+            SpawnSpikeAtOffset((-i - 1) * spacing, spikeScale);
 
             yield return new WaitForSeconds(0.2f);
         }
     }
 
     // Crea un pincho en el suelo a partir de un raycast
-    private void SpawnSpikeAtOffset(float offset, Vector3 scale)
+    private void SpawnSpikeAtOffset(float offset, float scaleMultiplier)
     {
         Vector3 rayPoint = new Vector3(transform.position.x + offset, transform.position.y + 4f);
 
@@ -262,7 +286,7 @@ public class MiniBossEnemyAI : MonoBehaviour
             Vector3 spikeSpawnPoint = new Vector3(hit.point.x, hit.point.y, transform.position.z);
 
             GameObject spike = Instantiate(spikePrefab, spikeSpawnPoint, Quaternion.identity);
-            spike.transform.localScale = scale;
+            spike.transform.localScale = new Vector3(scaleMultiplier, scaleMultiplier, scaleMultiplier);
         }
     }
 
@@ -287,5 +311,19 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         Debug.DrawRay(groundCheck.position, Vector3.down, Color.blue);
         return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
+    }
+
+    private void ProbabilityToAct(float probability, Action behaviour, Action alternateBehaviour = null)
+    {
+        if (UnityEngine.Random.Range(0f, 100f) <= probability)
+        {
+            behaviour();
+        }
+        else
+        {
+            if (alternateBehaviour == null) return;
+
+            alternateBehaviour();
+        }
     }
 }
