@@ -276,6 +276,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_TagString
       value: Ground
       objectReference: {fileID: 0}
@@ -401,6 +405,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
@@ -999,7 +1007,7 @@ Transform:
   m_GameObject: {fileID: 905375073}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.88, y: 2.29, z: -2}
+  m_LocalPosition: {x: -3.57, y: 2.29, z: -2}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1033,7 +1041,53 @@ MonoBehaviour:
     m_Bits: 64
   spikePrefab: {fileID: 3035020057427038812, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
   spikeAmount: 8
-  spikeDistance: 5
+  spikeRange: 6
+  spikeSizeMultiplier: 0.3
+  targetPos: {fileID: 1456553375}
+  jumpHeight: 7
+  jumpDuration: 1.5
+  jumpCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2.7171068
+      outSlope: 2.7171068
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.07325065
+    - serializedVersion: 3
+      time: 0.59157616
+      value: 0.98227364
+      inSlope: 0.21206549
+      outSlope: 0.21206549
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.46045947
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.72577
+      value: 0.97927827
+      inSlope: -0.33594546
+      outSlope: -0.33594546
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.6400827
+      outWeight: 0.6079282
+    - serializedVersion: 3
+      time: 1
+      value: 0.0028533936
+      inSlope: -9.181799
+      outSlope: -9.181799
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.048620723
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &936452364
 GameObject:
   m_ObjectHideFlags: 0
@@ -1463,6 +1517,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_TagString
       value: Ground
       objectReference: {fileID: 0}
@@ -1591,7 +1649,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1456553372}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -1848,6 +1906,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
@@ -2108,6 +2170,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
       propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4113908516933782557, guid: f75e07050413c6d47af2a55c907ceb20, type: 3}

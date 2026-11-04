@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MiniBossEnemyAI : MonoBehaviour
 {
-    private enum BOSS_STATE { IDLE, ATTACK, HEAVY_ATTACK, JUMP_ATTACK };
+    private enum BOSS_STATE { IDLE, ATTACK, HEAVY_ATTACK, PREPARING_JUMP, JUMP_ATTACK };
 
     [Header("Debug:")]
     [SerializeField] private BOSS_STATE state;
@@ -27,13 +27,25 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private float spikeRange = 6f;
     [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
+    [Header("Jump Attack: ")]
+    [SerializeField] private Transform targetPos;
+    [SerializeField] private float jumpHeight = 7f;
+    [SerializeField] private float jumpDuration = 3f;
+    [SerializeField] AnimationCurve jumpCurve;
+
+    private Vector3 jumpStartPos;
+    private Vector3 landingPos;
+
     private bool alreadyAttacking = false;
     private bool attackHitboxActive = false;
 
     private bool alreadyHeavyAttacking = false;
     private bool heavyAttackHitboxActive = false;
 
+    private bool alreadyJumpAttacking = false;
+
     private Rigidbody2D rb;
+    private float timer;
 
     private void Start()
     {
@@ -55,6 +67,10 @@ public class MiniBossEnemyAI : MonoBehaviour
 
             case BOSS_STATE.HEAVY_ATTACK:
                 OnHeavyAttack();
+                break;
+
+            case BOSS_STATE.PREPARING_JUMP:
+                OnPreparingJump();
                 break;
 
             case BOSS_STATE.JUMP_ATTACK:
@@ -107,9 +123,25 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
+    private void OnPreparingJump()
+    {
+        rb.linearVelocity = Vector3.zero;
+
+        if (!alreadyJumpAttacking)
+        {
+            StartCoroutine(WaitToJump());
+        }
+    }
+
     private void OnJumpAttack()
     {
+        timer += Time.fixedDeltaTime;
 
+        Vector3 jumpPosition = Vector3.Lerp(jumpStartPos, targetPos.position, timer / jumpDuration);
+
+        jumpPosition.y += jumpCurve.Evaluate(timer / jumpDuration) * jumpHeight;
+
+        rb.MovePosition(jumpPosition);
     }
 
     private IEnumerator AttackProcess()
@@ -162,6 +194,36 @@ public class MiniBossEnemyAI : MonoBehaviour
         state = BOSS_STATE.IDLE;
     }
 
+    private IEnumerator WaitToJump()
+    {
+        alreadyJumpAttacking = true;
+
+        yield return new WaitForSeconds(1f);
+
+        //landingPos = new Vector3(targetPos.position.x, transform.position.y, transform.position.z);
+
+        jumpStartPos = transform.position;
+
+        state = BOSS_STATE.JUMP_ATTACK;
+    }
+
+    private IEnumerator JumpAttackProcess()
+    {
+        alreadyJumpAttacking = true;
+
+        rb.linearVelocity = Vector3.zero;
+
+        yield return new WaitForSeconds(1f);
+
+        //Vector3 landingPos = new Vector3(targetPos.position.x, transform.position.y, transform.position.z);
+
+        //rb.MovePosition(Vector3.MoveTowards());
+
+        yield return new WaitForSeconds(0);
+
+        alreadyJumpAttacking = false;
+    }
+
     // Crea dos hileras de pinchos alrededor del enemigo
     private IEnumerator SpawnSpikes()
     {
@@ -192,5 +254,10 @@ public class MiniBossEnemyAI : MonoBehaviour
             GameObject spike = Instantiate(spikePrefab, spikeSpawnPoint, Quaternion.identity);
             spike.transform.localScale = scale;
         }
+    }
+
+    private Vector3 ChooseLandingPos()
+    {
+        return Vector3.zero;
     }
 }
