@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 using System;
-using Unity.VisualScripting;
 
 public class MiniBossEnemyAI : MonoBehaviour
 {
@@ -42,7 +40,10 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     [Header("Patterns:")]
     [Range(0f, 100f)] public float multiAttackProbability = 70f;
+    [SerializeField] private int maxMultiAttackChain = 3;
     [Range(0f, 100f)] public float heavyAfterJumpProbability = 30f;
+
+    private int multiAttackCount = 0;
 
     private Vector3 jumpStartPosition;
     private Vector3 jumpLandingPosition;
@@ -185,6 +186,21 @@ public class MiniBossEnemyAI : MonoBehaviour
         state = BOSS_STATE.ATTACK;
     }
 
+    private void ToConsecutiveAttack()
+    {
+        multiAttackCount++;
+        if (PlayerBehind() != invertedDirection) Flip();
+
+        if (multiAttackCount < maxMultiAttackChain)
+        {
+            state = BOSS_STATE.ATTACK;
+        }
+        else 
+        {
+            state = BOSS_STATE.IDLE;
+        }
+    }
+
     private void ToHeavyAttack()
     {
         if (PlayerBehind() != invertedDirection) Flip();
@@ -216,7 +232,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         attackHitboxActive = false;
         alreadyAttacking = false;
 
-        ProbabilityToAct(multiAttackProbability, ToAttack, ToIdle);
+        ProbabilityToAct(multiAttackProbability, ToConsecutiveAttack, ToIdle);
     }
 
     // Seqüencia de ataque pesado del enemigo
