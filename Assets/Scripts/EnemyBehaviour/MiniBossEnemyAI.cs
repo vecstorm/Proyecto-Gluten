@@ -167,6 +167,8 @@ public class MiniBossEnemyAI : MonoBehaviour
         lastJumpVerticalPosition = jumpPosition;
     }
 
+    // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
+
     // Seqüencia de ataque del enemigo
     private IEnumerator AttackProcess()
     {
@@ -193,6 +195,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         state = BOSS_STATE.IDLE;
     }
 
+    // Seqüencia de ataque pesado del enemigo
     private IEnumerator HeavyAttackProcess()
     {
         alreadyHeavyAttacking = true;
@@ -218,6 +221,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         state = BOSS_STATE.IDLE;
     }
 
+    // Tiempo de espera para pasar al estado JUMP_ATTACK
     private IEnumerator WaitToJump()
     {
         alreadyJumpAttacking = true;
@@ -262,11 +266,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
-    private Vector3 ChooseLandingPos()
-    {
-        return Vector3.zero;
-    }
-
+    // Gira al enemigo en direccion contraria
     private void Flip()
     {
         invertedDirection = !invertedDirection;
@@ -274,6 +274,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         transform.Rotate(0, 180, 0);
     }
 
+    // Devuelve si el jugador esta detras del enemigo o no
     private bool PlayerBehind()
     {
         float deltaX = targetTransform.position.x - transform.position.x;
@@ -281,6 +282,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         return deltaX < 0;
     }
 
+    // Devuelve si esta detectando suelo delante suyo
     private bool DetectedGround()
     {
         Debug.DrawRay(groundCheck.position, Vector3.down, Color.blue);
