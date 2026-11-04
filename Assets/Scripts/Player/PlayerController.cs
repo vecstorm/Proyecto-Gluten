@@ -4,11 +4,16 @@ using UnityEngine;
 /// <summary>
 /// Define todos los estados en los que puede encontrarse el jugador.
 /// </summary>
-public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Crouch, Attack, Defend, Parry, Hurt, Dead }
+public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Crouch, Attack, Parry, Hurt, Dead }
 
 /// <summary>
 /// Gestiona todo el control del jugador mediante una máquina de estados.
 /// </summary>
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(PlayerCombat))]
+[RequireComponent(typeof(PlayerHook))]
+[RequireComponent(typeof(CharacterStats))]
+[RequireComponent(typeof(RespawnPointScript))]
 public class PlayerController : MonoBehaviour
 {
     #region Variables
@@ -36,13 +41,23 @@ public class PlayerController : MonoBehaviour
 
     [Header("References")]
 
-    [Tooltip("Referencia al Rigidbody2D utilizado para mover al personaje")]
-    [SerializeField] private Rigidbody2D rb;
+    [Tooltip("Gestor encargado de comprobar qué habilidades tiene desbloqueadas el jugador")]
+    [SerializeField] private SkillUnlockManager skillManager;
 
     /// <summary>
-    /// Gestor encargado de comprobar qué habilidades tiene desbloqueadas el jugador.
+    /// Referencia al Rigidbody2D utilizado para mover al personaje.
     /// </summary>
-    [SerializeField] private SkillUnlockManager skillManager;
+    private Rigidbody2D rb;
+
+    /// <summary>
+    /// Referencia al sistema de gancho del jugador.
+    /// </summary>
+    private PlayerHook playerHook;
+
+    /// <summary>
+    /// Referencia al sistema de combate del jugador.
+    /// </summary>
+    private PlayerCombat playerCombat;
 
     #endregion
 
@@ -82,6 +97,16 @@ public class PlayerController : MonoBehaviour
     /// Indica si se ha solicitado usar el gancho.
     /// </summary>
     private bool hookPressed;
+
+    /// <summary>
+    /// Indica si se ha solicitado realizar un ataque.
+    /// </summary>
+    private bool attackPressed;
+
+    /// <summary>
+    /// Indica si se ha solicitado realizar un parry.
+    /// </summary>
+    private bool parryPressed;
 
     #endregion
 
@@ -153,7 +178,7 @@ public class PlayerController : MonoBehaviour
     [Header("Dash")]
 
     [Tooltip("Velocidad del dash")]
-    [SerializeField] private float dashSpeed = 30f;
+    [SerializeField] private float dashSpeed = 20f;
 
     [Tooltip("Duración del dash en segundos")]
     [SerializeField] private float dashDuration = 0.15f;
@@ -216,9 +241,6 @@ public class PlayerController : MonoBehaviour
 
     #region Hook
 
-    [Tooltip("Referencia al componente PlayerHook")]
-    [SerializeField] private PlayerHook playerHook;
-
     [Tooltip("Duración de la inercia tras engancharse")]
     [SerializeField] private float hookMomentumDuration = 0.1f;
 
@@ -254,6 +276,15 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         glutenActionControls = new GlutenActionControls();
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        if (playerHook == null)
+            playerHook = GetComponent<PlayerHook>();
+
+        if (playerCombat == null)
+            playerCombat = GetComponent<PlayerCombat>();
     }
 
     private void OnEnable()
@@ -302,13 +333,16 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            UpdateState();
+            if (!TryCombatActions())
+                UpdateState();
         }
 
         jumpPressed = false;
         jumpReleased = false;
         dashPressed = false;
         hookPressed = false;
+        attackPressed = false;
+        parryPressed = false;
     }
 
     private void OnDisable()
@@ -350,6 +384,12 @@ public class PlayerController : MonoBehaviour
 
         if (glutenActionControls.Player.Hook.WasPressedThisFrame())
             hookPressed = true;
+
+        if (glutenActionControls.Player.Attack.WasPressedThisFrame())
+            attackPressed = true;
+
+        if (glutenActionControls.Player.Parry.WasPressedThisFrame())
+            parryPressed = true;
     }
 
     /// <summary>
@@ -361,6 +401,8 @@ public class PlayerController : MonoBehaviour
             facingDirection = 1;
         else if (movementDirection < 0)
             facingDirection = -1;
+
+        playerCombat?.SetFacingDirection(facingDirection);
     }
 
     #endregion
@@ -420,22 +462,22 @@ public class PlayerController : MonoBehaviour
         switch (from)
         {
             case PlayerState.Idle:
-                return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Defend, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Walk:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Defend, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Run:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Defend, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Jump:
-                return IsOneOf(to, PlayerState.Airborne, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack);
+                return IsOneOf(to, PlayerState.Airborne, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Airborne:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Hook, PlayerState.Attack);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.DoubleJump:
-                return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack);
+                return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Dash:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Hook);
@@ -447,22 +489,19 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.WallJump, PlayerState.WallGrab, PlayerState.Airborne, PlayerState.Hook, PlayerState.Dash);
 
             case PlayerState.WallJump:
-                return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack);
+                return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Hook:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.Attack);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Crouch:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Attack, PlayerState.Hook, PlayerState.Dash);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Attack, PlayerState.Hook, PlayerState.Dash, PlayerState.Parry);
 
             case PlayerState.Attack:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Crouch, PlayerState.Defend, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
-
-            case PlayerState.Defend:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Parry);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Crouch, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
 
             case PlayerState.Parry:
-                return IsOneOf(to, PlayerState.Defend, PlayerState.Idle, PlayerState.Walk, PlayerState.Attack);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Attack);
 
             case PlayerState.Hurt:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Dead);
@@ -568,6 +607,18 @@ public class PlayerController : MonoBehaviour
                 playerHook.FireHook(direction);
 
                 break;
+
+            case PlayerState.Attack:
+
+                playerCombat?.PerformBasicAttack();
+
+                break;
+
+            case PlayerState.Parry:
+
+                playerCombat?.BeginParry();
+
+                break;
         }
     }
 
@@ -589,6 +640,12 @@ public class PlayerController : MonoBehaviour
             case PlayerState.WallGrab:
 
                 rb.gravityScale = originalGravity;
+
+                break;
+
+            case PlayerState.Parry:
+
+                playerCombat?.EndParry();
 
                 break;
         }
@@ -696,10 +753,6 @@ public class PlayerController : MonoBehaviour
 
             case PlayerState.Attack:
                 Attack();
-                break;
-
-            case PlayerState.Defend:
-                Defend();
                 break;
 
             case PlayerState.Parry:
@@ -832,6 +885,38 @@ public class PlayerController : MonoBehaviour
 
             TryDash();
         }
+    }
+
+    /// <summary>
+    /// Comprueba si se puede ejecutar alguna acción de combate, el parry tiene prioridad sobre el ataque.
+    /// </summary>
+    private bool TryCombatActions()
+    {
+        if (playerCombat == null)
+            return false;
+
+        // El parry tiene prioridad si se pulsan ambos botones
+        if (parryPressed && playerCombat.CanParry)
+        {
+            parryPressed = false;
+            attackPressed = false;
+
+            ChangeState(PlayerState.Parry);
+
+            return true;
+        }
+
+        // Ataque básico
+        if (attackPressed && playerCombat.CanAttack)
+        {
+            attackPressed = false;
+
+            ChangeState(PlayerState.Attack);
+
+            return true;
+        }
+
+        return false;
     }
 
     #endregion
@@ -1196,15 +1281,14 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Attack()
     {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Estado defensivo.
-    /// </summary>
-    private void Defend()
-    {
-        throw new NotImplementedException();
+        if (isGrounded)
+        {
+            ChangeToGroundState();
+        }
+        else
+        {
+            ChangeState(PlayerState.Airborne);
+        }
     }
 
     /// <summary>
@@ -1212,7 +1296,18 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Parry()
     {
-        throw new NotImplementedException();
+        // Cuando termina la ventana de parry, abandonamos el estado.
+        if (playerCombat == null || !playerCombat.IsParrying)
+        {
+            if (isGrounded)
+            {
+                ChangeToGroundState();
+            }
+            else
+            {
+                ChangeState(PlayerState.Airborne);
+            }
+        }
     }
 
     /// <summary>
