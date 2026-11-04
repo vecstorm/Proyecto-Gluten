@@ -1,4 +1,7 @@
+
+
 using UnityEngine;
+using static Unity.Cinemachine.IInputAxisOwner.AxisDescriptor;
 
 public class RespawnPointScript : MonoBehaviour
 {
@@ -50,26 +53,35 @@ public class RespawnPointScript : MonoBehaviour
         characterStats.OnDeath -= Respawn;
     }
 
-    private void Respawn()
+    public void Respawn()
     {
         if (rb != null)
         {
-            // Quitamos la velocidad lineal (movimiento) y angular (giro)
+            // Quitamos el movimiento y giro
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
 
-        // Movemos al jugador al respawn, conservando su Z actual
-        transform.position = new Vector3(
-            respawnPointPlayer.x,
-            respawnPointPlayer.y,
-            transform.position.z
-        );
+        Vector2 finalRespawnPosition;
+
+        // Comprobamos si el jugador ha cruzado el checkpoint
+        if (CheckpointZone2D.hasSafePoint)
+        {
+            finalRespawnPosition = CheckpointZone2D.lastSafePosition;
+        }
+        else
+        {
+            // Si no hay checkpoint, usamos el respawn
+            finalRespawnPosition = respawnPointPlayer;
+        }
+
+        // Movemos al jugador a la posición elegida, conservando su Z actual
+        transform.position = new Vector3(finalRespawnPosition.x, finalRespawnPosition.y, transform.position.z);
 
         // Recuperamos toda la vida
         characterStats.FullHeal();
 
-        Debug.Log("El respawn del jugador ha funcionado, ole");
+        Debug.Log("The player respawn worked, woohoo!!!!");
     }
 
     public void Respawn_Without_Health()
