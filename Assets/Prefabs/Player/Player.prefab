@@ -136,6 +136,8 @@ GameObject:
   - component: {fileID: 6317816238346914269}
   - component: {fileID: 6413751089638512161}
   - component: {fileID: 4847488173561140254}
+  - component: {fileID: 8848226286028038751}
+  - component: {fileID: 7312198762582381409}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -365,6 +367,31 @@ MonoBehaviour:
   hookLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &8848226286028038751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755780057282232126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e1d84e9e679d9144a06340988efe7a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerXp
+  currentXp: 0
+--- !u!114 &7312198762582381409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755780057282232126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d815f24f2b6709e4c88733e7ea1a6d25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeyDoorManager
 --- !u!1 &5582248330238213830
 GameObject:
   m_ObjectHideFlags: 0

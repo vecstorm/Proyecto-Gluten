@@ -17,8 +17,3 @@ public class KeyPickUp : MonoBehaviour
         Destroy(gameObject);
     }
 }
-
-/*if (keyManager.HasKey(requiredKey))
-{
-    OpenDoor();
-}*/

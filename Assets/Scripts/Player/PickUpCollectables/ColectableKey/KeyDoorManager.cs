@@ -19,6 +19,7 @@ public class KeyDoorManager : MonoBehaviour
 
     public bool HasKey(KeyData key)
     {
+        Debug.Log("no hay llave");
         if (key == null) return false;
 
         return keys.Contains(key.Id);
