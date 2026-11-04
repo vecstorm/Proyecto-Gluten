@@ -1099,7 +1099,7 @@ Transform:
   m_GameObject: {fileID: 905375073}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.46, y: 2.29, z: -2}
+  m_LocalPosition: {x: -3.75, y: 2.29, z: -2}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1121,6 +1121,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MiniBossEnemyAI
   state: 0
   targetTransform: {fileID: 1456553375}
+  groundCheck: {fileID: 1207603319}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
   attackRadius: 3
   attackRange: 4
   attackDuration: 0.3
@@ -1130,13 +1134,11 @@ MonoBehaviour:
   heavyAttackRadius: 6
   heavyAttackDelay: 1
   heavyAttackRecoverDuration: 1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
   spikePrefab: {fileID: 3035020057427038812, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
   spikeAmount: 8
   spikeRange: 6
   spikeSizeMultiplier: 0.3
+  jumpPreparationTime: 1
   jumpHeight: 7
   jumpDuration: 1.5
   jumpCurve:
@@ -1451,7 +1453,7 @@ Transform:
   m_GameObject: {fileID: 1207603318}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: -0.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

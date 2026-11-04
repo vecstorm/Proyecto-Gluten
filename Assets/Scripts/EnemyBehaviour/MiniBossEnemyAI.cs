@@ -10,6 +10,10 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private Transform targetTransform;
 
+    [Header("Ground Detection:")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private LayerMask groundLayer;
+
     [Header("Attack:")]
     [SerializeField] private float attackRadius = 3f;
     [SerializeField] private float attackRange = 2f;
@@ -22,19 +26,20 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private float heavyAttackRadius = 6f;
     [SerializeField] private float heavyAttackDelay = 1f;
     [SerializeField] private float heavyAttackRecoverDuration = 1f;
-    [SerializeField] private LayerMask groundLayer;
     [SerializeField] private GameObject spikePrefab;
     [SerializeField] private int spikeAmount = 8;
     [SerializeField] private float spikeRange = 6f;
     [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
     [Header("Jump Attack: ")]
+    [SerializeField] private float jumpPreparationTime = 1f;
     [SerializeField] private float jumpHeight = 7f;
     [SerializeField] private float jumpDuration = 3f;
-    [SerializeField] AnimationCurve jumpCurve;
+    [SerializeField] private AnimationCurve jumpCurve;
 
-    private Vector3 jumpStartPos;
-    private Vector3 landingPos;
+    private Vector3 jumpStartPosition;
+    private Vector3 jumpLandingPosition;
+    private Vector3 lastJumpVerticalPosition;
 
     private bool alreadyAttacking = false;
     private bool attackHitboxActive = false;
@@ -103,6 +108,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
 
+    // Comportamiento en estado IDLE
     private void OnIdle()
     {
         rb.linearVelocity = Vector3.zero;
@@ -110,6 +116,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         if (PlayerBehind() != invertedDirection) Flip();
     }
 
+    // Comportamiento en estado ATTACK
     private void OnAttack()
     {
         if (!alreadyAttacking)
@@ -118,6 +125,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
+    // Comportamiento en estado HEAVY_ATTACK
     private void OnHeavyAttack()
     {
         if (!alreadyHeavyAttacking)
@@ -126,9 +134,11 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
+    // Comportamiento en estado PREPARING_JUMP
     private void OnPreparingJump()
     {
         rb.linearVelocity = Vector3.zero;
+        if (PlayerBehind() != invertedDirection) Flip();
 
         if (!alreadyJumpAttacking)
         {
@@ -136,17 +146,28 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
+    // Comportamiento en estado JUMP_ATTACK
     private void OnJumpAttack()
     {
         timer += Time.fixedDeltaTime;
 
-        Vector3 jumpPosition = Vector3.Lerp(jumpStartPos, targetTransform.position, timer / jumpDuration);
+        Vector3 jumpPosition = Vector3.Lerp(jumpStartPosition, jumpLandingPosition, timer / jumpDuration);
 
         jumpPosition.y += jumpCurve.Evaluate(timer / jumpDuration) * jumpHeight;
 
         rb.MovePosition(jumpPosition);
+
+        if (jumpPosition.y < lastJumpVerticalPosition.y && DetectedGround())
+        {
+            timer = 0f;
+            alreadyJumpAttacking = false;
+            state = BOSS_STATE.IDLE;
+        }
+
+        lastJumpVerticalPosition = jumpPosition;
     }
 
+    // Seqüencia de ataque del enemigo
     private IEnumerator AttackProcess()
     {
         alreadyAttacking = true;
@@ -201,30 +222,12 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         alreadyJumpAttacking = true;
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(jumpPreparationTime);
 
-        //landingPos = new Vector3(targetPos.position.x, transform.position.y, transform.position.z);
-
-        jumpStartPos = transform.position;
+        jumpStartPosition = transform.position;
+        jumpLandingPosition = new Vector3(targetTransform.position.x, transform.position.y, transform.position.z);
 
         state = BOSS_STATE.JUMP_ATTACK;
-    }
-
-    private IEnumerator JumpAttackProcess()
-    {
-        alreadyJumpAttacking = true;
-
-        rb.linearVelocity = Vector3.zero;
-
-        yield return new WaitForSeconds(1f);
-
-        //Vector3 landingPos = new Vector3(targetPos.position.x, transform.position.y, transform.position.z);
-
-        //rb.MovePosition(Vector3.MoveTowards());
-
-        yield return new WaitForSeconds(0);
-
-        alreadyJumpAttacking = false;
     }
 
     // Crea dos hileras de pinchos alrededor del enemigo
@@ -276,5 +279,11 @@ public class MiniBossEnemyAI : MonoBehaviour
         float deltaX = targetTransform.position.x - transform.position.x;
 
         return deltaX < 0;
+    }
+
+    private bool DetectedGround()
+    {
+        Debug.DrawRay(groundCheck.position, Vector3.down, Color.blue);
+        return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
     }
 }
