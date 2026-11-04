@@ -9,6 +9,8 @@ public class MiniBossEnemyAI : MonoBehaviour
     [Header("Debug:")]
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private Transform targetTransform;
+    [SerializeField] private int health = 30;
+    private int maxHealth;
 
     [Header("Ground Detection:")]
     [SerializeField] private Transform groundCheck;
@@ -42,6 +44,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     [Range(0f, 100f)] public float multiAttackProbability = 70f;
     [SerializeField] private int maxMultiAttackChain = 3;
     [Range(0f, 100f)] public float heavyAfterJumpProbability = 30f;
+    [SerializeField] private float multiJumpHealthTrigger = 20f;
 
     private int multiAttackCount = 0;
 
@@ -57,6 +60,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     private bool alreadyJumpAttacking = false;
 
+    private float healthModule = 0;
     private Rigidbody2D rb;
     private float timer;
     private bool invertedDirection = false;
@@ -65,6 +69,9 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         state = BOSS_STATE.IDLE;
         rb = GetComponent<Rigidbody2D>();
+
+        maxHealth = health;
+        healthModule = health / multiJumpHealthTrigger;
     }
 
     private void FixedUpdate()
@@ -170,11 +177,21 @@ public class MiniBossEnemyAI : MonoBehaviour
             timer = 0f;
             alreadyJumpAttacking = false;
 
-            ProbabilityToAct(heavyAfterJumpProbability, ToHeavyAttack, ToIdle);
+            if (health % healthModule == 0 && health != maxHealth && health != 0)
+            {
+                state = BOSS_STATE.PREPARING_JUMP;
+            }
+            else
+            {
+                ProbabilityToAct(heavyAfterJumpProbability, ToHeavyAttack, ToIdle);
+            } 
         }
 
         lastJumpVerticalPosition = jumpPosition;
     }
+
+    // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
+
     private void ToIdle()
     {
         state = BOSS_STATE.IDLE;

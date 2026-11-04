@@ -1381,6 +1381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MiniBossEnemyAI
   state: 0
   targetTransform: {fileID: 1456553375}
+  health: 100
   groundCheck: {fileID: 1207603319}
   groundLayer:
     serializedVersion: 2
@@ -1388,6 +1389,7 @@ MonoBehaviour:
   attackRadius: 3
   attackRange: 4
   attackDuration: 0.3
+  attackMovementSpeed: 30
   attackMovementDuration: 0.2
   attackRecoverDuration: 0.7
   attackDelay: 1
@@ -1444,7 +1446,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   multiAttackProbability: 70
+  maxMultiAttackChain: 3
   heavyAfterJumpProbability: 30
+  multiJumpHealthTrigger: 20
 --- !u!1 &936452364
 GameObject:
   m_ObjectHideFlags: 0
