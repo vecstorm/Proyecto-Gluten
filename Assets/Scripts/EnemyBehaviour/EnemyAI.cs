@@ -43,7 +43,7 @@ public class EnemyAI : MonoBehaviour
     private bool hitboxCreated = false;
 
     protected Rigidbody2D rb;
-    private bool invertedDirection = false;
+    protected private bool invertedDirection = false;
     private Transform targetTransform;
 
     private bool waitingToPatrol = false;

@@ -8,6 +8,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     [Header("Debug:")]
     [SerializeField] private BOSS_STATE state;
+    [SerializeField] private Transform targetTransform;
 
     [Header("Attack:")]
     [SerializeField] private float attackRadius = 3f;
@@ -28,7 +29,6 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
     [Header("Jump Attack: ")]
-    [SerializeField] private Transform targetPos;
     [SerializeField] private float jumpHeight = 7f;
     [SerializeField] private float jumpDuration = 3f;
     [SerializeField] AnimationCurve jumpCurve;
@@ -46,6 +46,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     private Rigidbody2D rb;
     private float timer;
+    private bool invertedDirection = false;
 
     private void Start()
     {
@@ -84,10 +85,10 @@ public class MiniBossEnemyAI : MonoBehaviour
         if (attackHitboxActive)
         {
             Gizmos.color = new Color(1f, 1f, 0f, 0.25f);
-            Gizmos.DrawSphere(transform.position + Vector3.right * attackRange, attackRadius);
+            Gizmos.DrawSphere(transform.position + transform.right * attackRange, attackRadius);
 
             Gizmos.color = Color.orange;
-            Gizmos.DrawWireSphere(transform.position + Vector3.right * attackRange, attackRadius);
+            Gizmos.DrawWireSphere(transform.position + transform.right * attackRange, attackRadius);
         }
 
         if (heavyAttackHitboxActive)
@@ -105,6 +106,8 @@ public class MiniBossEnemyAI : MonoBehaviour
     private void OnIdle()
     {
         rb.linearVelocity = Vector3.zero;
+
+        if (PlayerBehind() != invertedDirection) Flip();
     }
 
     private void OnAttack()
@@ -137,7 +140,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         timer += Time.fixedDeltaTime;
 
-        Vector3 jumpPosition = Vector3.Lerp(jumpStartPos, targetPos.position, timer / jumpDuration);
+        Vector3 jumpPosition = Vector3.Lerp(jumpStartPos, targetTransform.position, timer / jumpDuration);
 
         jumpPosition.y += jumpCurve.Evaluate(timer / jumpDuration) * jumpHeight;
 
@@ -147,15 +150,15 @@ public class MiniBossEnemyAI : MonoBehaviour
     private IEnumerator AttackProcess()
     {
         alreadyAttacking = true;
-        rb.AddForce(-Vector3.right * 3f, ForceMode2D.Impulse);
+        rb.AddForce(-transform.right * 3f, ForceMode2D.Impulse);
 
         yield return new WaitForSeconds(attackDelay);
 
         attackHitboxActive = true;
 
-        rb.linearVelocity = Vector3.right * 30f;
+        rb.linearVelocity = transform.right * 30f;
 
-        Collider2D hit = Physics2D.OverlapCircle(transform.position + Vector3.right * attackRange, attackRadius);
+        Collider2D hit = Physics2D.OverlapCircle(transform.position + transform.right * attackRange, attackRadius);
 
         yield return new WaitForSeconds(attackMovementDuration);
 
@@ -259,5 +262,19 @@ public class MiniBossEnemyAI : MonoBehaviour
     private Vector3 ChooseLandingPos()
     {
         return Vector3.zero;
+    }
+
+    private void Flip()
+    {
+        invertedDirection = !invertedDirection;
+
+        transform.Rotate(0, 180, 0);
+    }
+
+    private bool PlayerBehind()
+    {
+        float deltaX = targetTransform.position.x - transform.position.x;
+
+        return deltaX < 0;
     }
 }
