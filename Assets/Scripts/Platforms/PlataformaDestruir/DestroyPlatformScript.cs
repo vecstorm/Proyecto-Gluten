@@ -2,18 +2,10 @@ using UnityEngine;
 
 public class DestroyPlatformScript : MonoBehaviour
 {
-    [Header("Tiempos")]
-    [Tooltip("Segundos que tarda en desaparecer después de que el jugador la toque")]
     [SerializeField] private float disappearDelay = 3f;
-
-    [Tooltip("Segundos que tarda en volver a aparecer")]
     [SerializeField] private float reappearDelay = 3f;
-
-    // Collider y renderer de la plataforma
     private BoxCollider2D col;
     private Renderer platformRenderer;
-
-    // Temporizador del estado actual
     private float timer;
 
     // true = esperando para desaparecer
