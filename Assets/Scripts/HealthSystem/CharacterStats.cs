@@ -24,6 +24,8 @@ public class CharacterStats : MonoBehaviour
 
     private bool isPlayer;
 
+    public int currentXp = 0;
+
     private void Awake()
     {
         currentHealth = maxHealth;
@@ -99,5 +101,12 @@ public class CharacterStats : MonoBehaviour
         currentStamina = maxStamina;
         Debug.Log(currentStamina);
         OnStaminaChanged?.Invoke(currentStamina, maxStamina);
+    }
+
+    public void AddXp(int x)
+    {
+        currentXp += x;
+
+        Debug.Log(currentXp);
     }
 }
