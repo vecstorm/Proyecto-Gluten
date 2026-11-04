@@ -22,15 +22,21 @@ public class CharacterStats : MonoBehaviour
     public float MaxHealth => maxHealth;
     public float MaxStamina => maxStamina;
 
+    private bool isPlayer;
+
     private void Awake()
     {
         currentHealth = maxHealth;
         currentStamina = maxStamina;
+        isPlayer = gameObject.CompareTag("Player");
     }
 
     private void Update()
     {
-        RegenerateStamina();
+        if (isPlayer)
+        {
+            RegenerateStamina();
+        }
     }
 
     public void TakeDamage(float amount)

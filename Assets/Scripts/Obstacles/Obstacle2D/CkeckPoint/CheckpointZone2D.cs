@@ -6,6 +6,7 @@ public class CheckpointZone2D : MonoBehaviour
     public static Vector2 lastSafePosition;
     public static bool hasSafePoint = false;
 
+
     private static float maxPlayerXPosition = float.MinValue;
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -17,6 +18,7 @@ public class CheckpointZone2D : MonoBehaviour
             // Comprobamos si el jugador ha llegado a una posición nueva
             if (!hasSafePoint || (Vector2)transform.position != lastSafePosition)
             {
+                
                 if (transform.position.x > maxPlayerXPosition)
                 {
                     maxPlayerXPosition = transform.position.x;
