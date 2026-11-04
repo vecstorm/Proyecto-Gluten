@@ -24,7 +24,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private GameObject spikePrefab;
     [SerializeField] private int spikeAmount = 6;
-    [SerializeField] private float spikeDistance = 6f;
+    [SerializeField] private float spikeRange = 6f;
 
     private bool alreadyAttacking = false;
     private bool attackHitboxActive = false;
@@ -163,7 +163,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     private IEnumerator SpawnSpikes()
     {
-        float spacing = spikeDistance / (spikeAmount / 2);
+        float spacing = spikeRange / (spikeAmount / 2);
 
         for (int i = 0; i < spikeAmount / 2; i++)
         {
