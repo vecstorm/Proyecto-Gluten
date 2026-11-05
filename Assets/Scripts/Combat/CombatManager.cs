@@ -46,4 +46,24 @@ public static class CombatManager
                 damageable.ReceiveDamage(damage);
         }
     }
+
+    public static void MakeDamage(Transform transform, Collider2D hit, HashSet<IDamageable> hitTargets, CombatDamage damage, CombatTeam team = CombatTeam.Enemy)
+    {
+        // Ignora colliders nulos y cualquier collider perteneciente
+        // al propio jugador.
+        if (hit == null || hit.transform.root == transform.root) return;
+
+        // Busca el componente que permite recibir daño en el objeto
+        // o en alguno de sus padres.
+        IDamageable damageable = CombatManager.FindDamageable(hit);
+
+        // Ignora objetos que no reciben daño y objetivos del equipo jugador.
+        if (damageable == null || damageable.Team == team) return;
+
+        // HashSet.Add devuelve false si el objetivo ya estaba registrado.
+        // Así evitamos aplicar daño varias veces a un mismo personaje
+        // que tenga varios colliders dentro del área de ataque.
+        if (hitTargets.Add(damageable))
+            damageable.ReceiveDamage(damage);
+    }
 }

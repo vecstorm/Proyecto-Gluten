@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Unity.Cinemachine.IInputAxisOwner.AxisDescriptor;
 
 public class EnemyAI : MonoBehaviour, IDamageable
 {
@@ -297,6 +298,18 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            // Limpia los objetivos del ataque anterior
+            hitTargets.Clear();
+
+            CombatDamage damage = new CombatDamage(10, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, Team);
+        }
+    }
+
     // Bucle de ataque del enemigo
     private IEnumerator AttackProcess()
     {
@@ -310,14 +323,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
 
-        CombatDamage damage = new CombatDamage(
-            10,
-            CombatTeam.Enemy,
-            transform,
-            colliderPosition,
-            CombatAttackType.Melee,
-            false
-        );
+        CombatDamage damage = new CombatDamage(0, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
 
         CombatManager.MakeDamage(transform, hits, hitTargets, damage, Team);
 

@@ -5,6 +5,7 @@ public class VisionCone : MonoBehaviour
     [SerializeField] float coneRange = 10f;
     [SerializeField] float coneAngle = 45f;
     [SerializeField] int rayNumber = 20;
+    [SerializeField] LayerMask layerToDetect;
 
     private bool disabled = false;
     private bool targetDetected;
@@ -23,7 +24,7 @@ public class VisionCone : MonoBehaviour
 
             Vector2 raycastDirection = Quaternion.AngleAxis(raycastAngle, Vector3.forward) * transform.right;
 
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, raycastDirection, coneRange);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, raycastDirection, coneRange, layerToDetect);
 
             bool collided = hit.collider != null;
 
