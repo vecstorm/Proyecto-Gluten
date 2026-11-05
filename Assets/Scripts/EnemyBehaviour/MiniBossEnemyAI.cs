@@ -49,17 +49,20 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private AnimationCurve jumpCurve;
     
     [Header("Patterns:")]
-    [Range(0f, 100f)] public float baseAttackProbability = 60f;
-    [Range(0f, 100f)] public float multiAttackProbability = 70f;
+    [SerializeField][Range(0f, 100f)] private float baseAttackProbability = 60f;
+    [SerializeField][Range(0f, 100f)] private float multiAttackProbability = 70f;
     [SerializeField] private int maxMultiAttackChain = 3;
-    [Range(0f, 100f)] public float heavyAfterJumpProbability = 30f;
+    [SerializeField][Range(0f, 100f)] private float heavyAfterJumpProbability = 30f;
     [SerializeField] private float multiJumpHealthTrigger = 20f;
     [SerializeField] private int maxMultiJumpChain = 6;
 
     [Header("Difficulty:")]
     [SerializeField] private int difficultyLevel = 0;
-    [Range(0f, 1f)] public float movementDurationMultiplier = 0.2f;
-    [Range(-1f, 0f)] public float attackDelayMultiplier = -0.3f;
+    [SerializeField][Range(-1f, 0f)] private float delayMultiplier = -0.3f;
+    [SerializeField][Range(-1f, 0f)] private float recoverDurationMultiplier = -0.4f;
+    [SerializeField][Range(0f, 1f)] private float attackMovementDurationMultiplier = 0.2f;
+    [SerializeField][Range(-1f, 0f)] private float jumpDurationMultiplier = -0.4f;
+
 
     private int maxHealth;
     private BOSS_STATE lastAttackState;
@@ -199,7 +202,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     // Comportamiento en estado PREPARING_JUMP
     private void OnPreparingJump()
     {
-        rb.linearVelocity = Vector3.zero;
+        rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
         if (PlayerBehind() != invertedDirection) Flip();
 
         if (!alreadyJumpAttacking)
@@ -213,9 +216,11 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         timer += Time.fixedDeltaTime;
 
-        Vector3 jumpPosition = Vector3.Lerp(jumpStartPosition, jumpLandingPosition, timer / jumpDuration);
+        float finalJumpDuration = StatWithMultiplier(jumpDuration, jumpDurationMultiplier);
 
-        jumpPosition.y += jumpCurve.Evaluate(timer / jumpDuration) * jumpHeight;
+        Vector3 jumpPosition = Vector3.Lerp(jumpStartPosition, jumpLandingPosition, timer / finalJumpDuration);
+
+        jumpPosition.y += jumpCurve.Evaluate(timer / finalJumpDuration) * jumpHeight;
 
         rb.MovePosition(jumpPosition);
 
@@ -263,6 +268,8 @@ public class MiniBossEnemyAI : MonoBehaviour
     // Comportamiento de transición a JUMP_ATTACK
     private void ToJump()
     {
+        transform.localScale = new Vector3(3f, 3f, 3f);
+
         jumpStartPosition = transform.position;
         jumpLandingPosition = new Vector3(targetTransform.position.x, transform.position.y, transform.position.z);
 
@@ -380,7 +387,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         alreadyAttacking = true;
         rb.AddForce(-transform.right * 3f, ForceMode2D.Impulse);
 
-        yield return new WaitForSeconds(StatWithMultiplier(attackDelay, attackDelayMultiplier));
+        yield return new WaitForSeconds(StatWithMultiplier(attackDelay, delayMultiplier));
 
         attackHitboxActive = true;
 
@@ -388,11 +395,11 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         Collider2D hit = Physics2D.OverlapCircle(transform.position + transform.right * attackRange, attackRadius);
 
-        yield return new WaitForSeconds(StatWithMultiplier(attackMovementDuration, movementDurationMultiplier));
+        yield return new WaitForSeconds(StatWithMultiplier(attackMovementDuration, attackMovementDurationMultiplier));
 
-        rb.linearVelocity = Vector3.zero;
+        rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
 
-        yield return new WaitForSeconds(attackRecoverDuration);
+        yield return new WaitForSeconds(StatWithMultiplier(attackRecoverDuration, recoverDurationMultiplier));
 
         attackHitboxActive = false;
         alreadyAttacking = false;
@@ -406,19 +413,18 @@ public class MiniBossEnemyAI : MonoBehaviour
         alreadyHeavyAttacking = true;
         transform.localScale = new Vector3(3f, 3.2f, 3f);
 
-        yield return new WaitForSeconds(heavyAttackDelay);
+        yield return new WaitForSeconds(StatWithMultiplier(heavyAttackDelay, delayMultiplier));
 
         heavyAttackHitboxActive = true;
 
         Collider2D hit = Physics2D.OverlapCircle(transform.position, heavyAttackRadius);
 
-        transform.localScale = new Vector3(3f, 2.8f, 3f);
+        transform.localScale = new Vector3(3f, 3f, 3f);
+        //transform.localScale = new Vector3(3f, 2.8f, 3f);
 
         StartCoroutine(SpawnSpikes());
 
-        yield return new WaitForSeconds(heavyAttackRecoverDuration);
-
-        transform.localScale = new Vector3(3f, 3f, 3f);
+        yield return new WaitForSeconds(StatWithMultiplier(heavyAttackRecoverDuration, recoverDurationMultiplier));
 
         heavyAttackHitboxActive = false;
         alreadyHeavyAttacking = false;
@@ -431,7 +437,9 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         alreadyJumpAttacking = true;
 
-        yield return new WaitForSeconds(jumpPreparationTime);
+        transform.localScale = new Vector3(3f, 2.8f, 3f);
+
+        yield return new WaitForSeconds(StatWithMultiplier(jumpPreparationTime, delayMultiplier));
 
         ToJump();
     }
