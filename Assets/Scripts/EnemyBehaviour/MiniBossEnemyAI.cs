@@ -11,9 +11,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private bool bossActive = false;
     [SerializeField] private Transform targetTransform;
     [SerializeField] private int health = 30;
-
-    private int maxHealth;
-    private BOSS_STATE lastAttackState;
+    [SerializeField] private float healthToAddDifficulty = 50;
 
     [Header("Ground Detection:")]
     [SerializeField] private Transform groundCheck;
@@ -62,6 +60,9 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private int difficultyLevel = 0;
     [Range(0f, 1f)] public float movementDurationMultiplier = 0.2f;
     [Range(-1f, 0f)] public float attackDelayMultiplier = -0.3f;
+
+    private int maxHealth;
+    private BOSS_STATE lastAttackState;
 
     private int multiAttackCount = 0;
     private int multiJumpCount = 0;
@@ -454,7 +455,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     // Crea un pincho en el suelo a partir de un raycast
     private void SpawnSpikeAtOffset(float offset, float scaleMultiplier)
     {
-        Vector3 rayPoint = new Vector3(transform.position.x + offset, transform.position.y + 4f);
+        Vector3 rayPoint = new Vector3(transform.position.x + offset, transform.position.y);
 
         RaycastHit2D hit = Physics2D.Raycast(rayPoint, -Vector3.up, 8f, groundLayer);
 

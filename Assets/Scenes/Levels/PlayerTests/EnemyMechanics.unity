@@ -1487,7 +1487,7 @@ Transform:
   m_GameObject: {fileID: 905375073}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.9, y: 2.29, z: -2}
+  m_LocalPosition: {x: -6.99, y: 2.29, z: -2}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1531,7 +1531,7 @@ MonoBehaviour:
   spikePrefab: {fileID: 3035020057427038812, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
   spikeAmount: 8
   spikeRange: 6
-  spikeLifeTime: 1
+  spikeLifeTime: 3
   spikeSizeMultiplier: 0.3
   targetMinDistanceToJump: 10
   jumpPreparationTime: 1
