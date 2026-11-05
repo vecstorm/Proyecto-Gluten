@@ -45,8 +45,15 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private int maxMultiAttackChain = 3;
     [Range(0f, 100f)] public float heavyAfterJumpProbability = 30f;
     [SerializeField] private float multiJumpHealthTrigger = 20f;
+    [SerializeField] private int maxMultiJumpChain = 6;
+
+    [Header("Dificulty:")]
+    [SerializeField] private int dificultyLevel = 0;
+    [Range(0f, 1f)] public float movementDurationMultiplier = 0.2f;
+    [Range(-1f, 0f)] public float attackDelayMultiplier = -0.3f;
 
     private int multiAttackCount = 0;
+    private int multiJumpCount = 0;
 
     private Vector3 jumpStartPosition;
     private Vector3 jumpLandingPosition;
@@ -179,7 +186,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
             if (health % healthModule == 0 && health != maxHealth && health != 0)
             {
-                state = BOSS_STATE.PREPARING_JUMP;
+                ToConsecutiveJump();
             }
             else
             {
@@ -194,6 +201,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     private void ToIdle()
     {
+        ResetMultiActionCount();
         state = BOSS_STATE.IDLE;
     }
 
@@ -203,18 +211,36 @@ public class MiniBossEnemyAI : MonoBehaviour
         state = BOSS_STATE.ATTACK;
     }
 
+    private void ToPreparingJump()
+    {
+        state = BOSS_STATE.PREPARING_JUMP;
+    }
+
     private void ToConsecutiveAttack()
     {
         multiAttackCount++;
-        if (PlayerBehind() != invertedDirection) Flip();
 
         if (multiAttackCount < maxMultiAttackChain)
         {
-            state = BOSS_STATE.ATTACK;
+            ToAttack();
         }
         else 
         {
-            state = BOSS_STATE.IDLE;
+            ToIdle();
+        }
+    }
+
+    private void ToConsecutiveJump()
+    {
+        multiJumpCount++;
+
+        if (multiJumpCount < maxMultiJumpChain)
+        {
+            ToPreparingJump();
+        }
+        else
+        {
+            ToIdle();
         }
     }
 
@@ -232,7 +258,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         alreadyAttacking = true;
         rb.AddForce(-transform.right * 3f, ForceMode2D.Impulse);
 
-        yield return new WaitForSeconds(attackDelay);
+        yield return new WaitForSeconds(StatWithMultiplier(attackDelay, attackDelayMultiplier));
 
         attackHitboxActive = true;
 
@@ -240,7 +266,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         Collider2D hit = Physics2D.OverlapCircle(transform.position + transform.right * attackRange, attackRadius);
 
-        yield return new WaitForSeconds(attackMovementDuration);
+        yield return new WaitForSeconds(StatWithMultiplier(attackMovementDuration, movementDurationMultiplier));
 
         rb.linearVelocity = Vector3.zero;
 
@@ -358,5 +384,16 @@ public class MiniBossEnemyAI : MonoBehaviour
 
             alternateBehaviour();
         }
+    }
+
+    private void ResetMultiActionCount()
+    {
+        multiAttackCount = 0;
+        multiJumpCount = 0;
+    }
+
+    private float StatWithMultiplier(float baseStat, float statMultiplier)
+    {
+        return baseStat + (dificultyLevel * statMultiplier);
     }
 }
