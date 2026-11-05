@@ -160,7 +160,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         if (timer >= introTime)
         {
-            ToAttack();
+            ProbabilityToAct(baseAttackProbability, ToAttack, ToPreparingJump);
             timer = 0;
         }
     }
