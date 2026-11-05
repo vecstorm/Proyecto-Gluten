@@ -13,13 +13,16 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private int health = 30;
 
     private int maxHealth;
+    private BOSS_STATE lastAttackState;
 
     [Header("Ground Detection:")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
 
-    [Header("Intro:")]
+    [Header("Intro / Idle:")]
     [SerializeField] private float introTime = 2f;
+    [SerializeField] private float minIdleTime = 1f;
+    [SerializeField] private float maxIdleTime = 1.7f;
 
     [Header("Attack:")]
     [SerializeField] private float attackRadius = 3f;
@@ -40,20 +43,22 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
     [Header("Jump Attack:")]
+    [SerializeField] private float targetMinDistanceToJump = 10f;
     [SerializeField] private float jumpPreparationTime = 1f;
     [SerializeField] private float jumpHeight = 7f;
     [SerializeField] private float jumpDuration = 3f;
     [SerializeField] private AnimationCurve jumpCurve;
-
+    
     [Header("Patterns:")]
+    [Range(0f, 100f)] public float baseAttackProbability = 60f;
     [Range(0f, 100f)] public float multiAttackProbability = 70f;
     [SerializeField] private int maxMultiAttackChain = 3;
     [Range(0f, 100f)] public float heavyAfterJumpProbability = 30f;
     [SerializeField] private float multiJumpHealthTrigger = 20f;
     [SerializeField] private int maxMultiJumpChain = 6;
 
-    [Header("Dificulty:")]
-    [SerializeField] private int dificultyLevel = 0;
+    [Header("Difficulty:")]
+    [SerializeField] private int difficultyLevel = 0;
     [Range(0f, 1f)] public float movementDurationMultiplier = 0.2f;
     [Range(-1f, 0f)] public float attackDelayMultiplier = -0.3f;
 
@@ -63,6 +68,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     private Vector3 jumpStartPosition;
     private Vector3 jumpLandingPosition;
     private Vector3 lastJumpVerticalPosition;
+    private Vector3 spawnPosition;
 
     private bool alreadyAttacking = false;
     private bool attackHitboxActive = false;
@@ -71,6 +77,8 @@ public class MiniBossEnemyAI : MonoBehaviour
     private bool heavyAttackHitboxActive = false;
 
     private bool alreadyJumpAttacking = false;
+
+    private bool waitingToAct = false;
 
     private float healthModule = 0;
     private Rigidbody2D rb;
@@ -81,6 +89,8 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         state = BOSS_STATE.INTRO;
         rb = GetComponent<Rigidbody2D>();
+
+        spawnPosition = transform.position;
 
         maxHealth = health;
         healthModule = health / multiJumpHealthTrigger;
@@ -156,9 +166,14 @@ public class MiniBossEnemyAI : MonoBehaviour
     // Comportamiento en estado IDLE
     private void OnIdle()
     {
-        rb.linearVelocity = Vector3.zero;
+        rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
 
         if (PlayerBehind() != invertedDirection) Flip();
+
+        if (!waitingToAct)
+        {
+            StartCoroutine(WaitToAct());
+        }
     }
 
     // Comportamiento en estado ATTACK
@@ -222,23 +237,38 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
 
+    // Comportamiento de transición a IDLE
     private void ToIdle()
     {
         ResetMultiActionCount();
         state = BOSS_STATE.IDLE;
     }
 
+    // Comportamiento de transición a ATTACK
     private void ToAttack()
     {
         if (PlayerBehind() != invertedDirection) Flip();
         state = BOSS_STATE.ATTACK;
+        lastAttackState = state;
     }
 
+    // Comportamiento de transición a PREPARING_JUMP
     private void ToPreparingJump()
     {
         state = BOSS_STATE.PREPARING_JUMP;
     }
 
+    // Comportamiento de transición a JUMP_ATTACK
+    private void ToJump()
+    {
+        jumpStartPosition = transform.position;
+        jumpLandingPosition = new Vector3(targetTransform.position.x, transform.position.y, transform.position.z);
+
+        state = BOSS_STATE.JUMP_ATTACK;
+        lastAttackState = state;
+    }
+
+    // Comportamiento de transición a ATTACK consecutivamente
     private void ToConsecutiveAttack()
     {
         multiAttackCount++;
@@ -253,6 +283,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
+    // Comportamiento de transición a JUMP_ATTACK consecutivamente
     private void ToConsecutiveJump()
     {
         multiJumpCount++;
@@ -267,13 +298,79 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
+    // Comportamiento de transición a HEAVY_ATTACK
     private void ToHeavyAttack()
     {
         if (PlayerBehind() != invertedDirection) Flip();
         state = BOSS_STATE.HEAVY_ATTACK;
+        lastAttackState = state;
     }
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
+
+    // Espera un tiempo definido para decidir que accion realizar
+    private IEnumerator WaitToAct()
+    {
+        waitingToAct = true;
+
+        yield return new WaitForSeconds(UnityEngine.Random.Range(minIdleTime, maxIdleTime));
+
+        DecideAction();
+
+        waitingToAct = false;
+    }
+
+    // Decide a que estado cambiar dependiendo de cual ha sido su ultimo ataque realizado
+    private void DecideAction()
+    {
+        switch (lastAttackState)
+        {
+            case BOSS_STATE.ATTACK:
+
+                if (TargetDistanceExceeds(targetMinDistanceToJump))
+                {
+                    ToPreparingJump();
+                }
+                else
+                {
+                    ProbabilityToAct(baseAttackProbability, ToHeavyAttack, ToAttack);
+                }
+
+                break;
+
+            case BOSS_STATE.HEAVY_ATTACK:
+
+                if (TargetDistanceExceeds(targetMinDistanceToJump))
+                {
+                    ProbabilityToAct(baseAttackProbability, ToPreparingJump, ToAttack);
+                }
+                else
+                {
+                    ToAttack();
+                }
+
+                break;
+
+            case BOSS_STATE.JUMP_ATTACK:
+
+                if (TargetDistanceExceeds(targetMinDistanceToJump))
+                {
+                    ToPreparingJump();
+                }
+                else
+                {
+                    ProbabilityToAct(baseAttackProbability, ToAttack, ToHeavyAttack);
+                }
+
+                break;
+        }
+    }
+
+    // Devuelve si el objetivo esta a mas distancia que un valor
+    private bool TargetDistanceExceeds(float distance)
+    {
+        return Vector3.Distance(transform.position, targetTransform.position) > distance;
+    }
 
     // Seqüencia de ataque del enemigo
     private IEnumerator AttackProcess()
@@ -334,10 +431,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         yield return new WaitForSeconds(jumpPreparationTime);
 
-        jumpStartPosition = transform.position;
-        jumpLandingPosition = new Vector3(targetTransform.position.x, transform.position.y, transform.position.z);
-
-        state = BOSS_STATE.JUMP_ATTACK;
+        ToJump();
     }
 
     // Crea dos hileras de pinchos alrededor del enemigo
@@ -395,6 +489,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
     }
 
+    // Ejecuta una funcion depend
     private void ProbabilityToAct(float probability, Action behaviour, Action alternateBehaviour = null)
     {
         if (UnityEngine.Random.Range(0f, 100f) <= probability)
@@ -409,14 +504,16 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
+    // Reinicia a 0 los contadores de ataques consecutivos
     private void ResetMultiActionCount()
     {
         multiAttackCount = 0;
         multiJumpCount = 0;
     }
 
+    // Calcula el valor de un valor aplicandole un multiplicador que escala con el nivel de dificultad
     private float StatWithMultiplier(float baseStat, float statMultiplier)
     {
-        return baseStat + (dificultyLevel * statMultiplier);
+        return baseStat + (difficultyLevel * statMultiplier);
     }
 }

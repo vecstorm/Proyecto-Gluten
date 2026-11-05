@@ -1508,12 +1508,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MiniBossEnemyAI
   state: 0
+  bossActive: 0
   targetTransform: {fileID: 1456553375}
   health: 100
   groundCheck: {fileID: 1207603319}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  introTime: 2
+  minIdleTime: 1
+  maxIdleTime: 1.7
   attackRadius: 3
   attackRange: 4
   attackDuration: 0.3
@@ -1528,6 +1532,7 @@ MonoBehaviour:
   spikeAmount: 8
   spikeRange: 6
   spikeSizeMultiplier: 0.3
+  targetMinDistanceToJump: 10
   jumpPreparationTime: 1
   jumpHeight: 7
   jumpDuration: 1.5
