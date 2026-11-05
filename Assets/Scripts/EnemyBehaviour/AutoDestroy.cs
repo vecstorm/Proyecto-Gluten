@@ -3,17 +3,22 @@ using UnityEngine;
 
 public class AutoDestroy : MonoBehaviour
 {
-    [SerializeField] private float timer = 1f;
+    [SerializeField] private float lifeTime = 1f;
 
-    private void Start()
+    private float timer = 0;
+
+    private void Update()
     {
-        StartCoroutine(DestroyAfterTime());
+        timer += Time.deltaTime;
+
+        if (timer >= lifeTime)
+        {
+            Destroy(gameObject);
+        }
     }
 
-    private IEnumerator DestroyAfterTime()
+    public void SetLifeTime(float lifeTime)
     {
-        yield return new WaitForSeconds(timer);
-
-        Destroy(gameObject);
+        this.lifeTime = lifeTime;
     }
 }

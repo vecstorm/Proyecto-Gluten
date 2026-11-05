@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e6155528fde5824fbe47de4bacec35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AutoDestroy
-  timer: 4
+  lifeTime: 3
 --- !u!61 &145535654530481938
 BoxCollider2D:
   m_ObjectHideFlags: 0

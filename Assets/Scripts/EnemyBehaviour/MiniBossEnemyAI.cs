@@ -40,6 +40,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private GameObject spikePrefab;
     [SerializeField] private int spikeAmount = 8;
     [SerializeField] private float spikeRange = 6f;
+    [SerializeField] private float spikeLifeTime = 3f;
     [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
     [Header("Jump Attack:")]
@@ -463,6 +464,8 @@ public class MiniBossEnemyAI : MonoBehaviour
 
             GameObject spike = Instantiate(spikePrefab, spikeSpawnPoint, Quaternion.identity);
             spike.transform.localScale = new Vector3(scaleMultiplier, scaleMultiplier, scaleMultiplier);
+
+            spike.GetComponent<AutoDestroy>().SetLifeTime(spikeLifeTime);
         }
     }
 

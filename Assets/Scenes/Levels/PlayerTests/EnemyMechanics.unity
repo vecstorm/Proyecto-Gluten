@@ -1531,6 +1531,7 @@ MonoBehaviour:
   spikePrefab: {fileID: 3035020057427038812, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
   spikeAmount: 8
   spikeRange: 6
+  spikeLifeTime: 1
   spikeSizeMultiplier: 0.3
   targetMinDistanceToJump: 10
   jumpPreparationTime: 1
@@ -1578,12 +1579,13 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  baseAttackProbability: 50
   multiAttackProbability: 60
   maxMultiAttackChain: 3
   heavyAfterJumpProbability: 30
   multiJumpHealthTrigger: 20
   maxMultiJumpChain: 6
-  dificultyLevel: 0
+  difficultyLevel: 0
   movementDurationMultiplier: 0.2
   attackDelayMultiplier: -0.3
 --- !u!1001 &919483866
