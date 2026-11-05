@@ -14,7 +14,7 @@ public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, Wal
 [RequireComponent(typeof(PlayerHook))]
 [RequireComponent(typeof(CharacterStats))]
 [RequireComponent(typeof(RespawnPointScript))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDamageable
 {
     #region Variables
 
@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour
     /// Devuelve el estado actual del jugador en modo lectura.
     /// </summary>
     public PlayerState CurrentState => currentState;
+
+    public CombatTeam Team => CombatTeam.Player;
 
     /// <summary>
     /// Se utiliza para guardar el estado previo del jugador.
@@ -58,6 +60,8 @@ public class PlayerController : MonoBehaviour
     /// Referencia al sistema de combate del jugador.
     /// </summary>
     private PlayerCombat playerCombat;
+
+    private CharacterStats characterStats;
 
     #endregion
 
@@ -276,6 +280,8 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         glutenActionControls = new GlutenActionControls();
+
+        characterStats = GetComponent<CharacterStats>();
 
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
@@ -1324,6 +1330,14 @@ public class PlayerController : MonoBehaviour
     private void Dead()
     {
         throw new NotImplementedException();
+    }
+
+    public bool ReceiveDamage(CombatDamage damage)
+    {
+        if (characterStats.ReceiveDamage(damage))
+            return true;
+        else
+            return false;
     }
 
     #endregion

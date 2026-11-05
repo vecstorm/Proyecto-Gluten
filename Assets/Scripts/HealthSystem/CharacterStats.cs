@@ -8,9 +8,11 @@ public class CharacterStats : MonoBehaviour
 
     public CombatTeam Team => team;
 
+    IDamageable damageable;
+
     [Header("Configuración de Vida")]
     [SerializeField] private float maxHealth = 100f;
-    private float currentHealth;
+    [SerializeField] private float currentHealth;
 
     [Header("Configuración de Estamina / Magia")]
     [SerializeField] private float maxStamina = 100f;
@@ -72,7 +74,7 @@ public class CharacterStats : MonoBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
-        Debug.Log($"Character took {amount} damage. Current Health: {currentHealth}/{maxHealth}");
+        Debug.Log($"{gameObject.name} took {amount} damage. Current Health: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0f)
         {

@@ -170,23 +170,23 @@ public class PlayerCombat : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        // Cooldown del ataque básico.
+        // Cooldown del ataque básico
         attackCooldownTimer = Mathf.Max(0f, attackCooldownTimer - Time.deltaTime);
 
-        // Duración de la invulnerabilidad.
+        // Duración de la invulnerabilidad
         invulnerabilityTimer = Mathf.Max(0f, invulnerabilityTimer - Time.deltaTime);
 
-        // Duración de la ventana de parry.
+        // Duración de la ventana de parry
         parryTimer = Mathf.Max(0f, parryTimer - Time.deltaTime);
 
-        // Cooldown entre intentos de parry.
+        // Cooldown entre intentos de parry
         parryCooldownTimer = Mathf.Max(0f, parryCooldownTimer - Time.deltaTime);
 
-        // Finaliza automáticamente el parry cuando termina su ventana temporal.
+        // Finaliza automáticamente el parry cuando termina su ventana temporal
         if (isParrying && parryTimer <= 0f)
             isParrying = false;
 
-        // Controla cuánto tiempo permanece visible el gizmo del ataque.
+        // Controla cuánto tiempo permanece visible el gizmo del ataque
         if (attackGizmoTimer > 0f)
             attackGizmoTimer -= Time.deltaTime;
     }
@@ -205,17 +205,17 @@ public class PlayerCombat : MonoBehaviour
         if (direction == 0)
             return;
 
-        // Normaliza cualquier valor recibido a 1 o -1.
+        // Normaliza cualquier valor recibido a 1 o -1
         int newDirection = direction > 0 ? 1 : -1;
 
-        // No es necesario hacer nada si la dirección no ha cambiado.
+        // No es necesario hacer nada si la dirección no ha cambiado
         if (newDirection == facingDirection)
             return;
 
         facingDirection = newDirection;
 
-        // El parry solo protege hacia la dirección en la que comenzó.
-        // Cambiar de dirección cancela la ventana para evitar cubrir ambos lados.
+        // El parry solo protege hacia la dirección en la que comenzó
+        // Cambiar de dirección cancela la ventana para evitar cubrir ambos lados
         if (isParrying && facingDirection != parryFacingDirection)
             EndParry();
     }
@@ -232,20 +232,20 @@ public class PlayerCombat : MonoBehaviour
     /// <returns>True si el ataque se ha ejecutado correctamente.</returns>
     public bool PerformBasicAttack()
     {
-        // Comprueba que el jugador puede atacar y sigue vivo.
+        // Comprueba que el jugador puede atacar y sigue vivo
         if (!CanAttack || characterStats == null || characterStats.CurrentHealth <= 0f)
             return false;
 
-        // Activa el gizmo y el cooldown del ataque.
+        // Activa el gizmo y el cooldown del ataque
         attackGizmoTimer = gizmoDisplayDuration;
         attackCooldownTimer = basicAttackCooldown;
 
-        // Limpia los objetivos del ataque anterior.
+        // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
 
-        // Calcula el centro de la esfera desplazándola hacia delante.
+        // Calcula el centro de la esfera desplazándola hacia delante
         // Se utiliza la mitad del alcance para situar el ataque entre
-        // el jugador y su distancia máxima de impacto.
+        // el jugador y su distancia máxima de impacto
         Vector2 center = (Vector2)attackOrigin.position
             + Vector2.right * facingDirection * (basicAttackRange * 0.5f);
 
@@ -266,28 +266,7 @@ public class PlayerCombat : MonoBehaviour
             false
         );
 
-        // Procesa todos los colliders detectados.
-        foreach (Collider2D hit in hits)
-        {
-            // Ignora colliders nulos y cualquier collider perteneciente
-            // al propio jugador.
-            if (hit == null || hit.transform.root == transform.root)
-                continue;
-
-            // Busca el componente que permite recibir daño en el objeto
-            // o en alguno de sus padres.
-            IDamageable damageable = FindDamageable(hit);
-
-            // Ignora objetos que no reciben daño y objetivos del equipo jugador.
-            if (damageable == null || damageable.Team == CombatTeam.Player)
-                continue;
-
-            // HashSet.Add devuelve false si el objetivo ya estaba registrado.
-            // Así evitamos aplicar daño varias veces a un mismo personaje
-            // que tenga varios colliders dentro del área de ataque.
-            if (hitTargets.Add(damageable))
-                damageable.ReceiveDamage(damage);
-        }
+        CombatManager.MakeDamage(transform, hits, hitTargets, damage, CombatTeam.Player);
 
         return true;
     }
@@ -447,25 +426,6 @@ public class PlayerCombat : MonoBehaviour
     #endregion
 
     #region Utilities
-
-    /// <summary>
-    /// Busca un componente que implemente IDamageable en el collider recibido
-    /// o en alguno de sus objetos padre.
-    /// </summary>
-    /// <param name="collider">Collider del objetivo detectado.</param>
-    /// <returns>El componente IDamageable encontrado o null si no existe.</returns>
-    private static IDamageable FindDamageable(Collider2D collider)
-    {
-        MonoBehaviour[] behaviours = collider.GetComponentsInParent<MonoBehaviour>();
-
-        foreach (MonoBehaviour behaviour in behaviours)
-        {
-            if (behaviour is IDamageable damageable)
-                return damageable;
-        }
-
-        return null;
-    }
 
     /// <summary>
     /// Busca un componente que implemente una interfaz concreta
