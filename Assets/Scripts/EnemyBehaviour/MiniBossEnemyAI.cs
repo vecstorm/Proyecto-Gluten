@@ -4,17 +4,22 @@ using System;
 
 public class MiniBossEnemyAI : MonoBehaviour
 {
-    private enum BOSS_STATE { IDLE, ATTACK, HEAVY_ATTACK, PREPARING_JUMP, JUMP_ATTACK };
+    private enum BOSS_STATE { INTRO, IDLE, ATTACK, HEAVY_ATTACK, PREPARING_JUMP, JUMP_ATTACK };
 
     [Header("Debug:")]
     [SerializeField] private BOSS_STATE state;
+    [SerializeField] private bool bossActive = false;
     [SerializeField] private Transform targetTransform;
     [SerializeField] private int health = 30;
+
     private int maxHealth;
 
     [Header("Ground Detection:")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+
+    [Header("Intro:")]
+    [SerializeField] private float introTime = 2f;
 
     [Header("Attack:")]
     [SerializeField] private float attackRadius = 3f;
@@ -74,7 +79,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     private void Start()
     {
-        state = BOSS_STATE.IDLE;
+        state = BOSS_STATE.INTRO;
         rb = GetComponent<Rigidbody2D>();
 
         maxHealth = health;
@@ -85,6 +90,10 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         switch (state)
         {
+            case BOSS_STATE.INTRO:
+                OnIntro();
+                break;
+
             case BOSS_STATE.IDLE:
                 OnIdle();
                 break;
@@ -129,6 +138,20 @@ public class MiniBossEnemyAI : MonoBehaviour
     }
 
     // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
+
+    // Comportamiento en estado INTRO
+    private void OnIntro()
+    {
+        if (!bossActive) return;
+
+        timer += Time.fixedDeltaTime;
+
+        if (timer >= introTime)
+        {
+            ToAttack();
+            timer = 0;
+        }
+    }
 
     // Comportamiento en estado IDLE
     private void OnIdle()
