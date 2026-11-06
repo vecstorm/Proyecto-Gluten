@@ -14,7 +14,7 @@ public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, Wal
 [RequireComponent(typeof(PlayerHook))]
 [RequireComponent(typeof(CharacterStats))]
 [RequireComponent(typeof(RespawnPointScript))]
-public class PlayerController : MonoBehaviour, IDamageable
+public class PlayerController : MonoBehaviour
 {
     #region Variables
 
@@ -29,8 +29,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     /// Devuelve el estado actual del jugador en modo lectura.
     /// </summary>
     public PlayerState CurrentState => currentState;
-
-    public CombatTeam Team => CombatTeam.Player;
 
     /// <summary>
     /// Se utiliza para guardar el estado previo del jugador.
@@ -409,6 +407,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             facingDirection = -1;
 
         playerCombat?.SetFacingDirection(facingDirection);
+        characterStats?.SetFacingDirection(facingDirection);
     }
 
     #endregion
@@ -622,7 +621,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
             case PlayerState.Parry:
 
-                playerCombat?.BeginParry();
+                characterStats.BeginParry();
 
                 break;
         }
@@ -651,7 +650,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
             case PlayerState.Parry:
 
-                playerCombat?.EndParry();
+                characterStats.EndParry();
 
                 break;
         }
@@ -902,7 +901,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             return false;
 
         // El parry tiene prioridad si se pulsan ambos botones
-        if (parryPressed && playerCombat.CanParry)
+        if (parryPressed && characterStats.CanParry)
         {
             parryPressed = false;
             attackPressed = false;
@@ -1303,7 +1302,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void Parry()
     {
         // Cuando termina la ventana de parry, abandonamos el estado.
-        if (playerCombat == null || !playerCombat.IsParrying)
+        if (playerCombat == null || !characterStats.IsParrying)
         {
             if (isGrounded)
             {
@@ -1330,14 +1329,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void Dead()
     {
         throw new NotImplementedException();
-    }
-
-    public bool ReceiveDamage(CombatDamage damage)
-    {
-        if (characterStats.ReceiveDamage(damage))
-            return true;
-        else
-            return false;
     }
 
     #endregion
