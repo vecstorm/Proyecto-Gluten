@@ -41,6 +41,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private float heavyAttackDelay = 1f;
     [SerializeField] private float heavyAttackRecoverDuration = 1f;
     [SerializeField] private GameObject spikePrefab;
+    [SerializeField] private int spikeDamage = 10;
     [SerializeField] private int spikeAmount = 8;
     [SerializeField] private float spikeRange = 6f;
     [SerializeField] private float spikeLifeTime = 3f;
@@ -546,6 +547,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
             spike.transform.localScale = new Vector3(scaleMultiplier, scaleMultiplier, scaleMultiplier);
 
             spike.GetComponent<AutoDestroy>().SetLifeTime(spikeLifeTime);
+            spike.GetComponent<SpikeController>().SetContactDamage(spikeDamage);
         }
     }
 
