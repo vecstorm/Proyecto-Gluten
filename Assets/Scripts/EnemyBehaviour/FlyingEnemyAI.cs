@@ -19,6 +19,7 @@ public class FlyingEnemyAI : EnemyAI
 
     private void Awake()
     {
+        characterStats = GetComponent<CharacterStats>();
         DecideMovementPoint();
     }
 

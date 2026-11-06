@@ -61,7 +61,7 @@ public class EnemyAI : MonoBehaviour
     private Vector3 spawnPosition;
     private Vector3 spawnRotation;
 
-    private CharacterStats characterStats;
+    protected CharacterStats characterStats;
 
     [SerializeField] private float timer;
 
@@ -323,7 +323,7 @@ public class EnemyAI : MonoBehaviour
     }
 
     // Comportamiento de transición a DEAD
-    private void ToDead()
+    protected void ToDead()
     {
         isDead = true;
         state = ENEMY_STATE.DEAD;
