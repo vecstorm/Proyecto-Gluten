@@ -236,6 +236,8 @@ public class EnemyAI : MonoBehaviour
 
         if (timer <= 0f)
         {
+            //transform.rotation = Quaternion.Euler(new Vector3(0, transform.localRotation.y, 0));
+            GetComponent<SpriteRenderer>().color = Color.red;
             ToPatrol();
         }
     }
@@ -299,6 +301,10 @@ public class EnemyAI : MonoBehaviour
     {
         timer = stunnedTimerDuration;
         //detection.DisableVision();
+
+        GetComponent<SpriteRenderer>().color = Color.yellow;
+
+        //transform.rotation = Quaternion.Euler(new Vector3(0, transform.localRotation.y, 25f));
 
         alreadyAttacking = false;
         hitboxCreated = false;
