@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static Unity.Cinemachine.IInputAxisOwner.AxisDescriptor;
 
 public class EnemyAI : MonoBehaviour, IDamageable
 {
@@ -61,6 +60,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
     public CombatTeam Team => CombatTeam.Enemy;
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
+
+    #region MAIN LOOP
 
     private void Awake()
     {
@@ -135,6 +136,10 @@ public class EnemyAI : MonoBehaviour, IDamageable
             Gizmos.DrawSphere(lastTargetPos, 0.1f);
         }
     }
+
+    #endregion
+
+    #region STATE BEHAVIOUR
 
     // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
 
@@ -212,6 +217,10 @@ public class EnemyAI : MonoBehaviour, IDamageable
             StartCoroutine(AttackProcess());
         }
     }
+
+    #endregion
+
+    #region STATE TRANSITION
 
     // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
 
@@ -297,6 +306,10 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
         waitingToDecideIdle = false;
     }
+
+    #endregion
+
+    #region STATE CONDITION
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
@@ -447,4 +460,6 @@ public class EnemyAI : MonoBehaviour, IDamageable
     {
         gameObject.SetActive(false);
     }
+
+    #endregion
 }

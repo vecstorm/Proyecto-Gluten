@@ -26,9 +26,9 @@ Transform:
   m_GameObject: {fileID: 539795710516732738}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0.56, y: 0.15, z: 0}
-  m_LocalScale: {x: 0.37068, y: 0.37068, z: 0.37068}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0.56, y: 0.241, z: 0}
+  m_LocalScale: {x: 0.3051512, y: 0.3051512, z: 0.3051512}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 6572285903614451381}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
@@ -105,7 +105,8 @@ GameObject:
   - component: {fileID: 239062962909842925}
   - component: {fileID: 1221743611248709618}
   - component: {fileID: 4343450151138682763}
-  m_Layer: 2
+  - component: {fileID: 3937623458756170443}
+  m_Layer: 0
   m_Name: MiniBossEnemy2D
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -129,6 +130,7 @@ Transform:
   - {fileID: 7282066891537555557}
   - {fileID: 4377583167175872901}
   - {fileID: 4577101107620095615}
+  - {fileID: 5166392367738128907}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &651916921045394371
@@ -220,12 +222,12 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 2}
+  m_Size: {x: 1.1, y: 2.1}
   m_Direction: 0
 --- !u!50 &239062962909842925
 Rigidbody2D:
@@ -275,9 +277,11 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  contactDamage: 10
   introTime: 2
   minIdleTime: 1
   maxIdleTime: 1.7
+  attackDamage: 10
   attackRadius: 3
   attackRange: 4
   attackDuration: 0.3
@@ -285,6 +289,8 @@ MonoBehaviour:
   attackMovementDuration: 0.3
   attackRecoverDuration: 0.7
   attackDelay: 1
+  attackAnticipationForce: 3
+  heavyAttackDamage: 10
   heavyAttackRadius: 6
   heavyAttackDelay: 1
   heavyAttackRecoverDuration: 1
@@ -293,6 +299,7 @@ MonoBehaviour:
   spikeRange: 6
   spikeLifeTime: 3
   spikeSizeMultiplier: 0.3
+  jumpAttackDamage: 10
   targetMinDistanceToJump: 10
   jumpPreparationTime: 0.6
   jumpHeight: 7
@@ -351,6 +358,24 @@ MonoBehaviour:
   attackMovementDurationMultiplier: 0.2
   jumpDurationMultiplier: -0.6
 --- !u!114 &4343450151138682763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1798289926387313172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8522619fae77ec2458ebb4bf4ee02d94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
+  team: 2
+  maxHealth: 100
+  currentHealth: 0
+  maxStamina: 100
+  staminaRegenRate: 15
+  currentXp: 0
+--- !u!114 &3937623458756170443
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -459,6 +484,75 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &5149699270805662337
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5166392367738128907}
+  - component: {fileID: 2709134952842940530}
+  m_Layer: 8
+  m_Name: PhysicHitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5166392367738128907
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5149699270805662337}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6572285903614451381}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!70 &2709134952842940530
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5149699270805662337}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1, y: 2}
+  m_Direction: 0
 --- !u!1 &6929310242858998794
 GameObject:
   m_ObjectHideFlags: 0

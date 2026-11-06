@@ -3516,29 +3516,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &820013143 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1798289926387313172, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
-  m_PrefabInstance: {fileID: 1135475510}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &820013144
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 820013143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8522619fae77ec2458ebb4bf4ee02d94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
-  team: 2
-  maxHealth: 100
-  currentHealth: 0
-  maxStamina: 100
-  staminaRegenRate: 15
-  currentXp: 0
 --- !u!4 &822599137
 Transform:
   m_ObjectHideFlags: 0
@@ -5224,10 +5201,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1798289926387313172, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 820013144}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
 --- !u!1 &1136105747
 GameObject:
