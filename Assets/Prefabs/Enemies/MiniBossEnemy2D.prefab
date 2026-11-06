@@ -105,7 +105,6 @@ GameObject:
   - component: {fileID: 239062962909842925}
   - component: {fileID: 1221743611248709618}
   - component: {fileID: 4343450151138682763}
-  - component: {fileID: 3937623458756170443}
   m_Layer: 0
   m_Name: MiniBossEnemy2D
   m_TagString: Untagged
@@ -359,24 +358,6 @@ MonoBehaviour:
   attackMovementDurationMultiplier: 0.2
   jumpDurationMultiplier: -0.6
 --- !u!114 &4343450151138682763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1798289926387313172}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8522619fae77ec2458ebb4bf4ee02d94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
-  team: 2
-  maxHealth: 100
-  currentHealth: 0
-  maxStamina: 100
-  staminaRegenRate: 15
-  currentXp: 0
---- !u!114 &3937623458756170443
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

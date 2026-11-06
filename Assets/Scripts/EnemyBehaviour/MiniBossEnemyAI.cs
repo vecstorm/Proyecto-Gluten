@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MiniBossEnemyAI : MonoBehaviour, IDamageable
+public class MiniBossEnemyAI : MonoBehaviour
 {
     private enum BOSS_STATE { INTRO, IDLE, ATTACK, HEAVY_ATTACK, PREPARING_JUMP, JUMP_ATTACK };
 
@@ -11,7 +11,6 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private bool bossActive = false;
     [SerializeField] private Transform targetTransform;
-    [SerializeField] private int health = 30;
     [SerializeField] private float healthToAddDifficulty = 50;
 
     [Header("Ground Detection:")]
@@ -70,8 +69,6 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     [SerializeField][Range(0f, 1f)] private float attackMovementDurationMultiplier = 0.2f;
     [SerializeField][Range(-1f, 0f)] private float jumpDurationMultiplier = -0.4f;
 
-
-    private int maxHealth;
     private BOSS_STATE lastAttackState;
 
     private int multiAttackCount = 0;
@@ -99,8 +96,6 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
-    public CombatTeam Team => CombatTeam.Enemy;
-
     CharacterStats characterStats;
 
     #region MAIN LOOP
@@ -117,18 +112,19 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
 
         spawnPosition = transform.position;
 
-        maxHealth = health;
-        healthModule = health / multiJumpHealthTrigger;
+        healthModule = characterStats.MaxHealth / 2;
     }
 
     private void OnEnable()
     {
         characterStats.OnDeath += Death;
+        characterStats.OnDamageTaken += CheckHealthLeft;
     }
 
     private void OnDisable()
     {
         characterStats.OnDeath -= Death;
+        characterStats.OnDamageTaken -= CheckHealthLeft;
     }
 
     private void FixedUpdate()
@@ -229,7 +225,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
 
             Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
 
-            CombatDamage damage = new CombatDamage(attackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
+            CombatDamage damage = new CombatDamage(attackDamage, characterStats, colliderPosition, false);
 
             CombatManager.MakeDamage(transform, hits, hitTargets, damage);
         }
@@ -249,7 +245,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
 
             Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, heavyAttackRadius);
 
-            CombatDamage damage = new CombatDamage(heavyAttackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
+            CombatDamage damage = new CombatDamage(heavyAttackDamage, characterStats, colliderPosition, false);
 
             CombatManager.MakeDamage(transform, hits, hitTargets, damage);
         }
@@ -285,14 +281,16 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
             timer = 0f;
             alreadyJumpAttacking = false;
 
-            if (health % healthModule == 0 && health != maxHealth && health != 0)
+            /*if (health % healthModule == 0 && health != maxHealth && health != 0)
             {
                 ToConsecutiveJump();
             }
             else
             {
                 ProbabilityToAct(heavyAfterJumpProbability, ToHeavyAttack, ToIdle);
-            } 
+            }*/
+
+            ProbabilityToAct(heavyAfterJumpProbability, ToHeavyAttack, ToIdle);
         }
 
         lastJumpVerticalPosition = jumpPosition;
@@ -386,8 +384,8 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
         if (collision.CompareTag("Player"))
         {
             hitTargets.Clear();
-            CombatDamage damage = new CombatDamage(state != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
-            CombatManager.MakeDamage(transform, collision, hitTargets, damage, Team);
+            CombatDamage damage = new CombatDamage(state != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
         }
     }
 
@@ -605,17 +603,21 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
         return baseStat + (difficultyLevel * statMultiplier);
     }
 
-    public bool ReceiveDamage(CombatDamage damage)
-    {
-        if (characterStats.ReceiveDamage(damage))
-            return true;
-        else
-            return false;
-    }
-
     private void Death()
     {
         gameObject.SetActive(false);
+    }
+
+    private void CheckHealthLeft()
+    {
+        float currenthealth = characterStats.CurrentHealth;
+
+        if (currenthealth % healthModule == 0 && currenthealth != characterStats.MaxHealth && currenthealth != 0)
+        {
+            Debug.Log("Ha subido la dificultad | Current Health: " + currenthealth + " | Health Module: " + healthModule + " | Resultado: " + currenthealth % healthModule + " | Max Health: " + characterStats.MaxHealth);
+            difficultyLevel++;
+            ToConsecutiveJump();
+        }
     }
 
     #endregion

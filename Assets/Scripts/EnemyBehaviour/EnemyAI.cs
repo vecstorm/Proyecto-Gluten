@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class EnemyAI : MonoBehaviour, IDamageable
+public class EnemyAI : MonoBehaviour
 {
     private enum ENEMY_STATE { IDLE, PATROL, CHASING, ATTACK, SEARCHING, DEAD };
 
@@ -62,7 +62,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     private CharacterStats characterStats;
 
-    public CombatTeam Team => CombatTeam.Enemy;
+    //public CombatTeam Team => CombatTeam.Enemy;
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
@@ -240,9 +240,9 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
             Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
 
-            CombatDamage damage = new CombatDamage(attackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
+            CombatDamage damage = new CombatDamage(attackDamage, characterStats, colliderPosition, true);
 
-            CombatManager.MakeDamage(transform, hits, hitTargets, damage, Team);
+            CombatManager.MakeDamage(transform, hits, hitTargets, damage, characterStats.Team);
         }
     }
 
@@ -358,8 +358,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
             // Limpia los objetivos del ataque anterior
             hitTargets.Clear();
 
-            CombatDamage damage = new CombatDamage(contactDamage, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
-            CombatManager.MakeDamage(transform, collision, hitTargets, damage, Team);
+            CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
         }
     }
 
@@ -476,14 +476,6 @@ public class EnemyAI : MonoBehaviour, IDamageable
         float deltaX = targetTransform.position.x - transform.position.x;
 
         return deltaX < 0;
-    }
-
-    public bool ReceiveDamage(CombatDamage damage)
-    {
-        if (characterStats.ReceiveDamage(damage))
-            return true;
-        else
-            return false;
     }
 
     private void ResetEnemy()

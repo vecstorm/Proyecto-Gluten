@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public class CharacterStats : MonoBehaviour
+public class CharacterStats : MonoBehaviour, IDamageable
 {
     [Header("Combate")]
     [SerializeField] private CombatTeam team = CombatTeam.Neutral;
@@ -22,8 +22,9 @@ public class CharacterStats : MonoBehaviour
     // Eventos de C# para notificar cambios de forma desacoplada
     public event Action<float, float> OnHealthChanged;   // (Vida Actual, Vida Máxima)
     public event Action<float, float> OnStaminaChanged;  // (Estamina Actual, Estamina Máxima)
-    public event Action OnDeath;                         // Se dispara al llegar a 0 de vida
-
+    public event Action OnDeath; // Se dispara al llegar a 0 de vida
+    public event Action OnDamageTaken;
+    
     public float CurrentHealth => currentHealth;
     public float CurrentStamina => currentStamina;
     public float MaxHealth => maxHealth;
@@ -71,6 +72,8 @@ public class CharacterStats : MonoBehaviour
     public void TakeDamage(float amount)
     {
         if (currentHealth <= 0f) return;
+
+        OnDamageTaken?.Invoke();
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);

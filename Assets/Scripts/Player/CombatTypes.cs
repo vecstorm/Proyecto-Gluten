@@ -44,6 +44,50 @@ public struct CombatDamage
         AttackType = attackType;
         IsParryable = isParryable;
     }
+
+    public CombatDamage(
+        float amount,
+        CharacterStats stats,
+        Vector2 hitPoint,
+        CombatAttackType attackType = CombatAttackType.Melee,
+        bool isParryable = true)
+    {
+        Amount = amount;
+        SourceTeam = stats.Team;
+        Source = stats.transform;
+        HitPoint = hitPoint;
+        AttackType = attackType;
+        IsParryable = isParryable;
+    }
+
+    public CombatDamage(
+        float amount,
+        CharacterStats stats,
+        Vector2 hitPoint,
+        bool isParryable,
+        CombatAttackType attackType = CombatAttackType.Melee)
+    {
+        Amount = amount;
+        SourceTeam = stats.Team;
+        Source = stats.transform;
+        HitPoint = hitPoint;
+        AttackType = attackType;
+        IsParryable = isParryable;
+    }
+
+    public CombatDamage(
+        float amount,
+        CharacterStats stats,
+        bool isParryable,
+        CombatAttackType attackType = CombatAttackType.Melee)
+    {
+        Amount = amount;
+        SourceTeam = stats.Team;
+        Source = stats.transform;
+        HitPoint = stats.transform.position;
+        AttackType = attackType;
+        IsParryable = isParryable;
+    }
 }
 
 /// <summary>
