@@ -11,7 +11,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private bool bossActive = false;
     [SerializeField] private Transform targetTransform;
-    [SerializeField] private float healthToAddDifficulty = 50;
+    [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
 
     [Header("Ground Detection:")]
     [SerializeField] private Transform groundCheck;
@@ -86,6 +86,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     private bool heavyAttackHitboxActive = false;
 
     private bool alreadyJumpAttacking = false;
+    private bool alreadyMultiJumpAttacking = false;
 
     private bool waitingToAct = false;
 
@@ -112,7 +113,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         spawnPosition = transform.position;
 
-        healthModule = characterStats.MaxHealth / 2;
+        healthModule = characterStats.MaxHealth / (float)healthToDivideDifficulty;
     }
 
     private void OnEnable()
@@ -281,16 +282,14 @@ public class MiniBossEnemyAI : MonoBehaviour
             timer = 0f;
             alreadyJumpAttacking = false;
 
-            /*if (health % healthModule == 0 && health != maxHealth && health != 0)
+            if (alreadyMultiJumpAttacking)
             {
                 ToConsecutiveJump();
             }
             else
             {
                 ProbabilityToAct(heavyAfterJumpProbability, ToHeavyAttack, ToIdle);
-            }*/
-
-            ProbabilityToAct(heavyAfterJumpProbability, ToHeavyAttack, ToIdle);
+            }
         }
 
         lastJumpVerticalPosition = jumpPosition;
@@ -355,12 +354,15 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         multiJumpCount++;
 
-        if (multiJumpCount < maxMultiJumpChain)
+        Debug.Log(maxMultiJumpChain + " | " + multiJumpCount);
+
+        if (multiJumpCount <= maxMultiJumpChain)
         {
             ToPreparingJump();
         }
         else
         {
+            alreadyMultiJumpAttacking = false;
             ToIdle();
         }
     }
@@ -610,14 +612,21 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     private void CheckHealthLeft()
     {
-        float currenthealth = characterStats.CurrentHealth;
+        //float currenthealth = characterStats.CurrentHealth;
 
-        if (currenthealth % healthModule == 0 && currenthealth != characterStats.MaxHealth && currenthealth != 0)
+        if (HealthCheck())
         {
-            Debug.Log("Ha subido la dificultad | Current Health: " + currenthealth + " | Health Module: " + healthModule + " | Resultado: " + currenthealth % healthModule + " | Max Health: " + characterStats.MaxHealth);
+            //Debug.Log("Ha subido la dificultad | Current Health: " + currenthealth + " | Health Module: " + healthModule + " | Resultado: " + currenthealth % healthModule + " | Max Health: " + characterStats.MaxHealth);
+            alreadyMultiJumpAttacking = true;
             difficultyLevel++;
             ToConsecutiveJump();
         }
+    }
+
+    private bool HealthCheck()
+    {
+        float currenthealth = characterStats.CurrentHealth;
+        return currenthealth % healthModule == 0 && currenthealth != characterStats.MaxHealth && currenthealth != 0;
     }
 
     #endregion
