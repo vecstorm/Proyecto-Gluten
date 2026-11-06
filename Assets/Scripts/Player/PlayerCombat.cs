@@ -158,6 +158,34 @@ public class PlayerCombat : MonoBehaviour
             }
         }
 
+        if (attackGizmoTimer >= 0f)
+        {
+            // Calcula el centro de la esfera desplazándola hacia delante
+            // Se utiliza la mitad del alcance para situar el ataque entre
+            // el jugador y su distancia máxima de impacto
+            Vector2 center = (Vector2)attackOrigin.position
+                + Vector2.right * facingDirection * (basicAttackRange * 0.5f);
+
+            // Detecta todos los colliders que se encuentren dentro de la esfera.
+            Collider2D[] hits = Physics2D.OverlapCircleAll(
+                center,
+                basicAttackRange,
+                hittableLayers
+            );
+
+            // Construye la información del daño que recibirán los objetivos.
+            CombatDamage damage = new CombatDamage(
+                basicAttackDamage,
+                CombatTeam.Player,
+                transform,
+                center,
+                CombatAttackType.Melee,
+                false
+            );
+
+            CombatManager.MakeDamage(transform, hits, hitTargets, damage, CombatTeam.Player);
+        }
+
         // Controla cuánto tiempo permanece visible el gizmo del ataque
         if (attackGizmoTimer > 0f)
             attackGizmoTimer -= Time.deltaTime;
@@ -209,31 +237,6 @@ public class PlayerCombat : MonoBehaviour
 
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
-
-        // Calcula el centro de la esfera desplazándola hacia delante
-        // Se utiliza la mitad del alcance para situar el ataque entre
-        // el jugador y su distancia máxima de impacto
-        Vector2 center = (Vector2)attackOrigin.position
-            + Vector2.right * facingDirection * (basicAttackRange * 0.5f);
-
-        // Detecta todos los colliders que se encuentren dentro de la esfera.
-        Collider2D[] hits = Physics2D.OverlapCircleAll(
-            center,
-            basicAttackRange,
-            hittableLayers
-        );
-
-        // Construye la información del daño que recibirán los objetivos.
-        CombatDamage damage = new CombatDamage(
-            basicAttackDamage,
-            CombatTeam.Player,
-            transform,
-            center,
-            CombatAttackType.Melee,
-            false
-        );
-
-        CombatManager.MakeDamage(transform, hits, hitTargets, damage, CombatTeam.Player);
 
         return true;
     }

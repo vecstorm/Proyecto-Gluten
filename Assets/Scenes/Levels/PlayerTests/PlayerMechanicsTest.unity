@@ -7232,7 +7232,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1987180075707234818, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
       propertyPath: parryWindow
-      value: 1
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 1987180075707234818, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
       propertyPath: canTakeDamage
@@ -7289,6 +7289,10 @@ PrefabInstance:
     - target: {fileID: 6413751089638512161, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
       propertyPath: hurtTimerDuration
       value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8003488418989509812, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
+      propertyPath: gizmoDisplayDuration
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8003488418989509812, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
       propertyPath: invulnerabilityDuration

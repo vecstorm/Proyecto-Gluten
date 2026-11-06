@@ -29,16 +29,6 @@ public struct CombatDamage
     public CombatAttackType AttackType;
     public bool IsParryable;
 
-    /*public CombatDamage()
-    {
-        Amount = 0;
-        SourceTeam = CombatTeam.Neutral;
-        Source = null;
-        HitPoint = Vector2.zero;
-        AttackType = CombatAttackType.Melee;
-        IsParryable = false;
-    }*/
-
     public CombatDamage(
         float amount,
         CombatTeam sourceTeam,
