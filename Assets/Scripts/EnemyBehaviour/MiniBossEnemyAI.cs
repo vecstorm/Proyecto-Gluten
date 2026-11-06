@@ -19,11 +19,13 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private LayerMask groundLayer;
 
     [Header("Intro / Idle:")]
+    [SerializeField] private int contactDamage = 10;
     [SerializeField] private float introTime = 2f;
     [SerializeField] private float minIdleTime = 1f;
     [SerializeField] private float maxIdleTime = 1.7f;
 
     [Header("Attack:")]
+    [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackRadius = 3f;
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackDuration = 0.3f;
@@ -31,8 +33,10 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private float attackMovementDuration = 0.2f;
     [SerializeField] private float attackRecoverDuration = 0.6f;
     [SerializeField] private float attackDelay = 1f;
+    [SerializeField] private float attackAnticipationForce = 3f;
 
     [Header("Heavy Attack:")]
+    [SerializeField] private int heavyAttackDamage = 10;
     [SerializeField] private float heavyAttackRadius = 6f;
     [SerializeField] private float heavyAttackDelay = 1f;
     [SerializeField] private float heavyAttackRecoverDuration = 1f;
@@ -43,6 +47,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
     [Header("Jump Attack:")]
+    [SerializeField] private int jumpAttackDamage = 10;
     [SerializeField] private float targetMinDistanceToJump = 10f;
     [SerializeField] private float jumpPreparationTime = 1f;
     [SerializeField] private float jumpHeight = 7f;
@@ -96,6 +101,8 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     public CombatTeam Team => CombatTeam.Enemy;
 
     CharacterStats characterStats;
+
+    #region MAIN LOOP
 
     private void Awake()
     {
@@ -173,6 +180,10 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
             Gizmos.DrawWireSphere(transform.position, heavyAttackRadius);
         }
     }
+
+    #endregion
+
+    #region STATE BEHAVIOUR
 
     // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
 
@@ -264,6 +275,10 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
         lastJumpVerticalPosition = jumpPosition;
     }
 
+    #endregion
+
+    #region STATE TRANSITION
+
     // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
 
     // Comportamiento de transición a IDLE
@@ -337,7 +352,23 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
         lastAttackState = state;
     }
 
+    #endregion
+
+    #region STATE CONDITION
+
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            // Limpia los objetivos del ataque anterior
+            hitTargets.Clear();
+
+            CombatDamage damage = new CombatDamage(contactDamage, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, Team);
+        }
+    }
 
     // Espera un tiempo definido para decidir que accion realizar
     private IEnumerator WaitToAct()
@@ -407,7 +438,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     private IEnumerator AttackProcess()
     {
         alreadyAttacking = true;
-        rb.AddForce(-transform.right * 3f, ForceMode2D.Impulse);
+        rb.AddForce(-transform.right * attackAnticipationForce, ForceMode2D.Impulse);
 
         yield return new WaitForSeconds(StatWithMultiplier(attackDelay, delayMultiplier));
 
@@ -422,14 +453,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
 
-        CombatDamage damage = new CombatDamage(
-            10,
-            CombatTeam.Enemy,
-            transform,
-            colliderPosition,
-            CombatAttackType.Melee,
-            false
-        );
+        CombatDamage damage = new CombatDamage(attackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
 
         CombatManager.MakeDamage(transform, hits, hitTargets, damage);
 
@@ -462,14 +486,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, heavyAttackRadius);
 
-        CombatDamage damage = new CombatDamage(
-            10,
-            CombatTeam.Enemy,
-            transform,
-            colliderPosition,
-            CombatAttackType.Melee,
-            false
-        );
+        CombatDamage damage = new CombatDamage(heavyAttackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
 
         CombatManager.MakeDamage(transform, hits, hitTargets, damage);
 
@@ -595,4 +612,6 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     {
         gameObject.SetActive(false);
     }
+
+    #endregion
 }

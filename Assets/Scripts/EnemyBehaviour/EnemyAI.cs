@@ -27,6 +27,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private LayerMask groundLayer;
 
     [Header("Attack:")]
+    [SerializeField] private int contactDamage = 10;
+    [SerializeField] private int attackDamage = 10;
     [SerializeField] private float attackDetectionRange = 3f;
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField] private float attackRadius = 1f;
@@ -305,7 +307,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
             // Limpia los objetivos del ataque anterior
             hitTargets.Clear();
 
-            CombatDamage damage = new CombatDamage(10, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
+            CombatDamage damage = new CombatDamage(contactDamage, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, Team);
         }
     }
@@ -323,7 +325,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
 
-        CombatDamage damage = new CombatDamage(0, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
+        CombatDamage damage = new CombatDamage(attackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
 
         CombatManager.MakeDamage(transform, hits, hitTargets, damage, Team);
 
