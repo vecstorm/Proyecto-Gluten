@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
-    private enum ENEMY_STATE { IDLE, PATROL, CHASING, ATTACK, SEARCHING, DEAD };
+    private enum ENEMY_STATE { IDLE, PATROL, CHASING, ATTACK, SEARCHING, STUNNED, DEAD };
 
     [Header("Debug:")]
     [SerializeField] private ENEMY_STATE state;
@@ -16,6 +16,7 @@ public class EnemyAI : MonoBehaviour
     [Header("Movement:")]
     [SerializeField] protected float speed = 2f;
     [SerializeField] private float probabilityToTurn = 30f;
+    [SerializeField] private float stunnedTimerDuration = 1f;
 
     [Header("Target Detection:")]
     [SerializeField] private float areaRadius = 3f;
@@ -62,7 +63,7 @@ public class EnemyAI : MonoBehaviour
 
     private CharacterStats characterStats;
 
-    //public CombatTeam Team => CombatTeam.Enemy;
+    [SerializeField] private float timer;
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
@@ -87,6 +88,7 @@ public class EnemyAI : MonoBehaviour
     {
         invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         characterStats.OnDeath += ToDead;
+        characterStats.OnStunApplied += ToStunned;
 
         if (isDead)
         {
@@ -97,6 +99,7 @@ public class EnemyAI : MonoBehaviour
     private void OnDisable()
     {
         characterStats.OnDeath -= ToDead;
+        characterStats.OnStunApplied -= ToStunned;
     }
 
     private void FixedUpdate()
@@ -121,6 +124,10 @@ public class EnemyAI : MonoBehaviour
 
             case ENEMY_STATE.SEARCHING:
                 OnSearching();
+                break;
+
+            case ENEMY_STATE.STUNNED:
+                OnStunned();
                 break;
 
             case ENEMY_STATE.DEAD:
@@ -221,6 +228,18 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    private void OnStunned()
+    {
+        if (timer > 0f) timer -= Time.deltaTime;
+
+        rb.linearVelocity = Vector3.zero;
+
+        if (timer <= 0f)
+        {
+            ToPatrol();
+        }
+    }
+
     // Comportamiento en estado ATTACK
     private void OnAttack()
     {
@@ -274,6 +293,20 @@ public class EnemyAI : MonoBehaviour
     {
         Debug.Log("Changed to SEARCHING");
         state = ENEMY_STATE.SEARCHING;
+    }
+
+    private void ToStunned()
+    {
+        timer = stunnedTimerDuration;
+        //detection.DisableVision();
+
+        alreadyAttacking = false;
+        hitboxCreated = false;
+        waitingToPatrol = false;
+        waitingToChase = false;
+        waitingToDecideIdle = false;
+
+        state = ENEMY_STATE.STUNNED;
     }
 
     // Comportamiento de transición a ATTACK

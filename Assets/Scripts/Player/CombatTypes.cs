@@ -114,7 +114,7 @@ public interface IDamageable
 /// </summary>
 public interface IStunnable
 {
-    void ApplyStun(float duration);
+    void ApplyStun();
 }
 
 /// <summary>

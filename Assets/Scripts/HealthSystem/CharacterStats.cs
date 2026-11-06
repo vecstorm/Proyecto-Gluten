@@ -1,15 +1,12 @@
 using UnityEngine;
 using System;
 
-public class CharacterStats : MonoBehaviour, IDamageable
+public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 {
     [Header("Combate")]
     [SerializeField] private CombatTeam team = CombatTeam.Neutral;
 
     public CombatTeam Team => team;
-    private CombatDamage lastDamageTaken = new CombatDamage();
-
-    public CombatDamage LastDamageTaken => lastDamageTaken;
 
     [Header("Configuración de Vida")]
     [SerializeField] private float maxHealth = 100f;
@@ -29,6 +26,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public event Action<float, float> OnStaminaChanged;  // (Estamina Actual, Estamina Máxima)
     public event Action OnDeath; // Se dispara al llegar a 0 de vida
     public event Action OnDamageTaken;
+    public event Action OnStunApplied;
 
     public float CurrentHealth => currentHealth;
     public float CurrentStamina => currentStamina;
@@ -64,9 +62,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     [Tooltip("Tiempo que debe pasar antes de poder iniciar otro parry")]
     [SerializeField, Min(0f)] private float parryCooldown = 0.5f;
-
-    [Tooltip("Duración del aturdimiento aplicado a un enemigo cuerpo a cuerpo tras un parry exitoso")]
-    [SerializeField, Min(0f)] private float meleeParryStunDuration = 0.5f;
 
     /// <summary>
     /// Indica si el jugador puede iniciar otro parry.
@@ -126,11 +121,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
             return false;
         }
 
-        lastDamageTaken = damage;
-
         if (isParrying && parryTimer > 0f && damage.IsParryable && IsAttackInFront(damage))
         {
-            //ResolveParry(incomingDamage);
+            ResolveParry(damage);
             return false;
         }
 
@@ -268,7 +261,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
             IStunnable stunnable = FindInterface<IStunnable>(incomingDamage.Source);
 
             if (stunnable != null)
-                stunnable.ApplyStun(meleeParryStunDuration);
+                stunnable.ApplyStun();
         }
     }
 
@@ -388,7 +381,10 @@ public class CharacterStats : MonoBehaviour, IDamageable
         Vector3 direction = ((damageSourcePosition + -Vector3.up * 0.5f) - transform.position).normalized;
 
         rb.AddForce(-direction * knockbackForce, ForceMode2D.Impulse);
+    }
 
-        Debug.Log("Disparaao - position: " + damageSourcePosition + " - direccion: " + direction + " - ");
+    public void ApplyStun()
+    {
+        OnStunApplied?.Invoke();
     }
 }
