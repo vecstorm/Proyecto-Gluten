@@ -4,6 +4,7 @@ using UnityEngine;
 public class SpikeController : MonoBehaviour
 {
     [SerializeField] private int contactDamage = 10;
+    [SerializeField] Transform center;
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
@@ -14,7 +15,7 @@ public class SpikeController : MonoBehaviour
             // Limpia los objetivos del ataque anterior
             hitTargets.Clear();
 
-            CombatDamage damage = new CombatDamage(contactDamage, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
+            CombatDamage damage = new CombatDamage(contactDamage, CombatTeam.Enemy, transform, center.position, CombatAttackType.Melee, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, CombatTeam.Enemy);
         }
     }

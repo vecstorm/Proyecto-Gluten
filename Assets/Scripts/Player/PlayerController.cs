@@ -139,6 +139,13 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    #region Hurt
+
+    [SerializeField] float hurtTimerDuration = 1f;
+    [SerializeField] private float hurtTimer;
+
+    #endregion
+
     #region Ground Check
 
     [Header("Ground Check")]
@@ -313,6 +320,9 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (hurtTimer > 0f)
+            hurtTimer -= Time.fixedDeltaTime;
+
         CheckGround();
         CheckWall();
 
@@ -622,6 +632,13 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Parry:
 
                 characterStats.BeginParry();
+
+                break;
+
+            case PlayerState.Hurt:
+
+                rb.linearVelocity = Vector3.zero;
+                hurtTimer = hurtTimerDuration;
 
                 break;
         }
@@ -1320,7 +1337,13 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Hurt()
     {
-        throw new NotImplementedException();
+        if (hurtTimer <= 0)
+        {
+            if (isGrounded)
+                ChangeState(PlayerState.Idle);
+            else
+                ChangeState(PlayerState.Airborne);
+        }
     }
 
     /// <summary>

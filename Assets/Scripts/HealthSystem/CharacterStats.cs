@@ -20,19 +20,23 @@ public class CharacterStats : MonoBehaviour, IDamageable
     [SerializeField] private float staminaRegenRate = 15f;
     private float currentStamina;
 
+    Rigidbody2D rb;
+
+    [SerializeField] private bool canTakeDamage = true;
+
     // Eventos de C# para notificar cambios de forma desacoplada
     public event Action<float, float> OnHealthChanged;   // (Vida Actual, Vida Máxima)
     public event Action<float, float> OnStaminaChanged;  // (Estamina Actual, Estamina Máxima)
     public event Action OnDeath; // Se dispara al llegar a 0 de vida
     public event Action OnDamageTaken;
-    
+
     public float CurrentHealth => currentHealth;
     public float CurrentStamina => currentStamina;
     public float MaxHealth => maxHealth;
     public float MaxStamina => maxStamina;
 
     private bool isPlayer;
-
+    
     /// <summary>
     /// Temporizador para el parry.
     /// </summary>
@@ -78,12 +82,14 @@ public class CharacterStats : MonoBehaviour, IDamageable
     private int facingDirection = 1;
 
     public int currentXp = 0;
+    [SerializeField] private float knockbackForce = 3f;
 
     private void Awake()
     {
         currentHealth = maxHealth;
         currentStamina = maxStamina;
         isPlayer = gameObject.CompareTag("Player");
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
@@ -128,7 +134,10 @@ public class CharacterStats : MonoBehaviour, IDamageable
             return false;
         }
 
+        if (!canTakeDamage) return false;
+
         TakeDamage(damage.Amount);
+        AddKnockback(damage.HitPoint);
         return true;
     }
 
@@ -136,11 +145,11 @@ public class CharacterStats : MonoBehaviour, IDamageable
     {
         if (currentHealth <= 0f) return;
 
-        OnDamageTaken?.Invoke();
-
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
         Debug.Log($"{gameObject.name} took {amount} damage. Current Health: {currentHealth}/{maxHealth}");
+
+        OnDamageTaken?.Invoke();
 
         if (currentHealth <= 0f)
         {
@@ -362,5 +371,24 @@ public class CharacterStats : MonoBehaviour, IDamageable
         }
 
         return null;
+    }
+
+    public bool GetCanTakeDamage()
+    {
+        return canTakeDamage;
+    }
+
+    public void SetCanTakeDamage(bool value)
+    {
+        canTakeDamage = value;
+    }
+
+    public void AddKnockback(Vector3 damageSourcePosition)
+    {
+        Vector3 direction = ((damageSourcePosition + -Vector3.up * 0.5f) - transform.position).normalized;
+
+        rb.AddForce(-direction * knockbackForce, ForceMode2D.Impulse);
+
+        Debug.Log("Disparaao - position: " + damageSourcePosition + " - direccion: " + direction + " - ");
     }
 }

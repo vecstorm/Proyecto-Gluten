@@ -24,6 +24,8 @@ public class PlayerCombat : MonoBehaviour
     [Tooltip("Capas de colisión que pueden recibir el ataque básico")]
     [SerializeField] private LayerMask hittableLayers = ~0;
 
+    private PlayerController playerController;
+
     #endregion
 
     #region Configuration
@@ -61,8 +63,8 @@ public class PlayerCombat : MonoBehaviour
     /// <summary>
     /// Temporizador para la invulnerabilidad.
     /// </summary>
-    private float invulnerabilityTimer;
-    
+    [SerializeField] private float invulnerabilityTimer;
+
     /// <summary>
     /// Dirección hacia la que mira el jugador, 1 = derecha, -1 = izquierda.
     /// </summary>
@@ -123,6 +125,8 @@ public class PlayerCombat : MonoBehaviour
         // utiliza la posición del propio jugador.
         if (attackOrigin == null)
             attackOrigin = transform;
+
+        playerController = GetComponent<PlayerController>();
     }
 
     private void OnEnable()
@@ -145,6 +149,14 @@ public class PlayerCombat : MonoBehaviour
 
         // Duración de la invulnerabilidad
         invulnerabilityTimer = Mathf.Max(0f, invulnerabilityTimer - Time.deltaTime);
+
+        if (!characterStats.GetCanTakeDamage())
+        {
+            if (invulnerabilityTimer <= 0f)
+            {
+                characterStats.SetCanTakeDamage(true);
+            }
+        }
 
         // Controla cuánto tiempo permanece visible el gizmo del ataque
         if (attackGizmoTimer > 0f)
@@ -243,8 +255,13 @@ public class PlayerCombat : MonoBehaviour
         if (characterStats == null || characterStats.CurrentHealth <= 0f || IsInvulnerable)
             return;
 
+        playerController.ChangeState(PlayerState.Hurt);
+
+        characterStats.SetCanTakeDamage(false);
+
         // Activa la invulnerabilidad para evitar recibir daño consecutivo.
         invulnerabilityTimer = invulnerabilityDuration;
+        Debug.Log("Invulnerabilidad activada.");
     }
 
     #endregion
