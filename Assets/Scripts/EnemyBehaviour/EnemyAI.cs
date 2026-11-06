@@ -217,6 +217,17 @@ public class EnemyAI : MonoBehaviour, IDamageable
         {
             StartCoroutine(AttackProcess());
         }
+
+        if (hitboxCreated)
+        {
+            Vector3 colliderPosition = transform.position + GetTargetDirection() * attackRange;
+
+            Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
+
+            CombatDamage damage = new CombatDamage(attackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
+
+            CombatManager.MakeDamage(transform, hits, hitTargets, damage, Team);
+        }
     }
 
     #endregion
@@ -332,16 +343,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
         alreadyAttacking = true;
         hitboxCreated = true;
 
-        Vector3 colliderPosition = transform.position + GetTargetDirection() * attackRange;
-
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
-
-        CombatDamage damage = new CombatDamage(attackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
-
-        CombatManager.MakeDamage(transform, hits, hitTargets, damage, Team);
 
         yield return new WaitForSeconds(attackDuration);
 
