@@ -278,7 +278,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   contactDamage: 10
-  introTime: 2
+  introTime: 3
   minIdleTime: 1
   maxIdleTime: 1.7
   attackDamage: 10
@@ -295,11 +295,12 @@ MonoBehaviour:
   heavyAttackDelay: 1
   heavyAttackRecoverDuration: 1
   spikePrefab: {fileID: 3035020057427038812, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
+  spikeDamage: 10
   spikeAmount: 8
   spikeRange: 6
   spikeLifeTime: 3
   spikeSizeMultiplier: 0.3
-  jumpAttackDamage: 10
+  jumpAttackDamage: 20
   targetMinDistanceToJump: 10
   jumpPreparationTime: 0.6
   jumpHeight: 7

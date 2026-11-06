@@ -48,7 +48,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private float spikeSizeMultiplier = 0.3f;
 
     [Header("Jump Attack:")]
-    [SerializeField] private int jumpAttackDamage = 10;
+    [SerializeField] private int jumpAttackDamage = 20;
     [SerializeField] private float targetMinDistanceToJump = 10f;
     [SerializeField] private float jumpPreparationTime = 1f;
     [SerializeField] private float jumpHeight = 7f;
@@ -222,6 +222,17 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
         {
             StartCoroutine(AttackProcess());
         }
+
+        if (attackHitboxActive)
+        {
+            Vector2 colliderPosition = transform.position + transform.right * attackRange;
+
+            Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
+
+            CombatDamage damage = new CombatDamage(attackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
+
+            CombatManager.MakeDamage(transform, hits, hitTargets, damage);
+        }
     }
 
     // Comportamiento en estado HEAVY_ATTACK
@@ -230,6 +241,17 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
         if (!alreadyHeavyAttacking)
         {
             StartCoroutine(HeavyAttackProcess());
+        }
+
+        if (heavyAttackHitboxActive)
+        {
+            Vector3 colliderPosition = transform.position;
+
+            Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, heavyAttackRadius);
+
+            CombatDamage damage = new CombatDamage(heavyAttackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
+
+            CombatManager.MakeDamage(transform, hits, hitTargets, damage);
         }
     }
 
@@ -363,10 +385,8 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
     {
         if (collision.CompareTag("Player"))
         {
-            // Limpia los objetivos del ataque anterior
             hitTargets.Clear();
-
-            CombatDamage damage = new CombatDamage(contactDamage, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
+            CombatDamage damage = new CombatDamage(state != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, CombatTeam.Enemy, transform, transform.position, CombatAttackType.Melee, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, Team);
         }
     }
@@ -447,16 +467,8 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
 
         rb.linearVelocity = transform.right * attackMovementSpeed;
 
-        Vector2 colliderPosition = transform.position + transform.right * attackRange;
-
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
-
-        CombatDamage damage = new CombatDamage(attackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
-
-        CombatManager.MakeDamage(transform, hits, hitTargets, damage);
 
         yield return new WaitForSeconds(StatWithMultiplier(attackMovementDuration, attackMovementDurationMultiplier));
 
@@ -483,16 +495,7 @@ public class MiniBossEnemyAI : MonoBehaviour, IDamageable
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
 
-        Vector3 colliderPosition = transform.position;
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, heavyAttackRadius);
-
-        CombatDamage damage = new CombatDamage(heavyAttackDamage, CombatTeam.Enemy, transform, colliderPosition, CombatAttackType.Melee, false);
-
-        CombatManager.MakeDamage(transform, hits, hitTargets, damage);
-
         transform.localScale = new Vector3(3f, 3f, 3f);
-        //transform.localScale = new Vector3(3f, 2.8f, 3f);
 
         StartCoroutine(SpawnSpikes());
 
