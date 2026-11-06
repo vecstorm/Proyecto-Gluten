@@ -5,11 +5,13 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour, IDamageable
 {
-    private enum ENEMY_STATE { IDLE, PATROL, CHASING, ATTACK, SEARCHING };
+    private enum ENEMY_STATE { IDLE, PATROL, CHASING, ATTACK, SEARCHING, DEAD };
 
     [Header("Debug:")]
     [SerializeField] private ENEMY_STATE state;
+    [SerializeField] private ENEMY_STATE defaultState;
     [SerializeField] private bool showGizmos = true;
+    [SerializeField] private bool canRespawn = true;
 
     [Header("Movement:")]
     [SerializeField] protected float speed = 2f;
@@ -52,8 +54,11 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private bool waitingToPatrol = false;
     private bool waitingToChase = false;
     private bool waitingToDecideIdle = false;
+    private bool isDead = false;
 
     private Vector3 lastTargetPos;
+    private Vector3 spawnPosition;
+    private Vector3 spawnRotation;
 
     private CharacterStats characterStats;
 
@@ -66,7 +71,6 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private void Awake()
     {
         characterStats = GetComponent<CharacterStats>();
-        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
     }
 
     private void Start()
@@ -74,16 +78,25 @@ public class EnemyAI : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody2D>();
         detection = GetComponent<VisionCone>();
         state = ENEMY_STATE.PATROL;
+        defaultState = state;
+        spawnPosition = transform.position;
+        spawnRotation = transform.rotation.eulerAngles;
     }
 
     private void OnEnable()
     {
-        characterStats.OnDeath += Death;
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
+        characterStats.OnDeath += ToDead;
+
+        if (isDead)
+        {
+            ResetEnemy();
+        }
     }
 
     private void OnDisable()
     {
-        characterStats.OnDeath -= Death;
+        characterStats.OnDeath -= ToDead;
     }
 
     private void FixedUpdate()
@@ -108,6 +121,9 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
             case ENEMY_STATE.SEARCHING:
                 OnSearching();
+                break;
+
+            case ENEMY_STATE.DEAD:
                 break;
         }
     }
@@ -267,6 +283,14 @@ public class EnemyAI : MonoBehaviour, IDamageable
         state = ENEMY_STATE.ATTACK;
     }
 
+    // Comportamiento de transición a DEAD
+    private void ToDead()
+    {
+        isDead = true;
+        state = ENEMY_STATE.DEAD;
+        gameObject.SetActive(false);
+    }
+
     // Espera un determinado tiempo a volver a estado PATROL, a menos que vuelva a detectar al objetivo
     private IEnumerator WaitToPatrol()
     {
@@ -308,6 +332,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private IEnumerator WaitToIdle()
     {
         waitingToDecideIdle = true;
+
+        detection.EnableVision();
 
         yield return new WaitForSeconds(Random.Range(minIdleDelay, maxIdleDelay));
 
@@ -460,9 +486,23 @@ public class EnemyAI : MonoBehaviour, IDamageable
             return false;
     }
 
-    private void Death()
+    private void ResetEnemy()
     {
-        gameObject.SetActive(false);
+        if (!canRespawn) return;
+
+        alreadyAttacking = false;
+        hitboxCreated = false;
+        waitingToPatrol = false;
+        waitingToChase = false;
+        waitingToDecideIdle = false;
+
+        rb.linearVelocity = Vector3.zero;
+        isDead = false;
+        state = defaultState;
+        characterStats.FullHeal();
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.Euler(spawnRotation);
+        detection.EnableVision();
     }
 
     #endregion
