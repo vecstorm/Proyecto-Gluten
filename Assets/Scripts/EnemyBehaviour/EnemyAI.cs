@@ -248,8 +248,6 @@ public class EnemyAI : MonoBehaviour
         if (TargetDetectedOnArea(detectedAreaRadius) && !OnAttackRange(targetTransform.position)) ToChasing();
         if (!TargetDetectedOnArea(detectedAreaRadius) && !OnAttackRange(targetTransform.position)) ToSearching();
 
-        rb.linearVelocity = Vector3.zero;
-
         if (!alreadyAttacking)
         {
             StartCoroutine(AttackProcess());
@@ -319,6 +317,8 @@ public class EnemyAI : MonoBehaviour
     private void ToAttack()
     {
         Debug.Log("Changed to ATTACK");
+        rb.linearVelocity = Vector3.zero;
+
         state = ENEMY_STATE.ATTACK;
     }
 

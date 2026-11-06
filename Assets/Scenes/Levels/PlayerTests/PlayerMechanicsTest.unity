@@ -5345,6 +5345,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MiniBossEnemy2D
       objectReference: {fileID: 0}
+    - target: {fileID: 4343450151138682763, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
+      propertyPath: knockbackForce
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6572285903614451381, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
       propertyPath: m_LocalPosition.x
       value: 40.9
@@ -8136,6 +8140,10 @@ PrefabInstance:
       propertyPath: maxHealth
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 3396738433899943286, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: knockbackForce
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10891,11 +10899,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 905194069767581323, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.52
+      value: -17.61
       objectReference: {fileID: 0}
     - target: {fileID: 905194069767581323, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 10.132416
+      value: 8.05
       objectReference: {fileID: 0}
     - target: {fileID: 905194069767581323, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_LocalPosition.z
@@ -10935,7 +10943,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6730863921510643207, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: invertedDirection
