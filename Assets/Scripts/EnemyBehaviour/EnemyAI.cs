@@ -46,7 +46,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private bool hitboxCreated = false;
 
     protected Rigidbody2D rb;
-    protected private bool invertedDirection = false;
+    protected bool invertedDirection = false;
     private Transform targetTransform;
 
     private bool waitingToPatrol = false;
@@ -66,6 +66,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private void Awake()
     {
         characterStats = GetComponent<CharacterStats>();
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
     }
 
     private void Start()
