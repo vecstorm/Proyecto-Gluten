@@ -7,12 +7,21 @@ public class FlyingEnemyAI : EnemyAI
     [Header("Target Detection:")]
     [SerializeField] private float areaRadius = 10f;
 
+    [Header("Movement:")]
+    [SerializeField] private float speed = 3f;
+
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private int projectileDamage = 10;
     [SerializeField] private float projectileSpeed = 6f;
     [SerializeField] private float attackCooldown = 1.5f;
+
+    [Header("Ramming:")]
+    [SerializeField] private int healthToRam = 3;
+    [SerializeField] private float rammingDelay = 1f;
+    [SerializeField] private float rammingSpeed = 15f;
+    [SerializeField] private float rammignTurnSpeed = 10f;
 
     [Header("Flying Parameters:")]
     [SerializeField] private float personalBubbleRadius = 2f;
@@ -26,13 +35,12 @@ public class FlyingEnemyAI : EnemyAI
 
     private bool decidingDirection = false;
     private Vector3 movementPoint;
+    private Vector3 rammingDirection;
 
     private Transform targetTransform;
     private Vector3 lastTargetPos;
 
     private float timer;
-
-    private float speed = 3f;
 
     #region MAIN LOOP
 
@@ -46,6 +54,16 @@ public class FlyingEnemyAI : EnemyAI
     {
         //state = ENEMY_STATE.PATROL;
         //defaultState = state;
+    }
+
+    private void OnEnable()
+    {
+        characterStats.OnDamageTaken += CheckHealthLeft;
+    }
+
+    private void OnDisable()
+    {
+        characterStats.OnDamageTaken -= CheckHealthLeft;
     }
 
     private void FixedUpdate()
@@ -66,6 +84,10 @@ public class FlyingEnemyAI : EnemyAI
 
             case ENEMY_STATE.ATTACK:
                 OnAttack();
+                break;
+
+            case ENEMY_STATE.RAMMING:
+                OnRamming();
                 break;
 
             case ENEMY_STATE.SEARCHING:
@@ -136,6 +158,24 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    private void OnRamming()
+    {
+        timer += Time.fixedDeltaTime;
+
+        Vector3 targetDirection = (targetTransform.position - transform.position).normalized;
+
+        if (timer >= rammingDelay)
+        {
+            rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
+
+            rb.linearVelocity = rammingDirection * rammingSpeed;
+        }
+        else
+        {
+            rammingDirection = (targetTransform.position - transform.position).normalized;
+        }
+    }
+
     private IEnumerator WaitToMove()
     {
         decidingDirection = true;
@@ -158,6 +198,12 @@ public class FlyingEnemyAI : EnemyAI
         state = ENEMY_STATE.ATTACK;
     }
 
+    private void ToRamming()
+    {
+        ResetTimer();
+        state = ENEMY_STATE.RAMMING;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -167,6 +213,11 @@ public class FlyingEnemyAI : EnemyAI
 
             CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
+        }
+
+        if (state == ENEMY_STATE.RAMMING)
+        {
+            gameObject.SetActive(false);
         }
     }
 
@@ -229,5 +280,13 @@ public class FlyingEnemyAI : EnemyAI
     protected override void ResetEnemy()
     {
         throw new System.NotImplementedException();
+    }
+
+    private void CheckHealthLeft()
+    {
+        if (characterStats.CurrentHealth <= healthToRam)
+        {
+            ToRamming();
+        }
     }
 }

@@ -369,10 +369,16 @@ MonoBehaviour:
   showGizmos: 1
   canRespawn: 1
   areaRadius: 10
+  speed: 3
+  contactDamage: 10
   projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
   projectileDamage: 10
   projectileSpeed: 6
-  attackCooldown: 1.5
+  attackCooldown: 2.5
+  healthToRam: 3
+  rammingDelay: 1
+  rammingSpeed: 15
+  rammignTurnSpeed: 4
   personalBubbleRadius: 2
   transitableAreaRadius: 6
   minFloorDistance: 3
