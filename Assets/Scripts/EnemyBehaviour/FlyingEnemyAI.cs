@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
-public class FlyingEnemyAI : EnemyAI
+public class FlyingEnemyAI : MeleeEnemyAI
 {
     [Header("Flying Parameters:")]
     [SerializeField] private float personalBubbleRadius = 2f;
