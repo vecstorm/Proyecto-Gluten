@@ -15,6 +15,7 @@ public class FlyingEnemyAI : EnemyAI
     [SerializeField] private float nodeSpacing = 2f;
     [SerializeField] private int nodeRadius = 4;
     [SerializeField] private float nodeCheckRadius = 0.5f;
+    [SerializeField] private float pathUpdateInterval = 0.2f;
 
     private List<NavigationNode> nodes = new List<NavigationNode>();
     private Vector3 lastGridCenter;
@@ -27,6 +28,7 @@ public class FlyingEnemyAI : EnemyAI
     [SerializeField] private float attackCooldown = 1.5f;
 
     [Header("Ramming:")]
+    [SerializeField] private int rammingDamage = 20;
     [SerializeField] private int healthToRam = 3;
     [SerializeField] private float rammingDelay = 1f;
     [SerializeField] private float rammingSpeed = 15f;
@@ -48,6 +50,10 @@ public class FlyingEnemyAI : EnemyAI
 
     private Transform targetTransform;
     private Vector3 lastTargetPos;
+
+    private float pathUpdateTimer;
+    private List<NavigationNode> currentPath;
+    private int currentPathIndex = 0;
 
     private float timer;
 
@@ -134,6 +140,19 @@ public class FlyingEnemyAI : EnemyAI
             Gizmos.color = Color.blue;
             Gizmos.DrawSphere(movementPoint, 0.1f);
         }
+
+        foreach (NavigationNode node in nodes)
+        {
+            Gizmos.color = Color.cyan;
+
+            foreach (NavigationNode neighbour in node.Neighbours)
+            {
+                Gizmos.DrawLine(node.Position, neighbour.Position);
+            }
+
+            Gizmos.color = Color.darkBlue;
+            Gizmos.DrawSphere(node.Position, 0.1f);
+        }
     }
 
     #endregion
@@ -142,6 +161,7 @@ public class FlyingEnemyAI : EnemyAI
     private void OnPatrol()
     {
         if (TargetDetectedOnArea(areaRadius)) ToChasing();
+        //if (TargetDetectedOnArea(areaRadius)) ToAttack();
 
         //rb.MovePosition(Vector3.MoveTowards(transform.position, movementPoint, speed * Time.fixedDeltaTime));
 
@@ -153,7 +173,51 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnChasing()
     {
-        
+        UpdateNodeGrid();
+
+        if (nodes.Count == 0 || targetTransform == null) return;
+
+        timer += Time.fixedDeltaTime;
+
+        if (timer >= pathUpdateInterval || currentPath == null)
+        {
+            timer = 0;
+
+            NavigationNode startNode = GetClosestNode(transform.position);
+            NavigationNode targetNode = GetClosestNode(targetTransform.position);
+
+            if (startNode != null && targetNode != null)
+            {
+                currentPath = FindPath(startNode, targetNode);
+                currentPathIndex = 0;
+            }
+        }
+
+        if (currentPath != null && currentPath.Count > 0)
+        {
+            if (currentPathIndex >= currentPath.Count)
+            {
+                currentPathIndex = currentPath.Count - 1;
+            }
+
+            Vector3 targetNodePosition = currentPath[currentPathIndex].Position;
+
+            rb.linearVelocity = (targetNodePosition - transform.position).normalized * speed;
+
+            if (Vector3.Distance(transform.position, targetNodePosition) < 0.4f)
+            {
+                currentPathIndex++;
+            }
+        }
+        else
+        {
+            rb.linearVelocity = (targetTransform.position - transform.position).normalized * speed;
+        }
+
+        if (PlayerBehind() != invertedDirection)
+        {
+            Flip();
+        }
     }
 
     private void OnAttack()
@@ -251,7 +315,7 @@ public class FlyingEnemyAI : EnemyAI
             // Limpia los objetivos del ataque anterior
             hitTargets.Clear();
 
-            CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
+            CombatDamage damage = new CombatDamage(state == ENEMY_STATE.RAMMING ? rammingDamage : contactDamage, characterStats, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
         }
 
@@ -386,6 +450,100 @@ public class FlyingEnemyAI : EnemyAI
                 }
             }
         }
+    }
+
+    private void UpdateNodeGrid()
+    {
+        if (Vector2.Distance(transform.position, lastGridCenter) > nodeSpacing)
+        {
+            GenerateNodes();
+        }
+    }
+
+    private List<NavigationNode> FindPath(NavigationNode startNode, NavigationNode targetNode)
+    {
+        List<NavigationNode> openSet = new List<NavigationNode>();
+        HashSet<NavigationNode> closedSet = new HashSet<NavigationNode>();
+
+        openSet.Add(startNode);
+        startNode.SetGCost(0f);
+        startNode.SetHCost(Vector3.Distance(startNode.Position, targetNode.Position));
+        startNode.SetParent(null);
+
+        while (openSet.Count > 0)
+        {
+            NavigationNode currentNode = openSet[0];
+
+            foreach (NavigationNode node in openSet)
+            {
+                if (node.FinalCost() < currentNode.FinalCost() || (node.FinalCost() == currentNode.FinalCost() && node.HCost() < currentNode.HCost()))
+                {
+                    currentNode = node;
+                }
+            }
+
+            if (currentNode == targetNode)
+            {
+                return RetracePath(startNode, targetNode);
+            }
+
+            openSet.Remove(currentNode);
+            closedSet.Add(currentNode);
+
+            foreach (NavigationNode neighbour in currentNode.Neighbours)
+            {
+                if (closedSet.Contains(neighbour)) continue;
+
+                float tentativeGCost = currentNode.GCost() + Vector3.Distance(currentNode.Position, neighbour.Position);
+
+                if (!openSet.Contains(neighbour) || tentativeGCost < neighbour.GCost())
+                {
+                    neighbour.SetGCost(tentativeGCost);
+                    neighbour.SetHCost(Vector3.Distance(neighbour.Position, targetNode.Position));
+                    neighbour.SetParent(currentNode);
+
+                    if (!openSet.Contains(neighbour))
+                    {
+                        openSet.Add(neighbour);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private List<NavigationNode> RetracePath(NavigationNode startNode, NavigationNode endNode)
+    {
+        List<NavigationNode> path = new List<NavigationNode>();
+        NavigationNode currentNode = endNode;
+
+        while (currentNode != startNode)
+        {
+            path.Add(currentNode);
+            currentNode = currentNode.Parent;
+        }
+        path.Reverse();
+        return path;
+    }
+
+    private NavigationNode GetClosestNode(Vector3 position)
+    {
+        NavigationNode closestNode = null;
+        float minDistance = float.MaxValue;
+
+        foreach (NavigationNode node in nodes)
+        {
+            float distance = Vector3.Distance(position, node.Position);
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestNode = node;
+            }
+        }
+
+        return closestNode;
     }
 
     #endregion

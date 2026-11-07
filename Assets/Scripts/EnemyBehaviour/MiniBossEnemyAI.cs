@@ -629,5 +629,10 @@ public class MiniBossEnemyAI : MonoBehaviour
         return currenthealth % healthModule == 0 && currenthealth != characterStats.MaxHealth && currenthealth != 0;
     }
 
+    public void BossActive(bool value)
+    {
+        bossActive = value;
+    }
+
     #endregion
 }
