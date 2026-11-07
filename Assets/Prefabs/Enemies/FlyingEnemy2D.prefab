@@ -368,6 +368,11 @@ MonoBehaviour:
   defaultState: 0
   showGizmos: 1
   canRespawn: 1
+  areaRadius: 10
+  projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
+  projectileDamage: 10
+  projectileSpeed: 6
+  attackCooldown: 1.5
   personalBubbleRadius: 2
   transitableAreaRadius: 6
   minFloorDistance: 3
