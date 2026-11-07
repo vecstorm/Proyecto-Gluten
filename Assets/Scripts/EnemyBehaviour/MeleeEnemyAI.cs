@@ -67,13 +67,13 @@ public class MeleeEnemyAI : EnemyAI
 
     private void OnEnable()
     {
-        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         characterStats.OnDeath += ToDead;
         characterStats.OnStunApplied += ToStunned;
 
         if (isDead)
         {
             ResetEnemy();
+            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         }
     }
 

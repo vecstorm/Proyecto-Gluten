@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using UnityEditor.Experimental.GraphView;
 
 public class FlyingEnemyAI : EnemyAI
 {
@@ -9,6 +10,7 @@ public class FlyingEnemyAI : EnemyAI
 
     [Header("Movement:")]
     [SerializeField] private float speed = 3f;
+    [SerializeField] private float timeToStopSearching = 2f;
 
     [Header("Pathfinding:")]
     [SerializeField] private LayerMask mapMask;
@@ -26,6 +28,7 @@ public class FlyingEnemyAI : EnemyAI
     [SerializeField] private int projectileDamage = 10;
     [SerializeField] private float projectileSpeed = 6f;
     [SerializeField] private float attackCooldown = 1.5f;
+    [SerializeField] private float attackMinDistance = 6f;
 
     [Header("Ramming:")]
     [SerializeField] private int rammingDamage = 20;
@@ -52,10 +55,12 @@ public class FlyingEnemyAI : EnemyAI
     private Vector3 lastTargetPos;
 
     private float pathUpdateTimer;
-    private List<NavigationNode> currentPath;
+    private List<NavigationNode> currentPath = new List<NavigationNode>();
     private int currentPathIndex = 0;
 
     private float timer;
+
+    private bool lostTarget = false;
 
     #region MAIN LOOP
 
@@ -89,10 +94,6 @@ public class FlyingEnemyAI : EnemyAI
     {
         switch (state)
         {
-            case ENEMY_STATE.IDLE:
-                //OnIdle();
-                break;
-
             case ENEMY_STATE.PATROL:
                 OnPatrol();
                 break;
@@ -110,11 +111,11 @@ public class FlyingEnemyAI : EnemyAI
                 break;
 
             case ENEMY_STATE.SEARCHING:
-                //OnSearching();
+                OnSearching();
                 break;
 
-            case ENEMY_STATE.STUNNED:
-                //OnStunned();
+            case ENEMY_STATE.RETREAT:
+                OnRetreat();
                 break;
 
             case ENEMY_STATE.DEAD:
@@ -153,6 +154,24 @@ public class FlyingEnemyAI : EnemyAI
             Gizmos.color = Color.darkBlue;
             Gizmos.DrawSphere(node.Position, 0.1f);
         }
+
+        if (currentPath == null) return;
+
+        foreach (NavigationNode node in currentPath)
+        {
+            if (currentPath.Count > 1)
+            {
+                Gizmos.color = Color.green;
+
+                for (int i = 0; i < currentPath.Count - 1; i++)
+                {
+                    Gizmos.DrawLine(currentPath[i].Position, currentPath[i + 1].Position);
+                }
+
+                Gizmos.color = Color.darkGreen;
+                Gizmos.DrawSphere(node.Position, 0.1f);
+            }
+        }
     }
 
     #endregion
@@ -173,46 +192,16 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnChasing()
     {
+        if (!TargetDetectedOnArea(areaRadius)) ToSearching();
+        if (Vector3.Distance(transform.position, targetTransform.position) <= attackMinDistance) ToAttack();
+
         UpdateNodeGrid();
 
-        if (nodes.Count == 0 || targetTransform == null) return;
+        if (targetTransform == null) return;
 
-        timer += Time.fixedDeltaTime;
+        lastTargetPos = targetTransform.position;
 
-        if (timer >= pathUpdateInterval || currentPath == null)
-        {
-            timer = 0;
-
-            NavigationNode startNode = GetClosestNode(transform.position);
-            NavigationNode targetNode = GetClosestNode(targetTransform.position);
-
-            if (startNode != null && targetNode != null)
-            {
-                currentPath = FindPath(startNode, targetNode);
-                currentPathIndex = 0;
-            }
-        }
-
-        if (currentPath != null && currentPath.Count > 0)
-        {
-            if (currentPathIndex >= currentPath.Count)
-            {
-                currentPathIndex = currentPath.Count - 1;
-            }
-
-            Vector3 targetNodePosition = currentPath[currentPathIndex].Position;
-
-            rb.linearVelocity = (targetNodePosition - transform.position).normalized * speed;
-
-            if (Vector3.Distance(transform.position, targetNodePosition) < 0.4f)
-            {
-                currentPathIndex++;
-            }
-        }
-        else
-        {
-            rb.linearVelocity = (targetTransform.position - transform.position).normalized * speed;
-        }
+        MoveThroughPathBetween(transform.position, targetTransform.position);
 
         if (PlayerBehind() != invertedDirection)
         {
@@ -222,9 +211,14 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnAttack()
     {
-        if (!TargetDetectedOnArea(areaRadius)) ToPatrol();
+        if (!TargetDetectedOnArea(areaRadius)) ToSearching();
+        if (Vector3.Distance(transform.position, targetTransform.position) >= attackMinDistance && TargetDetectedOnArea(areaRadius)) ToChasing();
+
+        rb.linearVelocity = Vector3.zero;
 
         timer += Time.fixedDeltaTime;
+
+        lastTargetPos = targetTransform.position;
 
         if (timer >= attackCooldown)
         {
@@ -259,6 +253,49 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    private void OnSearching()
+    {
+        if (TargetDetectedOnArea(areaRadius)) ToChasing();
+
+        if (Vector3.Distance(transform.position, lastTargetPos) > 0.1f)
+        {
+            UpdateNodeGrid();
+
+            MoveThroughPathBetween(transform.position, lastTargetPos);
+        } 
+        else if (Vector3.Distance(transform.position, lastTargetPos) <= 0.1f)
+        {
+            if (!lostTarget)
+            {
+                lostTarget = true;
+                ResetTimer();
+            }
+
+            timer += Time.fixedDeltaTime;
+
+            rb.linearVelocity = Vector3.zero;
+
+            if (timer >= timeToStopSearching)
+            {
+                ToRetreat();
+                lostTarget = false;
+            }
+        }
+    }
+
+    private void OnRetreat()
+    {
+        if (TargetDetectedOnArea(areaRadius)) ToChasing();
+
+        UpdateNodeGrid();
+        MoveThroughPathBetween(transform.position, spawnPosition);
+
+        if (Vector3.Distance(transform.position, spawnPosition) <= 0.1f)
+        {
+            ToPatrol();
+        }
+    }
+
     #endregion
 
     #region STATE TRANSITION
@@ -277,6 +314,7 @@ public class FlyingEnemyAI : EnemyAI
     private void ToPatrol()
     {
         ResetTimer();
+        rb.linearVelocity = Vector3.zero;
         state = ENEMY_STATE.PATROL;
     }
 
@@ -297,6 +335,19 @@ public class FlyingEnemyAI : EnemyAI
         ResetTimer();
         state = ENEMY_STATE.RAMMING;
     }
+
+    private void ToSearching()
+    {
+        ResetTimer();
+        state = ENEMY_STATE.SEARCHING;
+    }
+
+    private void ToRetreat()
+    {
+        ResetTimer();
+        state = ENEMY_STATE.RETREAT;
+    }
+
     private void ToDead()
     {
         isDead = true;
@@ -362,11 +413,6 @@ public class FlyingEnemyAI : EnemyAI
         }
 
         movementPoint = candidatePoint;
-    }
-
-    private float RandomAngle()
-    {
-        return Random.Range(0f, 360f);
     }
 
     private bool PlayerBehind()
@@ -544,6 +590,48 @@ public class FlyingEnemyAI : EnemyAI
         }
 
         return closestNode;
+    }
+
+    private void MoveThroughPathBetween(Vector3 startPosition, Vector3 targetPosition)
+    {
+        if (nodes.Count == 0) return;
+
+        timer += Time.fixedDeltaTime;
+
+        if (timer >= pathUpdateInterval || currentPath == null)
+        {
+            timer = 0;
+
+            NavigationNode startNode = GetClosestNode(startPosition);
+            NavigationNode targetNode = GetClosestNode(targetPosition);
+
+            if (startNode != null && targetNode != null)
+            {
+                currentPath = FindPath(startNode, targetNode);
+                currentPathIndex = 0;
+            }
+        }
+
+        if (currentPath != null && currentPath.Count > 0)
+        {
+            if (currentPathIndex >= currentPath.Count)
+            {
+                currentPathIndex = currentPath.Count - 1;
+            }
+
+            Vector3 targetNodePosition = currentPath[currentPathIndex].Position;
+
+            rb.linearVelocity = (targetNodePosition - startPosition).normalized * speed;
+
+            if (Vector3.Distance(startPosition, targetNodePosition) < 0.4f)
+            {
+                currentPathIndex++;
+            }
+        }
+        else
+        {
+            rb.linearVelocity = (targetPosition - startPosition).normalized * speed;
+        }
     }
 
     #endregion

@@ -30,12 +30,12 @@ public class PatrolEnemyAI : EnemyAI
 
     private void OnEnable()
     {
-        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         characterStats.OnDeath += ToDead;
 
         if (isDead)
         {
             ResetEnemy();
+            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         }
     }
 
