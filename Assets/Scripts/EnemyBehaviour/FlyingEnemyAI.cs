@@ -18,10 +18,51 @@ public class FlyingEnemyAI : EnemyAI
     private Vector3 movementPoint;
     private float speed = 3f;
 
+    #region MAIN LOOP
+
     private void Awake()
     {
-        characterStats = GetComponent<CharacterStats>();
+        InitializeBasicComponents();
         DecideMovementPoint();
+    }
+
+    private void Start()
+    {
+        state = ENEMY_STATE.PATROL;
+        defaultState = state;
+    }
+
+    private void FixedUpdate()
+    {
+        switch (state)
+        {
+            case ENEMY_STATE.IDLE:
+                //OnIdle();
+                break;
+
+            case ENEMY_STATE.PATROL:
+                OnPatrol();
+                break;
+
+            case ENEMY_STATE.CHASING:
+                //OnChasing();
+                break;
+
+            case ENEMY_STATE.ATTACK:
+                //OnAttack();
+                break;
+
+            case ENEMY_STATE.SEARCHING:
+                //OnSearching();
+                break;
+
+            case ENEMY_STATE.STUNNED:
+                //OnStunned();
+                break;
+
+            case ENEMY_STATE.DEAD:
+                break;
+        }
     }
 
     private void OnDrawGizmos()
@@ -38,6 +79,8 @@ public class FlyingEnemyAI : EnemyAI
             Gizmos.DrawSphere(movementPoint, 0.1f);
         }
     }
+
+    #endregion
 
     private void OnPatrol()
     {

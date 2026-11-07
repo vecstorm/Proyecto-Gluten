@@ -60,12 +60,11 @@ public class MeleeEnemyAI : EnemyAI
 
     private void Awake()
     {
-        characterStats = GetComponent<CharacterStats>();
+        InitializeBasicComponents();
     }
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
         detection = GetComponent<VisionCone>();
         state = ENEMY_STATE.PATROL;
         defaultState = state;
