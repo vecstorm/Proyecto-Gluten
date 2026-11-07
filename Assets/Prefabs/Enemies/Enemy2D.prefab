@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 6730863921510643207}
   - component: {fileID: 2436022556067805073}
   - component: {fileID: 3396738433899943286}
+  - component: {fileID: 2640961922105124049}
   m_Layer: 0
   m_Name: Enemy2D
   m_TagString: Untagged
@@ -332,6 +333,19 @@ MonoBehaviour:
   parryCooldown: 0.5
   currentXp: 0
   knockbackForce: 3
+--- !u!114 &2640961922105124049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1131379140982521364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84ad9f5ca544fee49aa6ad17877a03cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XpDropEnemy
+  xp: {fileID: 11400000, guid: 512648b147aa83742805f9607e58ca27, type: 2}
 --- !u!1 &3388444814568759917
 GameObject:
   m_ObjectHideFlags: 0

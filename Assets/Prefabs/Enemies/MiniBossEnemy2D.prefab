@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 239062962909842925}
   - component: {fileID: 1221743611248709618}
   - component: {fileID: 4343450151138682763}
+  - component: {fileID: -6035772600701282668}
   m_Layer: 0
   m_Name: MiniBossEnemy2D
   m_TagString: Untagged
@@ -270,8 +271,7 @@ MonoBehaviour:
   state: 0
   bossActive: 0
   targetTransform: {fileID: 0}
-  health: 100
-  healthToAddDifficulty: 50
+  healthToDivideDifficulty: 2
   groundCheck: {fileID: 6179244667027126684}
   groundLayer:
     serializedVersion: 2
@@ -374,7 +374,24 @@ MonoBehaviour:
   currentHealth: 0
   maxStamina: 100
   staminaRegenRate: 15
+  canTakeDamage: 1
+  parryWindow: 0.15
+  parryCooldown: 0.5
   currentXp: 0
+  knockbackForce: 3
+--- !u!114 &-6035772600701282668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1798289926387313172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84ad9f5ca544fee49aa6ad17877a03cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XpDropEnemy
+  xp: {fileID: 0}
 --- !u!1 &4185391795003541766
 GameObject:
   m_ObjectHideFlags: 0
