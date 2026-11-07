@@ -44,11 +44,8 @@ public class MeleeEnemyAI : EnemyAI
     private bool waitingToPatrol = false;
     private bool waitingToChase = false;
     private bool waitingToDecideIdle = false;
-    private bool isDead = false;
 
     private Vector3 lastTargetPos;
-    private Vector3 spawnPosition;
-    private Vector3 spawnRotation;
 
     private float timer;
 
@@ -64,8 +61,6 @@ public class MeleeEnemyAI : EnemyAI
     private void Start()
     {
         detection = GetComponent<VisionCone>();
-        //state = ENEMY_STATE.PATROL;
-        //defaultState = state;
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
     }

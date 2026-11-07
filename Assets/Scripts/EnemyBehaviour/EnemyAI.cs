@@ -13,9 +13,13 @@ public abstract class EnemyAI : MonoBehaviour
     [SerializeField] protected bool showGizmos = true;
     [SerializeField] protected bool canRespawn = true;
 
+    protected Vector3 spawnPosition;
+    protected Vector3 spawnRotation;
+    protected bool invertedDirection = false;
+    protected bool isDead = false;
+
     protected Rigidbody2D rb;
     protected CharacterStats characterStats;
-    protected bool invertedDirection = false;
     protected readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
     protected void InitializeBasicComponents()

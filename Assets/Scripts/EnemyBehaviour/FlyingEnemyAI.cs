@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
@@ -52,17 +53,21 @@ public class FlyingEnemyAI : EnemyAI
 
     private void Start()
     {
-        //state = ENEMY_STATE.PATROL;
-        //defaultState = state;
+        spawnPosition = transform.position;
+        spawnRotation = transform.rotation.eulerAngles;
     }
 
     private void OnEnable()
     {
+        if (isDead) ResetEnemy();
+
+        characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
     }
 
     private void OnDisable()
     {
+        characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
     }
 
@@ -176,6 +181,13 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    private void ToDead()
+    {
+        isDead = true;
+        state = ENEMY_STATE.DEAD;
+        gameObject.SetActive(false);
+    }
+
     private IEnumerator WaitToMove()
     {
         decidingDirection = true;
@@ -217,7 +229,7 @@ public class FlyingEnemyAI : EnemyAI
 
         if (state == ENEMY_STATE.RAMMING)
         {
-            gameObject.SetActive(false);
+            characterStats.Death();
         }
     }
 
@@ -279,7 +291,16 @@ public class FlyingEnemyAI : EnemyAI
 
     protected override void ResetEnemy()
     {
-        throw new System.NotImplementedException();
+        if (!canRespawn) return;
+
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.Euler(spawnRotation);
+        state = defaultState;
+        isDead = false;
+
+        rb.linearVelocity = Vector3.zero;
+        characterStats.FullHeal();
+        ResetTimer();
     }
 
     private void CheckHealthLeft()
