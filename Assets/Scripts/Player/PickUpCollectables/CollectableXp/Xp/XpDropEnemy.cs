@@ -4,6 +4,8 @@ public class XpDropEnemy : MonoBehaviour
 {
 
     [SerializeField] private XpData xp;
+	[SerializeField] private KeyData key;
+
     CharacterStats characterStats;
 	private void Awake()
 	{
@@ -25,6 +27,10 @@ public class XpDropEnemy : MonoBehaviour
         if (xp == null) return;
 
         GameObject xpObject = Instantiate(xp.xpPickUp, transform.position, Quaternion.identity);
+		if (key)
+		{
+			GameObject keyObject = Instantiate(key.key, transform.position, Quaternion.identity);
+		}
 
         CollectableXp collectableXp = xpObject.GetComponent<CollectableXp>();
 
