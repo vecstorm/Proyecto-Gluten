@@ -11,6 +11,10 @@ public class FlyingEnemyAI : EnemyAI
     [Header("Movement:")]
     [SerializeField] private float speed = 3f;
     [SerializeField] private float timeToStopSearching = 2f;
+    [SerializeField] private float minTimeToTurn = 2f;
+    [SerializeField] private float maxTimeToTurn = 6f;
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask wallLayer;
 
     [Header("Pathfinding:")]
     [SerializeField] private LayerMask mapMask;
@@ -78,8 +82,12 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnEnable()
     {
-        if (isDead) ResetEnemy();
-
+        if (isDead)
+        {
+            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
+            ResetEnemy();
+        }
+            
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
     }
@@ -180,14 +188,16 @@ public class FlyingEnemyAI : EnemyAI
     private void OnPatrol()
     {
         if (TargetDetectedOnArea(areaRadius)) ToChasing();
-        //if (TargetDetectedOnArea(areaRadius)) ToAttack();
 
-        //rb.MovePosition(Vector3.MoveTowards(transform.position, movementPoint, speed * Time.fixedDeltaTime));
+        timer += Time.fixedDeltaTime;
 
-        /*if (Vector3.Distance(transform.position, movementPoint) < 0.1f)
+        rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+
+        if (timer >= Random.Range(minTimeToTurn, maxTimeToTurn) || DetectedWall())
         {
-            if (!decidingDirection) StartCoroutine(WaitToMove());
-        }*/
+            ResetTimer();
+            Flip();
+        }
     }
 
     private void OnChasing()
@@ -632,6 +642,12 @@ public class FlyingEnemyAI : EnemyAI
         {
             rb.linearVelocity = (targetPosition - startPosition).normalized * speed;
         }
+    }
+
+    private bool DetectedWall()
+    {
+        Debug.DrawRay(wallCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(wallCheck.position, Vector3.down, 1f, wallLayer);
     }
 
     #endregion

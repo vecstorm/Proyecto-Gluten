@@ -10974,9 +10974,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2217159791126954999, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
+      propertyPath: m_Name
+      value: WallCheck
+      objectReference: {fileID: 0}
     - target: {fileID: 4053497137332864045, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
       propertyPath: m_Name
       value: FlyingEnemy2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 6570223444622024205, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.48
       objectReference: {fileID: 0}
     - target: {fileID: 7027607547376839603, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
       propertyPath: movementMask.m_Bits
