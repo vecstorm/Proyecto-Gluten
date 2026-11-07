@@ -39,8 +39,6 @@ public class MeleeEnemyAI : EnemyAI
 
     private bool alreadyAttacking = false;
     private bool hitboxCreated = false;
-
-    protected bool invertedDirection = false;
     private Transform targetTransform;
 
     private bool waitingToPatrol = false;
@@ -476,14 +474,6 @@ public class MeleeEnemyAI : EnemyAI
                 Flip();
             }
         }
-    }
-
-    // Gira al enemigo en direccion contraria
-    private void Flip()
-    {
-        invertedDirection = !invertedDirection;
-
-        transform.Rotate(0, 180, 0);
     }
 
     // Da una probabilidad de que el enemigo se de la vuelta

@@ -116,6 +116,8 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnAttack()
     {
+        if (!TargetDetectedOnArea(areaRadius)) ToPatrol();
+
         timer += Time.fixedDeltaTime;
 
         if (timer >= attackCooldown)
@@ -125,6 +127,11 @@ public class FlyingEnemyAI : EnemyAI
             newProjectile.GetComponent<EnemyProjectileController>().SetMovement(projectileSpeed, targetTransform.position);
 
             timer = 0;
+        }
+
+        if (PlayerBehind() != invertedDirection)
+        {
+            Flip();
         }
     }
 
@@ -138,8 +145,15 @@ public class FlyingEnemyAI : EnemyAI
         decidingDirection = false;
     }
 
+    private void ToPatrol()
+    {
+        ResetTimer();
+        state = ENEMY_STATE.PATROL;
+    }
+
     private void ToAttack()
     {
+        ResetTimer();
         state = ENEMY_STATE.ATTACK;
     }
 
@@ -185,5 +199,17 @@ public class FlyingEnemyAI : EnemyAI
     private float RandomAngle()
     {
         return Random.Range(0f, 360f);
+    }
+
+    private bool PlayerBehind()
+    {
+        float deltaX = targetTransform.position.x - transform.position.x;
+
+        return deltaX < 0;
+    }
+
+    private void ResetTimer()
+    {
+        timer = 0;
     }
 }

@@ -14,10 +14,19 @@ public abstract class EnemyAI : MonoBehaviour
 
     protected Rigidbody2D rb;
     protected CharacterStats characterStats;
+    protected bool invertedDirection = false;
 
     protected void InitializeBasicComponents()
     {
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         rb = GetComponent<Rigidbody2D>();
         characterStats = GetComponent<CharacterStats>();
+    }
+
+    protected void Flip()
+    {
+        invertedDirection = !invertedDirection;
+
+        transform.Rotate(0, 180, 0);
     }
 }
