@@ -3,16 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class MeleeEnemyAI : MonoBehaviour
+public class MeleeEnemyAI : EnemyAI
 {
-    private enum ENEMY_STATE { IDLE, PATROL, CHASING, ATTACK, SEARCHING, STUNNED, DEAD };
-
-    [Header("Debug:")]
-    [SerializeField] private ENEMY_STATE state;
-    [SerializeField] private ENEMY_STATE defaultState;
-    [SerializeField] private bool showGizmos = true;
-    [SerializeField] private bool canRespawn = true;
-
     [Header("Movement:")]
     [SerializeField] protected float speed = 2f;
     [SerializeField] private float probabilityToTurn = 30f;
@@ -48,7 +40,6 @@ public class MeleeEnemyAI : MonoBehaviour
     private bool alreadyAttacking = false;
     private bool hitboxCreated = false;
 
-    protected Rigidbody2D rb;
     protected bool invertedDirection = false;
     private Transform targetTransform;
 
@@ -61,9 +52,7 @@ public class MeleeEnemyAI : MonoBehaviour
     private Vector3 spawnPosition;
     private Vector3 spawnRotation;
 
-    protected CharacterStats characterStats;
-
-    [SerializeField] private float timer;
+    private float timer;
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 

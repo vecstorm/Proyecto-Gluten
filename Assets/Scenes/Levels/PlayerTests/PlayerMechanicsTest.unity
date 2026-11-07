@@ -4878,6 +4878,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -5485420817431794190, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
+      propertyPath: lifeTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5485420817431794190, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
+      propertyPath: disableAutoDestruction
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3035020057427038812, guid: 7cf16d76403a6b3409175b22f2256273, type: 3}
       propertyPath: m_Name
       value: Spike

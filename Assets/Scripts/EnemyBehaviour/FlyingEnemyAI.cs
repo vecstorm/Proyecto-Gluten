@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
-public class FlyingEnemyAI : MeleeEnemyAI
+public class FlyingEnemyAI : EnemyAI
 {
     [Header("Flying Parameters:")]
     [SerializeField] private float personalBubbleRadius = 2f;
@@ -16,6 +16,7 @@ public class FlyingEnemyAI : MeleeEnemyAI
 
     private bool decidingDirection = false;
     private Vector3 movementPoint;
+    private float speed = 3f;
 
     private void Awake()
     {
@@ -38,7 +39,7 @@ public class FlyingEnemyAI : MeleeEnemyAI
         }
     }
 
-    protected override void OnPatrol()
+    private void OnPatrol()
     {
         rb.MovePosition(Vector3.MoveTowards(transform.position, movementPoint, speed * Time.fixedDeltaTime));
 
