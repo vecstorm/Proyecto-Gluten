@@ -266,16 +266,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0092de6de81459e4198cdfe06b35dc58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  state: 0
+  state: 1
+  defaultState: 0
   showGizmos: 1
+  canRespawn: 1
   speed: 2
   probabilityToTurn: 30
+  stunnedTimerDuration: 1
   areaRadius: 3
   detectedAreaRadius: 10
   groundCheck: {fileID: 4961119639869176115}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  contactDamage: 10
+  attackDamage: 10
   attackDetectionRange: 3
   attackRange: 1.5
   attackRadius: 1
@@ -322,7 +327,11 @@ MonoBehaviour:
   currentHealth: 0
   maxStamina: 100
   staminaRegenRate: 15
+  canTakeDamage: 1
+  parryWindow: 0.15
+  parryCooldown: 0.5
   currentXp: 0
+  knockbackForce: 3
 --- !u!1 &3388444814568759917
 GameObject:
   m_ObjectHideFlags: 0

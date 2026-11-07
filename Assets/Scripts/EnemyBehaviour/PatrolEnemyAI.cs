@@ -54,8 +54,6 @@ public class PatrolEnemyAI : EnemyAI
 
     [SerializeField] private float timer;
 
-    private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
-
     #region MAIN LOOP
 
     private void Awake()
@@ -506,7 +504,7 @@ public class PatrolEnemyAI : EnemyAI
         return deltaX < 0;
     }
 
-    private void ResetEnemy()
+    protected override void ResetEnemy()
     {
         if (!canRespawn) return;
 

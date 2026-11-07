@@ -8,6 +8,7 @@ public class FlyingEnemyAI : EnemyAI
     [SerializeField] private float areaRadius = 10f;
 
     [Header("Attack:")]
+    [SerializeField] private int contactDamage = 10;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private int projectileDamage = 10;
     [SerializeField] private float projectileSpeed = 6f;
@@ -43,8 +44,8 @@ public class FlyingEnemyAI : EnemyAI
 
     private void Start()
     {
-        state = ENEMY_STATE.PATROL;
-        defaultState = state;
+        //state = ENEMY_STATE.PATROL;
+        //defaultState = state;
     }
 
     private void FixedUpdate()
@@ -157,6 +158,18 @@ public class FlyingEnemyAI : EnemyAI
         state = ENEMY_STATE.ATTACK;
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            // Limpia los objetivos del ataque anterior
+            hitTargets.Clear();
+
+            CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
+        }
+    }
+
     // Devuelve si ha detectado al objetivo dentro de un area determinada
     private bool TargetDetectedOnArea(float radius)
     {
@@ -211,5 +224,10 @@ public class FlyingEnemyAI : EnemyAI
     private void ResetTimer()
     {
         timer = 0;
+    }
+
+    protected override void ResetEnemy()
+    {
+        throw new System.NotImplementedException();
     }
 }

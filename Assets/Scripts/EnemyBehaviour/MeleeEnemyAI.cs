@@ -52,7 +52,7 @@ public class MeleeEnemyAI : EnemyAI
 
     private float timer;
 
-    private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
+    
 
     #region MAIN LOOP
 
@@ -64,8 +64,8 @@ public class MeleeEnemyAI : EnemyAI
     private void Start()
     {
         detection = GetComponent<VisionCone>();
-        state = ENEMY_STATE.PATROL;
-        defaultState = state;
+        //state = ENEMY_STATE.PATROL;
+        //defaultState = state;
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
     }
@@ -495,7 +495,7 @@ public class MeleeEnemyAI : EnemyAI
         return deltaX < 0;
     }
 
-    private void ResetEnemy()
+    protected override void ResetEnemy()
     {
         if (!canRespawn) return;
 
