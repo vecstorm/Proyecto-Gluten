@@ -1,6 +1,5 @@
+using System.Collections.Generic;
 using System.Collections;
-using System.Threading;
-using UnityEditor;
 using UnityEngine;
 
 public class FlyingEnemyAI : EnemyAI
@@ -10,6 +9,15 @@ public class FlyingEnemyAI : EnemyAI
 
     [Header("Movement:")]
     [SerializeField] private float speed = 3f;
+
+    [Header("Pathfinding:")]
+    [SerializeField] private LayerMask mapMask;
+    [SerializeField] private float nodeSpacing = 2f;
+    [SerializeField] private int nodeRadius = 4;
+    [SerializeField] private float nodeCheckRadius = 0.5f;
+
+    private List<NavigationNode> nodes = new List<NavigationNode>();
+    private Vector3 lastGridCenter;
 
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
@@ -84,7 +92,7 @@ public class FlyingEnemyAI : EnemyAI
                 break;
 
             case ENEMY_STATE.CHASING:
-                //OnChasing();
+                OnChasing();
                 break;
 
             case ENEMY_STATE.ATTACK:
@@ -130,9 +138,10 @@ public class FlyingEnemyAI : EnemyAI
 
     #endregion
 
+    #region STATE BEHAVIOUR
     private void OnPatrol()
     {
-        if (TargetDetectedOnArea(areaRadius)) ToAttack();
+        if (TargetDetectedOnArea(areaRadius)) ToChasing();
 
         //rb.MovePosition(Vector3.MoveTowards(transform.position, movementPoint, speed * Time.fixedDeltaTime));
 
@@ -140,6 +149,11 @@ public class FlyingEnemyAI : EnemyAI
         {
             if (!decidingDirection) StartCoroutine(WaitToMove());
         }*/
+    }
+
+    private void OnChasing()
+    {
+        
     }
 
     private void OnAttack()
@@ -181,12 +195,10 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
-    private void ToDead()
-    {
-        isDead = true;
-        state = ENEMY_STATE.DEAD;
-        gameObject.SetActive(false);
-    }
+    #endregion
+
+    #region STATE TRANSITION
+
 
     private IEnumerator WaitToMove()
     {
@@ -204,6 +216,12 @@ public class FlyingEnemyAI : EnemyAI
         state = ENEMY_STATE.PATROL;
     }
 
+    private void ToChasing()
+    {
+        ResetTimer();
+        state = ENEMY_STATE.CHASING;
+    }
+
     private void ToAttack()
     {
         ResetTimer();
@@ -215,6 +233,16 @@ public class FlyingEnemyAI : EnemyAI
         ResetTimer();
         state = ENEMY_STATE.RAMMING;
     }
+    private void ToDead()
+    {
+        isDead = true;
+        state = ENEMY_STATE.DEAD;
+        gameObject.SetActive(false);
+    }
+
+    #endregion
+
+    #region STATE CONDITION
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -310,4 +338,55 @@ public class FlyingEnemyAI : EnemyAI
             ToRamming();
         }
     }
+
+    private void GenerateNodes()
+    {
+        nodes.Clear();
+
+        for (int x = -nodeRadius; x <= nodeRadius; x++)
+        {
+            for (int y = -nodeRadius; y <= nodeRadius; y++)
+            {
+                Vector3 position = transform.position + new Vector3(x * nodeSpacing, y * nodeSpacing, transform.position.z);
+
+                bool isBlocked = Physics2D.OverlapCircle(position, nodeCheckRadius, mapMask);
+
+                if (isBlocked) continue;
+
+                nodes.Add(new NavigationNode(position));
+            }
+        }
+
+        ConnectNodes();
+
+        lastGridCenter = transform.position;
+    }
+
+    private void ConnectNodes()
+    {
+        foreach (NavigationNode node in nodes)
+        {
+            node.Neighbours.Clear();
+
+            foreach (NavigationNode otherNode in nodes)
+            {
+                if (node == otherNode) continue;
+
+                float distance = Vector3.Distance(node.Position, otherNode.Position);
+
+                if (distance > nodeSpacing * 1.5f) continue;
+
+                Vector3 direction = (otherNode.Position - node.Position).normalized;
+
+                RaycastHit2D hit = Physics2D.Raycast(node.Position, direction, distance, mapMask);
+
+                if (!hit)
+                {
+                    node.Neighbours.Add(otherNode);
+                }
+            }
+        }
+    }
+
+    #endregion
 }
