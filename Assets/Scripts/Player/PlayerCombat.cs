@@ -1,11 +1,9 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Gestiona las mecánicas de combate del jugador.
-/// Incluye el ataque básico, el parry, la invulnerabilidad y las herramientas
-/// de depuración visual. No depende de las clases concretas de los enemigos.
+/// Incluye el ataque básico, la recepción de daño, la invulnerabilidad y las herramientas de depuración visual.
 /// </summary>
 public class PlayerCombat : MonoBehaviour
 {
@@ -15,15 +13,20 @@ public class PlayerCombat : MonoBehaviour
 
     [Header("References")]
 
-    [Tooltip("Estadísticas del jugador, se utiliza para consultar su vida y aplicar daño")]
-    [SerializeField] private CharacterStats characterStats;
-
     [Tooltip("Punto desde el que se calcula la posición del ataque básico")]
     [SerializeField] private Transform attackOrigin;
 
     [Tooltip("Capas de colisión que pueden recibir el ataque básico")]
     [SerializeField] private LayerMask hittableLayers = ~0;
 
+    /// <summary>
+    /// Estadísticas del jugador, se utilizan para consultar su vida, comprobar si puede recibir daño y gestionar los impactos.
+    /// </summary>
+    private CharacterStats characterStats;
+
+    /// <summary>
+    /// Referencia al controlador del jugador, se utiliza para cambiar su estado cuando recibe daño.
+    /// </summary>
     private PlayerController playerController;
 
     #endregion
@@ -41,6 +44,30 @@ public class PlayerCombat : MonoBehaviour
     [Tooltip("Tiempo que debe pasar entre dos ataques básicos")]
     [SerializeField, Min(0f)] private float basicAttackCooldown = 0.3f;
 
+    [Tooltip("Tiempo de duración de la detección del ataque")]
+    [SerializeField, Min(0f)] private float basicAttackDuration = 0.2f;
+
+    /// <summary>
+    /// Temporizador que controla cuánto tiempo permanece activo el ataque y visible su representación para debug.
+    /// </summary>
+    private float basicAttackTimer;
+
+    [Header("Ranged Attack")]
+
+    [Tooltip("Prefab del proyectil mágico")]
+    [SerializeField] private PlayerProjectile projectilePrefab;
+
+    [Tooltip("Punto desde el que aparecerá el proyectil")]
+    [SerializeField] private Transform projectileSpawnPoint;
+
+    [Tooltip("Tiempo de espera entre ataques a distancia")]
+    [SerializeField, Min(0f)] private float rangedAttackCooldown = 0.5f;
+
+    /// <summary>
+    /// Tiempo restante hasta poder realizar otro ataque a distancia.
+    /// </summary>
+    private float rangedAttackCooldownTimer;
+
     [Header("Invulnerability")]
 
     [Tooltip("Tiempo durante el que el jugador no puede recibir otro ataque después de recibir daño")]
@@ -52,28 +79,28 @@ public class PlayerCombat : MonoBehaviour
 
     /// <summary>
     /// Evita que un mismo objetivo reciba varias veces el daño si tiene diferentes colliders dentro del área del ataque.
+    /// Se limpia al comenzar cada ataque.
     /// </summary>
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
     /// <summary>
-    /// Temporizador para el tiempo entre ataques.
+    /// Temporizador que controla el tiempo restante hasta poder ejecutar otro ataque básico.
     /// </summary>
     private float attackCooldownTimer;
 
     /// <summary>
-    /// Temporizador para la invulnerabilidad.
+    /// Temporizador de invulnerabilidad.
     /// </summary>
     [SerializeField] private float invulnerabilityTimer;
 
     /// <summary>
-    /// Dirección hacia la que mira el jugador, 1 = derecha, -1 = izquierda.
+    /// Dirección hacia la que mira el jugador: 1 = derecha, -1 = izquierda.
     /// </summary>
     private int facingDirection = 1;
 
     #endregion
 
     #region Properties
-
 
     /// <summary>
     /// Indica si el jugador se encuentra en un periodo de invulnerabilidad.
@@ -85,25 +112,22 @@ public class PlayerCombat : MonoBehaviour
     /// </summary>
     public bool CanAttack => attackCooldownTimer <= 0f;
 
+    /// <summary>
+    /// Indica si el jugador puede ejecutar otro ataque a distancia.
+    /// </summary>
+    public bool CanRangedAttack => rangedAttackCooldownTimer <= 0f;
+
     #endregion
 
     #region Debug Configuration
 
     [Header("Debug Gizmos")]
 
-    [Tooltip("Activa o desactiva la visualización del área de ataque en la Scene View")]
+    [Tooltip("Activa o desactiva la visualización del área de ataque para debug")]
     [SerializeField] private bool showCombatGizmos = true;
-
-    [Tooltip("Tiempo durante el que permanece visible el gizmo después de ejecutar un ataque")]
-    [SerializeField, Min(0f)] private float gizmoDisplayDuration = 0.2f;
 
     [Tooltip("Color del gizmo que representa el área real del ataque básico")]
     [SerializeField] private Color attackGizmoColor = Color.red;
-
-    /// <summary>
-    /// Temporizador independiente para mantener visible el gizmo durante un breve periodo después de ejecutar el ataque.
-    /// </summary>
-    private float attackGizmoTimer;
 
     #endregion
 
@@ -111,22 +135,14 @@ public class PlayerCombat : MonoBehaviour
 
     #region Unity Callbacks
 
-    /// <summary>
-    /// Inicializa las referencias necesarias para el combate.
-    /// </summary>
     private void Awake()
     {
-        // Busca automáticamente CharacterStats si no se ha asignado
-        // desde el Inspector.
-        if (characterStats == null)
-            characterStats = GetComponent<CharacterStats>();
-
-        // Si no existe un origen de ataque asignado,
-        // utiliza la posición del propio jugador.
-        if (attackOrigin == null)
-            attackOrigin = transform;
+        characterStats = GetComponent<CharacterStats>();
 
         playerController = GetComponent<PlayerController>();
+
+        if (attackOrigin == null)
+            attackOrigin = transform;
     }
 
     private void OnEnable()
@@ -139,17 +155,16 @@ public class PlayerCombat : MonoBehaviour
         characterStats.OnDamageTaken -= ReceiveAttack;
     }
 
-    /// <summary>
-    /// Actualiza los temporizadores de las mecánicas de combate.
-    /// </summary>
     private void Update()
     {
-        // Cooldown del ataque básico
+        // Reduce el tiempo restante del cooldown del ataque básico y del ataque a distancia
         attackCooldownTimer = Mathf.Max(0f, attackCooldownTimer - Time.deltaTime);
+        rangedAttackCooldownTimer = Mathf.Max(0f, rangedAttackCooldownTimer - Time.deltaTime);
 
-        // Duración de la invulnerabilidad
+        // Reduce el tiempo restante de invulnerabilidad
         invulnerabilityTimer = Mathf.Max(0f, invulnerabilityTimer - Time.deltaTime);
 
+        // Vuelve a habilitar el daño cuando termina el periodo de invulnerabilidad
         if (!characterStats.GetCanTakeDamage())
         {
             if (invulnerabilityTimer <= 0f)
@@ -158,37 +173,24 @@ public class PlayerCombat : MonoBehaviour
             }
         }
 
-        if (attackGizmoTimer >= 0f)
+        // Mientras el temporizador del ataque esté activo, continúa detectando los objetivos dentro del área de impacto
+        if (basicAttackTimer > 0f)
         {
             // Calcula el centro de la esfera desplazándola hacia delante
-            // Se utiliza la mitad del alcance para situar el ataque entre
-            // el jugador y su distancia máxima de impacto
-            Vector2 center = (Vector2)attackOrigin.position
-                + Vector2.right * facingDirection * (basicAttackRange * 0.5f);
+            Vector2 center = (Vector2)attackOrigin.position + Vector2.right * facingDirection * (basicAttackRange * 0.5f);
 
-            // Detecta todos los colliders que se encuentren dentro de la esfera.
-            Collider2D[] hits = Physics2D.OverlapCircleAll(
-                center,
-                basicAttackRange,
-                hittableLayers
-            );
+            // Detecta todos los colliders que se encuentren dentro de la esfera
+            Collider2D[] hits = Physics2D.OverlapCircleAll(center, basicAttackRange, hittableLayers);
 
-            // Construye la información del daño que recibirán los objetivos.
-            CombatDamage damage = new CombatDamage(
-                basicAttackDamage,
-                CombatTeam.Player,
-                transform,
-                center,
-                CombatAttackType.Melee,
-                false
-            );
+            // Construye la información del daño que recibirán los objetivos
+            CombatDamage damage = new CombatDamage(basicAttackDamage, CombatTeam.Player, transform, center, CombatAttackType.Melee, false);
 
+            // Aplica el daño a los objetivos detectados
             CombatManager.MakeDamage(transform, hits, hitTargets, damage, CombatTeam.Player);
         }
 
-        // Controla cuánto tiempo permanece visible el gizmo del ataque
-        if (attackGizmoTimer > 0f)
-            attackGizmoTimer -= Time.deltaTime;
+        if (basicAttackTimer > 0f)
+            basicAttackTimer -= Time.deltaTime;
     }
 
     #endregion
@@ -197,18 +199,15 @@ public class PlayerCombat : MonoBehaviour
 
     /// <summary>
     /// Actualiza la dirección hacia la que mira el jugador.
-    /// Si cambia de dirección durante un parry, lo cancela inmediatamente.
     /// </summary>
-    /// <param name="direction">Dirección del jugador: 1 para derecha y -1 para izquierda.</param>
+    /// <param name="direction">Dirección del jugador: 1 para derecha y -1 para izquierda</param>
     public void SetFacingDirection(int direction)
     {
         if (direction == 0)
             return;
 
-        // Normaliza cualquier valor recibido a 1 o -1
         int newDirection = direction > 0 ? 1 : -1;
 
-        // No es necesario hacer nada si la dirección no ha cambiado
         if (newDirection == facingDirection)
             return;
 
@@ -217,54 +216,73 @@ public class PlayerCombat : MonoBehaviour
 
     #endregion
 
-    #region Basic Attack
+    #region Attacks
 
     /// <summary>
-    /// Ejecuta el ataque básico del jugador.
-    /// Detecta todos los objetivos golpeables dentro de una esfera situada delante
-    /// del jugador y les aplica daño una única vez.
+    /// Inicia el ataque básico del jugador. Activa su ventana de detección, inicia el cooldown y limpia los objetivos registrados del ataque anterior.
     /// </summary>
-    /// <returns>True si el ataque se ha ejecutado correctamente.</returns>
+    /// <returns>True si el ataque se ha iniciado correctamente; false si el jugador no puede atacar.</returns>
     public bool PerformBasicAttack()
     {
-        // Comprueba que el jugador puede atacar y sigue vivo
         if (!CanAttack || characterStats == null || characterStats.CurrentHealth <= 0f)
             return false;
 
-        // Activa el gizmo y el cooldown del ataque
-        attackGizmoTimer = gizmoDisplayDuration;
+        // Activa el temporizador que controla la detección del ataque y la visualización de su gizmo
+        basicAttackTimer = basicAttackDuration;
+
+        // Inicia el cooldown para impedir que se ejecute otro ataque antes de que transcurra el tiempo configurado
         attackCooldownTimer = basicAttackCooldown;
 
-        // Limpia los objetivos del ataque anterior
+        // Limpia los objetivos registrados durante el ataque anterior
         hitTargets.Clear();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Lanza un proyectil mágico en la dirección hacia la que mira el jugador.
+    /// </summary>
+    /// <returns>True si el proyectil se ha creado correctamente.</returns>
+    public bool PerformRangedAttack()
+    {
+        if (!CanRangedAttack || projectilePrefab == null || characterStats == null || characterStats.CurrentHealth <= 0f)
+            return false;
+
+        // Utiliza el punto configurado o la posición del jugador como alternativa
+        Vector3 spawnPosition = projectileSpawnPoint != null ? projectileSpawnPoint.position : transform.position;
+
+        // Crea el proyectil
+        PlayerProjectile projectile = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+
+        // Lo inicializa con la dirección actual del jugador
+        projectile.Initialize(transform, Vector2.right * facingDirection);
+
+        // Inicia el cooldown independiente
+        rangedAttackCooldownTimer = rangedAttackCooldown;
 
         return true;
     }
 
     #endregion
 
-    #region Parry
+    #region Damage Reception
 
     /// <summary>
-    /// Recibe un ataque y determina si debe ser neutralizado mediante parry
-    /// o si debe aplicar daño al jugador.
+    /// Gestiona la recepción de daño del jugador. Comprueba si puede recibir el impacto, cambia su estado y activa el periodo de invulnerabilidad.
     /// </summary>
-    /// <param name="incomingDamage">Información del ataque recibido.</param>
-    /// <returns>True si el jugador ha recibido daño.</returns>
-    public void ReceiveAttack()
+    private void ReceiveAttack()
     {
-        // Ignora ataques si el jugador no tiene estadísticas, está muerto
-        // o se encuentra en un periodo de invulnerabilidad.
         if (characterStats == null || characterStats.CurrentHealth <= 0f || IsInvulnerable)
             return;
 
+        // Cambia el estado del jugador para reproducir el comportamiento correspondiente al recibir daño
         playerController.ChangeState(PlayerState.Hurt);
 
+        // Impide que CharacterStats acepte nuevos impactos durante el periodo de invulnerabilidad
         characterStats.SetCanTakeDamage(false);
 
-        // Activa la invulnerabilidad para evitar recibir daño consecutivo.
+        // Activa el temporizador de invulnerabilidad
         invulnerabilityTimer = invulnerabilityDuration;
-        Debug.Log("Invulnerabilidad activada.");
     }
 
     #endregion
@@ -272,23 +290,22 @@ public class PlayerCombat : MonoBehaviour
     #region Debug
 
     /// <summary>
-    /// Dibuja en la Scene View el área real del ataque básico
-    /// mientras su temporizador de visualización permanece activo.
+    /// Dibuja en la escena el área real del ataque básico mientras su temporizador de visualización permanece activo.
     /// </summary>
     private void OnDrawGizmos()
     {
-        if (!showCombatGizmos || attackGizmoTimer <= 0f)
+        if (!showCombatGizmos || basicAttackTimer <= 0f)
             return;
 
         Gizmos.color = attackGizmoColor;
 
-        // Utiliza el origen configurado o el propio jugador como alternativa.
+        // Utiliza el origen configurado o el propio jugador como alternativa
         Transform origin = attackOrigin != null ? attackOrigin : transform;
 
-        // Mantiene exactamente el mismo centro y radio que OverlapCircleAll.
-        Vector3 center = origin.position
-            + Vector3.right * facingDirection * (basicAttackRange * 0.5f);
+        // Calcula el centro utilizando la misma fórmula que se emplea en OverlapCircleAll
+        Vector3 center = origin.position + Vector3.right * facingDirection * (basicAttackRange * 0.5f);
 
+        // Dibuja el contorno de la esfera que representa el área de ataque
         Gizmos.DrawWireSphere(center, basicAttackRange);
     }
 
