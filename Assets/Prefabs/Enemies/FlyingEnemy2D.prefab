@@ -394,7 +394,7 @@ MonoBehaviour:
   attackCooldown: 1.7
   attackMinDistance: 6
   rammingDamage: 20
-  healthToRam: 3
+  healthToRam: 1
   rammingDelay: 1.5
   rammingSpeed: 15
   rammignTurnSpeed: 4
@@ -417,7 +417,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
   team: 2
-  maxHealth: 10
+  maxHealth: 3
   currentHealth: 0
   maxStamina: 100
   staminaRegenRate: 15

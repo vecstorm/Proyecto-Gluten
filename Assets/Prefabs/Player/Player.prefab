@@ -312,8 +312,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   currentState: 0
   skillManager: {fileID: 0}
-  walkSpeed: 5
-  runSpeed: 7
+  walkSpeed: 8
+  runSpeed: 10
   airborneSpeed: 5
   airborneAcceleration: 100
   jumpForce: 16.5
@@ -384,8 +384,8 @@ MonoBehaviour:
   hittableLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  basicAttackDamage: 2
-  basicAttackRange: 1
+  basicAttackDamage: 1
+  basicAttackRange: 2
   basicAttackCooldown: 0.3
   basicAttackDuration: 0.2
   projectilePrefab: {fileID: 398024231849982175, guid: 05457ca6e73de5c469da7f58f0e8e195, type: 3}
