@@ -174,6 +174,7 @@ GameObject:
   - component: {fileID: 1447932522752577167}
   - component: {fileID: 8692649148323337908}
   - component: {fileID: 1626098131391707273}
+  - component: {fileID: 1878078336183355084}
   m_Layer: 0
   m_Name: PatrolEnemy2D
   m_TagString: Untagged
@@ -338,6 +339,8 @@ MonoBehaviour:
   defaultState: 0
   showGizmos: 1
   canRespawn: 1
+  flashTimer: 0.2
+  stunnedIcon: {fileID: 0}
   speed: 2
   groundCheck: {fileID: 8359697859429855696}
   groundLayer:
@@ -366,6 +369,20 @@ MonoBehaviour:
   parryCooldown: 0.5
   currentXp: 0
   knockbackForce: 0
+--- !u!114 &1878078336183355084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6831953556411054844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84ad9f5ca544fee49aa6ad17877a03cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XpDropEnemy
+  xp: {fileID: 11400000, guid: 512648b147aa83742805f9607e58ca27, type: 2}
+  key: {fileID: 0}
 --- !u!1 &8699973852793500170
 GameObject:
   m_ObjectHideFlags: 0

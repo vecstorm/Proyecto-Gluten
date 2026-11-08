@@ -369,6 +369,8 @@ MonoBehaviour:
   defaultState: 0
   showGizmos: 1
   canRespawn: 1
+  flashTimer: 0.2
+  stunnedIcon: {fileID: 0}
   areaRadius: 10
   speed: 3
   timeToStopSearching: 2
@@ -436,7 +438,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84ad9f5ca544fee49aa6ad17877a03cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XpDropEnemy
-  xp: {fileID: 0}
+  xp: {fileID: 11400000, guid: 018b24ae137383d479632294e32594e2, type: 2}
+  key: {fileID: 0}
 --- !u!1 &5696477644919510054
 GameObject:
   m_ObjectHideFlags: 0
