@@ -371,13 +371,29 @@ MonoBehaviour:
   canRespawn: 1
   areaRadius: 10
   speed: 3
+  timeToStopSearching: 2
+  minTimeToTurn: 2
+  maxTimeToTurn: 3
+  wallCheck: {fileID: 6570223444622024205}
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 24
+  mapMask:
+    serializedVersion: 2
+    m_Bits: 8
+  nodeSpacing: 2
+  nodeRadius: 4
+  nodeCheckRadius: 0.5
+  pathUpdateInterval: 0.2
   contactDamage: 10
   projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
   projectileDamage: 10
   projectileSpeed: 6
-  attackCooldown: 2.5
+  attackCooldown: 1.7
+  attackMinDistance: 6
+  rammingDamage: 20
   healthToRam: 3
-  rammingDelay: 1
+  rammingDelay: 1.5
   rammingSpeed: 15
   rammignTurnSpeed: 4
   personalBubbleRadius: 2

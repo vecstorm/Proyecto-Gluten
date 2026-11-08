@@ -44,11 +44,8 @@ public class MeleeEnemyAI : EnemyAI
     private bool waitingToPatrol = false;
     private bool waitingToChase = false;
     private bool waitingToDecideIdle = false;
-    private bool isDead = false;
 
     private Vector3 lastTargetPos;
-    private Vector3 spawnPosition;
-    private Vector3 spawnRotation;
 
     private float timer;
 
@@ -64,21 +61,20 @@ public class MeleeEnemyAI : EnemyAI
     private void Start()
     {
         detection = GetComponent<VisionCone>();
-        //state = ENEMY_STATE.PATROL;
-        //defaultState = state;
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
     }
 
     private void OnEnable()
     {
-        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         characterStats.OnDeath += ToDead;
         characterStats.OnStunApplied += ToStunned;
+        characterStats.OnDamageTaken += FlashColor;
 
         if (isDead)
         {
             ResetEnemy();
+            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         }
     }
 
@@ -86,6 +82,7 @@ public class MeleeEnemyAI : EnemyAI
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnStunApplied -= ToStunned;
+        characterStats.OnDamageTaken -= FlashColor;
     }
 
     private void FixedUpdate()
@@ -223,7 +220,8 @@ public class MeleeEnemyAI : EnemyAI
         if (timer <= 0f)
         {
             //transform.rotation = Quaternion.Euler(new Vector3(0, transform.localRotation.y, 0));
-            GetComponent<SpriteRenderer>().color = Color.red;
+            //GetComponent<SpriteRenderer>().color = Color.red;
+            stunnedIcon.SetActive(false);
             ToPatrol();
         }
     }
@@ -286,7 +284,8 @@ public class MeleeEnemyAI : EnemyAI
         timer = stunnedTimerDuration;
         //detection.DisableVision();
 
-        GetComponent<SpriteRenderer>().color = Color.yellow;
+        //GetComponent<SpriteRenderer>().color = Color.yellow;
+        stunnedIcon.SetActive(true);
 
         //transform.rotation = Quaternion.Euler(new Vector3(0, transform.localRotation.y, 25f));
 
