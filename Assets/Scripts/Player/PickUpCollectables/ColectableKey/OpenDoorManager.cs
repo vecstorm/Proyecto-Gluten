@@ -27,7 +27,7 @@ public class OpenDoorManager : MonoBehaviour
     {
         if (idDoor == salida)
         {
-            SceneManager.LoadScene("MainMenu");
+            SceneManager.LoadScene("SceneMenus");
         } 
         Debug.Log("Puerta abierta");
 
