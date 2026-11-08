@@ -52,6 +52,22 @@ public class PlayerCombat : MonoBehaviour
     /// </summary>
     private float basicAttackTimer;
 
+    [Header("Ranged Attack")]
+
+    [Tooltip("Prefab del proyectil mágico")]
+    [SerializeField] private PlayerProjectile projectilePrefab;
+
+    [Tooltip("Punto desde el que aparecerá el proyectil")]
+    [SerializeField] private Transform projectileSpawnPoint;
+
+    [Tooltip("Tiempo de espera entre ataques a distancia")]
+    [SerializeField, Min(0f)] private float rangedAttackCooldown = 0.5f;
+
+    /// <summary>
+    /// Tiempo restante hasta poder realizar otro ataque a distancia.
+    /// </summary>
+    private float rangedAttackCooldownTimer;
+
     [Header("Invulnerability")]
 
     [Tooltip("Tiempo durante el que el jugador no puede recibir otro ataque después de recibir daño")]
@@ -96,6 +112,11 @@ public class PlayerCombat : MonoBehaviour
     /// </summary>
     public bool CanAttack => attackCooldownTimer <= 0f;
 
+    /// <summary>
+    /// Indica si el jugador puede ejecutar otro ataque a distancia.
+    /// </summary>
+    public bool CanRangedAttack => rangedAttackCooldownTimer <= 0f;
+
     #endregion
 
     #region Debug Configuration
@@ -136,8 +157,9 @@ public class PlayerCombat : MonoBehaviour
 
     private void Update()
     {
-        // Reduce el tiempo restante del cooldown del ataque básico
+        // Reduce el tiempo restante del cooldown del ataque básico y del ataque a distancia
         attackCooldownTimer = Mathf.Max(0f, attackCooldownTimer - Time.deltaTime);
+        rangedAttackCooldownTimer = Mathf.Max(0f, rangedAttackCooldownTimer - Time.deltaTime);
 
         // Reduce el tiempo restante de invulnerabilidad
         invulnerabilityTimer = Mathf.Max(0f, invulnerabilityTimer - Time.deltaTime);
@@ -213,6 +235,30 @@ public class PlayerCombat : MonoBehaviour
 
         // Limpia los objetivos registrados durante el ataque anterior
         hitTargets.Clear();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Lanza un proyectil mágico en la dirección hacia la que mira el jugador.
+    /// </summary>
+    /// <returns>True si el proyectil se ha creado correctamente.</returns>
+    public bool PerformRangedAttack()
+    {
+        if (!CanRangedAttack || projectilePrefab == null || characterStats == null || characterStats.CurrentHealth <= 0f)
+            return false;
+
+        // Utiliza el punto configurado o la posición del jugador como alternativa
+        Vector3 spawnPosition = projectileSpawnPoint != null ? projectileSpawnPoint.position : transform.position;
+
+        // Crea el proyectil
+        PlayerProjectile projectile = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+
+        // Lo inicializa con la dirección actual del jugador
+        projectile.Initialize(transform, Vector2.right * facingDirection);
+
+        // Inicia el cooldown independiente
+        rangedAttackCooldownTimer = rangedAttackCooldown;
 
         return true;
     }
