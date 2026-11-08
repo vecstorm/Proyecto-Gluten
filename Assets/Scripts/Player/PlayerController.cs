@@ -59,9 +59,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private PlayerCombat playerCombat;
 
-    /// <summary>
-    /// Referencia al sistema de estadísticas del jugador.
-    /// </summary>
     private CharacterStats characterStats;
 
     #endregion
@@ -109,11 +106,6 @@ public class PlayerController : MonoBehaviour
     private bool attackPressed;
 
     /// <summary>
-    /// Indica si se ha solicitado realizar un ataque a distancia.
-    /// </summary>
-    private bool rangedAttackPressed;
-
-    /// <summary>
     /// Indica si se ha solicitado realizar un parry.
     /// </summary>
     private bool parryPressed;
@@ -149,15 +141,8 @@ public class PlayerController : MonoBehaviour
 
     #region Hurt
 
-    [Header("Damage")]
-
-    [Tooltip("Tiempo que dura el estado de daño recibido")]
     [SerializeField] float hurtTimerDuration = 1f;
-
-    /// <summary>
-    /// Tiempo que queda de estado de daño recibido.
-    /// </summary>
-    private float hurtTimer;
+    [SerializeField] private float hurtTimer;
 
     #endregion
 
@@ -371,7 +356,6 @@ public class PlayerController : MonoBehaviour
         dashPressed = false;
         hookPressed = false;
         attackPressed = false;
-        rangedAttackPressed = false;
         parryPressed = false;
     }
 
@@ -417,9 +401,6 @@ public class PlayerController : MonoBehaviour
 
         if (glutenActionControls.Player.Attack.WasPressedThisFrame())
             attackPressed = true;
-
-        if (glutenActionControls.Player.RangedAttack.WasPressedThisFrame())
-            rangedAttackPressed = true;
 
         if (glutenActionControls.Player.Parry.WasPressedThisFrame())
             parryPressed = true;
@@ -941,7 +922,6 @@ public class PlayerController : MonoBehaviour
         {
             parryPressed = false;
             attackPressed = false;
-            rangedAttackPressed = false;
 
             ChangeState(PlayerState.Parry);
 
@@ -952,19 +932,10 @@ public class PlayerController : MonoBehaviour
         if (attackPressed && playerCombat.CanAttack)
         {
             attackPressed = false;
-            rangedAttackPressed = false;
 
             ChangeState(PlayerState.Attack);
 
             return true;
-        }
-
-        // Ataque a distancia
-        if (rangedAttackPressed)
-        {
-            rangedAttackPressed = false;
-
-            playerCombat.PerformRangedAttack();
         }
 
         return false;

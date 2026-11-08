@@ -320,6 +320,7 @@ MonoBehaviour:
   doubleJumpForce: 14
   canDoubleJump: 0
   hurtTimerDuration: 0.3
+  hurtTimer: 0
   isGrounded: 0
   groundCheck: {fileID: 1791381231280308761}
   groundLayer:
@@ -380,6 +381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12d958adf197494c8783d68bd261f7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
+  characterStats: {fileID: 1987180075707234818}
   attackOrigin: {fileID: 4854839456935298327}
   hittableLayers:
     serializedVersion: 2
@@ -387,13 +389,10 @@ MonoBehaviour:
   basicAttackDamage: 2
   basicAttackRange: 1
   basicAttackCooldown: 0.3
-  basicAttackDuration: 0.2
-  projectilePrefab: {fileID: 398024231849982175, guid: 05457ca6e73de5c469da7f58f0e8e195, type: 3}
-  projectileSpawnPoint: {fileID: 4854839456935298327}
-  rangedAttackCooldown: 5
   invulnerabilityDuration: 1
   invulnerabilityTimer: 0
   showCombatGizmos: 1
+  gizmoDisplayDuration: 1
   attackGizmoColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &1987180075707234818
 MonoBehaviour:
