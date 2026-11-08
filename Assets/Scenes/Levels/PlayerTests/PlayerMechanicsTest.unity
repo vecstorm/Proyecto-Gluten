@@ -2574,11 +2574,6 @@ Transform:
   - {fileID: 7286562}
   m_Father: {fileID: 1274483825}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &478842165 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4854839456935298327, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
-  m_PrefabInstance: {fileID: 1430383869}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &492292900
 GameObject:
   m_ObjectHideFlags: 0
@@ -7365,18 +7360,6 @@ PrefabInstance:
       propertyPath: skillManager
       value: 
       objectReference: {fileID: 603519867}
-    - target: {fileID: 8003488418989509812, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
-      propertyPath: projectilePrefab
-      value: 
-      objectReference: {fileID: 398024231849982175, guid: 05457ca6e73de5c469da7f58f0e8e195, type: 3}
-    - target: {fileID: 8003488418989509812, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
-      propertyPath: projectileSpawnPoint
-      value: 
-      objectReference: {fileID: 478842165}
-    - target: {fileID: 8003488418989509812, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
-      propertyPath: rangedAttackCooldown
-      value: 5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
