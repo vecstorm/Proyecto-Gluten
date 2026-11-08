@@ -11,6 +11,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private bool bossActive = false;
     [SerializeField] private Transform targetTransform;
+    [SerializeField] protected float flashTimer = 0.2f;
     [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
 
     [Header("Ground Detection:")]
@@ -79,6 +80,8 @@ public class MiniBossEnemyAI : MonoBehaviour
     private Vector3 lastJumpVerticalPosition;
     private Vector3 spawnPosition;
 
+    protected Color rendererColor;
+
     private bool alreadyAttacking = false;
     private bool attackHitboxActive = false;
 
@@ -110,6 +113,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         state = BOSS_STATE.INTRO;
         rb = GetComponent<Rigidbody2D>();
+        rendererColor = GetComponent<SpriteRenderer>().color;
 
         spawnPosition = transform.position;
 
@@ -120,12 +124,14 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         characterStats.OnDeath += Death;
         characterStats.OnDamageTaken += CheckHealthLeft;
+        characterStats.OnDamageTaken += FlashColor;
     }
 
     private void OnDisable()
     {
         characterStats.OnDeath -= Death;
         characterStats.OnDamageTaken -= CheckHealthLeft;
+        characterStats.OnDamageTaken -= FlashColor;
     }
 
     private void FixedUpdate()
@@ -632,6 +638,28 @@ public class MiniBossEnemyAI : MonoBehaviour
     public void BossActive(bool value)
     {
         bossActive = value;
+    }
+
+    protected void FlashColor()
+    {
+        StartCoroutine(FlashSequence());
+    }
+
+    private IEnumerator FlashSequence()
+    {
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            renderer.color = Color.white;
+        }
+
+        yield return new WaitForSeconds(flashTimer);
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            renderer.color = rendererColor;
+        }
     }
 
     #endregion

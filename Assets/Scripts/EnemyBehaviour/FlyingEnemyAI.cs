@@ -90,12 +90,14 @@ public class FlyingEnemyAI : EnemyAI
             
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
+        characterStats.OnDamageTaken += FlashColor;
     }
 
     private void OnDisable()
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
+        characterStats.OnDamageTaken -= FlashColor;
     }
 
     private void FixedUpdate()

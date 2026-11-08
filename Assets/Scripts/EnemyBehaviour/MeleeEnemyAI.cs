@@ -69,6 +69,7 @@ public class MeleeEnemyAI : EnemyAI
     {
         characterStats.OnDeath += ToDead;
         characterStats.OnStunApplied += ToStunned;
+        characterStats.OnDamageTaken += FlashColor;
 
         if (isDead)
         {
@@ -81,6 +82,7 @@ public class MeleeEnemyAI : EnemyAI
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnStunApplied -= ToStunned;
+        characterStats.OnDamageTaken -= FlashColor;
     }
 
     private void FixedUpdate()

@@ -31,6 +31,7 @@ public class PatrolEnemyAI : EnemyAI
     private void OnEnable()
     {
         characterStats.OnDeath += ToDead;
+        characterStats.OnDamageTaken += FlashColor;
 
         if (isDead)
         {
@@ -42,6 +43,7 @@ public class PatrolEnemyAI : EnemyAI
     private void OnDisable()
     {
         characterStats.OnDeath -= ToDead;
+        characterStats.OnDamageTaken -= FlashColor;
     }
 
     private void FixedUpdate()
