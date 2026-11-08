@@ -17,6 +17,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     [Header("Ground Detection:")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] GameObject doors;
 
     [Header("Intro / Idle:")]
     [SerializeField] private int contactDamage = 10;
@@ -614,6 +615,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     private void Death()
     {
         gameObject.SetActive(false);
+        doors.SetActive(false);
     }
 
     private void CheckHealthLeft()
@@ -663,4 +665,6 @@ public class MiniBossEnemyAI : MonoBehaviour
     }
 
     #endregion
+
+
 }

@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class OpenDoorManager : MonoBehaviour
 {
     [SerializeField] public KeyData idDoor;
+    [SerializeField] public KeyData salida;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -23,6 +25,10 @@ public class OpenDoorManager : MonoBehaviour
 
     private void OpenDoor()
     {
+        if (idDoor == salida)
+        {
+            SceneManager.LoadScene("MainMenu");
+        } 
         Debug.Log("Puerta abierta");
 
         Destroy(gameObject);
