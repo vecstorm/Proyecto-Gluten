@@ -283,7 +283,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         rb.MovePosition(jumpPosition);
 
-        if (jumpPosition.y < lastJumpVerticalPosition.y && DetectedGround())
+        if ((jumpPosition.y < lastJumpVerticalPosition.y && DetectedGround()) || timer >= finalJumpDuration)
         {
             timer = 0f;
             alreadyJumpAttacking = false;

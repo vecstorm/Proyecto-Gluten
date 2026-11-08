@@ -220,7 +220,8 @@ public class MeleeEnemyAI : EnemyAI
         if (timer <= 0f)
         {
             //transform.rotation = Quaternion.Euler(new Vector3(0, transform.localRotation.y, 0));
-            GetComponent<SpriteRenderer>().color = Color.red;
+            //GetComponent<SpriteRenderer>().color = Color.red;
+            stunnedIcon.SetActive(false);
             ToPatrol();
         }
     }
@@ -283,7 +284,8 @@ public class MeleeEnemyAI : EnemyAI
         timer = stunnedTimerDuration;
         //detection.DisableVision();
 
-        GetComponent<SpriteRenderer>().color = Color.yellow;
+        //GetComponent<SpriteRenderer>().color = Color.yellow;
+        stunnedIcon.SetActive(true);
 
         //transform.rotation = Quaternion.Euler(new Vector3(0, transform.localRotation.y, 25f));
 

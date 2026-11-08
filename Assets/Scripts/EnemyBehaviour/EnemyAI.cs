@@ -14,6 +14,7 @@ public abstract class EnemyAI : MonoBehaviour
     [SerializeField] protected bool showGizmos = true;
     [SerializeField] protected bool canRespawn = true;
     [SerializeField] protected float flashTimer = 0.2f;
+    [SerializeField] protected GameObject stunnedIcon;
 
     protected Vector3 spawnPosition;
     protected Vector3 spawnRotation;
