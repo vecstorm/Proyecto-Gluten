@@ -59,6 +59,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private PlayerCombat playerCombat;
 
+    /// <summary>
+    /// Referencia al sistema de estadísticas del jugador.
+    /// </summary>
     private CharacterStats characterStats;
 
     #endregion
@@ -141,8 +144,15 @@ public class PlayerController : MonoBehaviour
 
     #region Hurt
 
+    [Header("Damage")]
+
+    [Tooltip("Tiempo que dura el estado de daño recibido")]
     [SerializeField] float hurtTimerDuration = 1f;
-    [SerializeField] private float hurtTimer;
+
+    /// <summary>
+    /// Tiempo que queda de estado de daño recibido.
+    /// </summary>
+    private float hurtTimer;
 
     #endregion
 
