@@ -136,9 +136,11 @@ GameObject:
   - component: {fileID: 6317816238346914269}
   - component: {fileID: 6413751089638512161}
   - component: {fileID: 4847488173561140254}
-  - component: {fileID: 8848226286028038751}
-  - component: {fileID: 7312198762582381409}
-  m_Layer: 0
+  - component: {fileID: 8003488418989509812}
+  - component: {fileID: 1987180075707234818}
+  - component: {fileID: 1393423254232799740}
+  - component: {fileID: 6673116204880292418}
+  m_Layer: 7
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -309,7 +311,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   currentState: 0
-  rb: {fileID: 8159199639849780383}
   skillManager: {fileID: 0}
   walkSpeed: 5
   runSpeed: 7
@@ -318,6 +319,8 @@ MonoBehaviour:
   jumpForce: 16.5
   doubleJumpForce: 14
   canDoubleJump: 0
+  hurtTimerDuration: 0.3
+  hurtTimer: 0
   isGrounded: 0
   groundCheck: {fileID: 1791381231280308761}
   groundLayer:
@@ -330,7 +333,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   wallCheckDistance: 0.6
-  dashSpeed: 30
+  dashSpeed: 20
   dashDuration: 0.15
   dashCooldown: 0.4
   wallGrabDuration: 0.5
@@ -338,7 +341,6 @@ MonoBehaviour:
   wallSlideAcceleration: 1.5
   wallJumpForceX: 15
   wallJumpForceY: 12
-  playerHook: {fileID: 4847488173561140254}
   hookMomentumDuration: 0.1
 --- !u!114 &4847488173561140254
 MonoBehaviour:
@@ -367,7 +369,7 @@ MonoBehaviour:
   hookLayer:
     serializedVersion: 2
     m_Bits: 64
---- !u!114 &8848226286028038751
+--- !u!114 &8003488418989509812
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -376,11 +378,57 @@ MonoBehaviour:
   m_GameObject: {fileID: 1755780057282232126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e1d84e9e679d9144a06340988efe7a3, type: 3}
+  m_Script: {fileID: 11500000, guid: e12d958adf197494c8783d68bd261f7a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerXp
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
+  characterStats: {fileID: 1987180075707234818}
+  attackOrigin: {fileID: 4854839456935298327}
+  hittableLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  basicAttackDamage: 2
+  basicAttackRange: 1
+  basicAttackCooldown: 0.3
+  invulnerabilityDuration: 1
+  invulnerabilityTimer: 0
+  showCombatGizmos: 1
+  gizmoDisplayDuration: 1
+  attackGizmoColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &1987180075707234818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755780057282232126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8522619fae77ec2458ebb4bf4ee02d94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
+  team: 1
+  maxHealth: 100
+  currentHealth: 0
+  maxStamina: 100
+  staminaRegenRate: 15
+  canTakeDamage: 1
+  parryWindow: 0.3
+  parryCooldown: 0.5
   currentXp: 0
---- !u!114 &7312198762582381409
+  knockbackForce: 12
+--- !u!114 &1393423254232799740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755780057282232126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e4782ff42d05c245981a7142a8e2eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RespawnPointScript
+--- !u!114 &6673116204880292418
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

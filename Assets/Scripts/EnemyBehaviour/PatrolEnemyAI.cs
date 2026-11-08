@@ -1,0 +1,151 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+public class PatrolEnemyAI : EnemyAI
+{
+    [Header("Movement:")]
+    [SerializeField] private float speed = 2f;
+
+    [Header("Ground Detection:")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private LayerMask groundLayer;
+
+    [Header("Attack:")]
+    [SerializeField] private int contactDamage = 10;
+
+    #region MAIN LOOP
+
+    private void Awake()
+    {
+        InitializeBasicComponents();
+    }
+
+    private void Start()
+    {
+        spawnPosition = transform.position;
+        spawnRotation = transform.rotation.eulerAngles;
+    }
+
+    private void OnEnable()
+    {
+        characterStats.OnDeath += ToDead;
+        characterStats.OnDamageTaken += FlashColor;
+
+        if (isDead)
+        {
+            ResetEnemy();
+            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
+        }
+    }
+
+    private void OnDisable()
+    {
+        characterStats.OnDeath -= ToDead;
+        characterStats.OnDamageTaken -= FlashColor;
+    }
+
+    private void FixedUpdate()
+    {
+        switch (state)
+        {
+            case ENEMY_STATE.PATROL:
+                OnPatrol();
+                break;
+
+            case ENEMY_STATE.DEAD:
+                break;
+        }
+    }
+
+    #endregion
+
+    #region STATE BEHAVIOUR
+
+    // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
+
+    // Comportamiento en estado PATROL
+    private void OnPatrol()
+    {
+        rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+
+        if (!DetectedGround())
+        {
+            Flip();
+        }
+    }
+
+    #endregion
+
+    #region STATE TRANSITION
+
+    // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
+
+    // Comportamiento de transición a PATROL
+    private void ToPatrol()
+    {
+        state = ENEMY_STATE.PATROL;
+    }
+
+    // Comportamiento de transición a DEAD
+    protected void ToDead()
+    {
+        isDead = true;
+        state = ENEMY_STATE.DEAD;
+        gameObject.SetActive(false);
+    }
+
+    #endregion
+
+    #region STATE CONDITION
+
+    // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            // Limpia los objetivos del ataque anterior
+            hitTargets.Clear();
+
+            CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
+        }
+    }
+
+    // Devuelve si esta detectando suelo delante suyo
+    private bool DetectedGround()
+    {
+        Debug.DrawRay(groundCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
+    }
+
+    // Gira al enemigo si colisiona con un elemento del escenario
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.transform.CompareTag("Ground"))
+        {
+            ContactPoint2D contact = collision.GetContact(0);
+
+            if (Mathf.Abs(contact.normal.x) > 0.5f)
+            {
+                Flip();
+            }
+        }
+    }
+
+    protected override void ResetEnemy()
+    {
+        if (!canRespawn) return;
+
+        rb.linearVelocity = Vector3.zero;
+        isDead = false;
+        state = defaultState;
+        characterStats.FullHeal();
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.Euler(spawnRotation);
+    }
+
+    #endregion
+}

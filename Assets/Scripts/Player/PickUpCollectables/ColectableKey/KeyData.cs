@@ -5,5 +5,5 @@ public class KeyData : ScriptableObject
 {
     [SerializeField] public int Id;
 
-    //[SerializeField] GameObject key;
+    [SerializeField] public GameObject key;
 }
