@@ -274,6 +274,9 @@ MonoBehaviour:
   canRespawn: 1
   flashTimer: 0.2
   stunnedIcon: {fileID: 6524003159268723602}
+  playerDetectionMask:
+    serializedVersion: 2
+    m_Bits: 0
   speed: 2
   probabilityToTurn: 30
   stunnedTimerDuration: 1
@@ -286,10 +289,12 @@ MonoBehaviour:
   contactDamage: 10
   attackDamage: 10
   attackDetectionRange: 3
-  attackRange: 1.5
+  attackRange: 2
   attackRadius: 1
   attackDuration: 0.1
   attackCooldown: 2
+  attackPreparationTime: 0.5
+  attackPreparationForce: 5
   minPatrolDelay: 0.5
   maxPatrolDelay: 2
   minChaseDelay: 0.2

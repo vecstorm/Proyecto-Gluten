@@ -27,6 +27,8 @@ public class MeleeEnemyAI : EnemyAI
     [SerializeField] private float attackRadius = 1f;
     [SerializeField] private float attackDuration = 0.1f;
     [SerializeField] private float attackCooldown = 0.5f;
+    [SerializeField] private float attackPreparationTime = 0.5f;
+    [SerializeField] private float attackPreparationForce = 5f;
 
     [Header("Delays:")]
     [SerializeField] private float minPatrolDelay = 0.5f;
@@ -233,6 +235,15 @@ public class MeleeEnemyAI : EnemyAI
         {
             StartCoroutine(AttackProcess());
         }
+        else
+        {
+            if (PlayerBehind() != invertedDirection)
+            {
+                Flip();
+            }
+        }
+
+        rb.linearVelocity = Vector3.zero;
 
         if (hitboxCreated)
         {
@@ -244,13 +255,6 @@ public class MeleeEnemyAI : EnemyAI
             CombatDamage damage = new CombatDamage(attackDamage, characterStats, colliderPosition, true);
 
             CombatManager.MakeDamage(transform, hits, hitTargets, damage, characterStats.Team);
-        }
-        else
-        {
-            if (PlayerBehind() != invertedDirection)
-            {
-                Flip();
-            }
         }
     }
 
@@ -396,6 +400,16 @@ public class MeleeEnemyAI : EnemyAI
     private IEnumerator AttackProcess()
     {
         alreadyAttacking = true;
+
+        //rb.AddForce(-transform.right * attackPreparationForce, ForceMode2D.Impulse);
+
+        transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 20));
+
+        yield return new WaitForSeconds(attackPreparationTime);
+
+        //rb.AddForce(transform.right * attackPreparationForce, ForceMode2D.Impulse);
+        transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0));
+
         hitboxCreated = true;
 
         // Limpia los objetivos del ataque anterior
