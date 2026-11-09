@@ -394,7 +394,7 @@ public class FlyingEnemyAI : EnemyAI
 
         foreach (Collider2D collider in detectionArea)
         {
-            if (collider.CompareTag("Player"))
+            if (collider.CompareTag("Player") && !ObstacleBlocksTarget(collider.transform.position, areaRadius))
             {
                 lastTargetPos = collider.transform.position;
                 targetTransform = collider.transform;

@@ -15,6 +15,7 @@ public abstract class EnemyAI : MonoBehaviour
     [SerializeField] protected bool canRespawn = true;
     [SerializeField] protected float flashTimer = 0.2f;
     [SerializeField] protected GameObject stunnedIcon;
+    [SerializeField] protected LayerMask playerDetectionMask;
 
     protected Vector3 spawnPosition;
     protected Vector3 spawnRotation;
@@ -65,6 +66,25 @@ public abstract class EnemyAI : MonoBehaviour
         {
             renderer.color = rendererColor;
         }
+    }
+
+    protected bool ObstacleBlocksTarget(Vector3 targetPosition, float distance)
+    {
+        Vector3 targetDirection = targetPosition - transform.position;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, targetDirection, distance, playerDetectionMask);
+
+        if (hit)
+        {
+            Debug.DrawRay(transform.position, targetDirection, Color.blue);
+
+            if (hit.collider.CompareTag("Player"))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     protected void ResetColor()

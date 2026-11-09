@@ -371,6 +371,9 @@ MonoBehaviour:
   canRespawn: 1
   flashTimer: 0.2
   stunnedIcon: {fileID: 0}
+  playerDetectionMask:
+    serializedVersion: 2
+    m_Bits: 136
   areaRadius: 10
   speed: 3
   timeToStopSearching: 2
