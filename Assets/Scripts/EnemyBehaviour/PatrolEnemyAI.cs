@@ -135,16 +135,18 @@ public class PatrolEnemyAI : EnemyAI
         }
     }
 
-    protected override void ResetEnemy()
+    public override void ResetEnemy()
     {
         if (!canRespawn) return;
 
+        ResetColor();
         rb.linearVelocity = Vector3.zero;
         isDead = false;
         state = defaultState;
         characterStats.FullHeal();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
     }
 
     #endregion

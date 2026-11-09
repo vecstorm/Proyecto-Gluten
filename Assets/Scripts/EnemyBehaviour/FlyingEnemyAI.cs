@@ -81,11 +81,11 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnEnable()
     {
-        if (isDead)
+        /*if (isDead)
         {
             invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
             ResetEnemy();
-        }
+        }*/
             
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
@@ -438,12 +438,14 @@ public class FlyingEnemyAI : EnemyAI
         timer = 0;
     }
 
-    protected override void ResetEnemy()
+    public override void ResetEnemy()
     {
         if (!canRespawn) return;
 
+        ResetColor();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         state = defaultState;
         isDead = false;
 

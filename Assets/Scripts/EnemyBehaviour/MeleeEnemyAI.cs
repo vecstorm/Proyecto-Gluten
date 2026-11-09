@@ -68,11 +68,11 @@ public class MeleeEnemyAI : EnemyAI
         characterStats.OnStunApplied += ToStunned;
         characterStats.OnDamageTaken += FlashColor;
 
-        if (isDead)
+        /*if (isDead)
         {
             ResetEnemy();
             invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
-        }
+        }*/
     }
 
     private void OnDisable()
@@ -491,7 +491,7 @@ public class MeleeEnemyAI : EnemyAI
         return deltaX < 0;
     }
 
-    protected override void ResetEnemy()
+    public override void ResetEnemy()
     {
         if (!canRespawn) return;
 
@@ -501,12 +501,14 @@ public class MeleeEnemyAI : EnemyAI
         waitingToChase = false;
         waitingToDecideIdle = false;
 
+        ResetColor();
         rb.linearVelocity = Vector3.zero;
         isDead = false;
         state = defaultState;
         characterStats.FullHeal();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         detection.EnableVision();
     }
 

@@ -81,6 +81,8 @@ public class RespawnPointScript : MonoBehaviour
         // Recuperamos toda la vida
         characterStats.FullHeal();
 
+        EnemyManager.ResetEnemies();
+
         Debug.Log("The player respawn worked, woohoo!!!!");
     }
 

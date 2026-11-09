@@ -28,6 +28,8 @@ public abstract class EnemyAI : MonoBehaviour
 
     protected void InitializeBasicComponents()
     {
+        EnemyManager.EnemiesOnMap.Add(this);
+
         defaultState = state;
 
         rendererColor = GetComponent<SpriteRenderer>().color;
@@ -65,5 +67,15 @@ public abstract class EnemyAI : MonoBehaviour
         }
     }
 
-    protected abstract void ResetEnemy();
+    protected void ResetColor()
+    {
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            renderer.color = rendererColor;
+        }
+    }
+
+    public abstract void ResetEnemy();
 }
