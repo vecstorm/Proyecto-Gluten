@@ -122,10 +122,10 @@ public class MeleeEnemyAI : EnemyAI
         if (hitboxCreated)
         {
             Gizmos.color = new Color(1f, 1f, 0f, 0.25f);
-            Gizmos.DrawSphere(transform.position + GetTargetDirection() * attackRange, attackRadius);
+            Gizmos.DrawSphere(transform.position + transform.right * attackRange, attackRadius);
 
             Gizmos.color = Color.orange;
-            Gizmos.DrawWireSphere(transform.position + GetTargetDirection() * attackRange, attackRadius);
+            Gizmos.DrawWireSphere(transform.position + transform.right * attackRange, attackRadius);
         }
 
         if (detectedAreaActive)
@@ -236,13 +236,21 @@ public class MeleeEnemyAI : EnemyAI
 
         if (hitboxCreated)
         {
-            Vector3 colliderPosition = transform.position + GetTargetDirection() * attackRange;
+            //Vector3 colliderPosition = transform.position + GetTargetDirection() * attackRange;
+            Vector3 colliderPosition = transform.position + transform.right * attackRange;
 
             Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
 
             CombatDamage damage = new CombatDamage(attackDamage, characterStats, colliderPosition, true);
 
             CombatManager.MakeDamage(transform, hits, hitTargets, damage, characterStats.Team);
+        }
+        else
+        {
+            if (PlayerBehind() != invertedDirection)
+            {
+                Flip();
+            }
         }
     }
 
@@ -409,7 +417,7 @@ public class MeleeEnemyAI : EnemyAI
 
         foreach (Collider2D collider in detectionArea)
         {
-            if (collider.CompareTag("Player") && !ObstacleBlocksTarget(collider.transform.position, areaRadius))
+            if (collider.CompareTag("Player"))
             {
                 lastTargetPos = collider.transform.position;
                 targetTransform = collider.transform;
