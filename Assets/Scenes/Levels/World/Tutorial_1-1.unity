@@ -6311,6 +6311,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4038449860479886456, guid: c21e6b85930040849990290fb04d3c65, type: 3}
   m_PrefabInstance: {fileID: 175703925}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &178164905 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3220894714610004860, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+  m_PrefabInstance: {fileID: 1440352662}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &181113524
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21942,7 +21947,7 @@ PrefabInstance:
     - target: {fileID: 2058159563988143, guid: d18291c101167b24d8d676f3116aadde, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
       value: 
-      objectReference: {fileID: 1391878458}
+      objectReference: {fileID: 178164905}
     - target: {fileID: 2058159563988143, guid: d18291c101167b24d8d676f3116aadde, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
       value: 
@@ -42208,9 +42213,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1729380891945138385, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2788248517908220910, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
       propertyPath: m_Name
       value: CanvaMenuOptions
+      objectReference: {fileID: 0}
+    - target: {fileID: 2883972069058172112, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2883972069058172112, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2883972069058172112, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1910683617}
+    - target: {fileID: 2883972069058172112, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2883972069058172112, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetPanelGeneralOptionsActive
+      objectReference: {fileID: 0}
+    - target: {fileID: 2883972069058172112, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MenuOptionsController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2883972069058172112, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 3220894714610004860, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3636857981711646949, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -42255,6 +42296,34 @@ PrefabInstance:
     - target: {fileID: 8665334280149667319, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8771864777631682645, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8771864777631682645, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8771864777631682645, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1910683617}
+    - target: {fileID: 8771864777631682645, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8771864777631682645, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetPanelRebindingOptionsActive
+      objectReference: {fileID: 0}
+    - target: {fileID: 8771864777631682645, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MenuOptionsController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8771864777631682645, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -55568,6 +55637,17 @@ Transform:
   - {fileID: 1195010829}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1910683617 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8932658818319315536, guid: e5a38cb3e78152b4883db7b1fa4e21a6, type: 3}
+  m_PrefabInstance: {fileID: 1440352662}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47e2e58590baca941ac68c72234242ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuOptionsController
 --- !u!1001 &1910916912
 PrefabInstance:
   m_ObjectHideFlags: 0
