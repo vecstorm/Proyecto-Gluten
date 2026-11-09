@@ -3,9 +3,7 @@ using UnityEngine;
 public class PlatformMoveUp_DownScript : MonoBehaviour
 {
     [SerializeField] private float speed = 3f;
-
     [SerializeField] private string limitTag = "PlatformPoint";
-
     [SerializeField] private bool useVelocityMovement = true;
 
     // Rigidbody2D de la plataforma para controlar su movimiento
@@ -57,6 +55,21 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
         if (collision.rigidbody == null || !collision.gameObject.CompareTag("Player"))
             return;
 
+        // Una vez que el jugador este abajo de la plataforma del collider
+        bool PlayerDownPlatform = collision.collider.bounds.max.y <= platformCollider.bounds.min.y + 0.1f;
+
+        // Si el juagador esta abajo DEATH()
+        if (PlayerDownPlatform)
+        {
+            CharacterStats charactStats = collision.gameObject.GetComponent<CharacterStats>();
+
+            if(charactStats != null)
+            {
+                charactStats.Death();
+            }
+            return;
+        }
+
         // Comprueba que el jugador este encima de la plataforma
         bool isOnTop = collision.collider.bounds.min.y >= platformCollider.bounds.max.y - 0.1f;
         if (!isOnTop)
@@ -69,7 +82,7 @@ public class PlatformMoveUp_DownScript : MonoBehaviour
         // se detiene su movimiento vertical para evitar que atraviese la plataforma
         if (verticalSpeed > 0f && verticalSpeed <= speed + 0.5f)
         {
-            collision.rigidbody.linearVelocity = new Vector2(collision.rigidbody.linearVelocity.x,0f);
+            collision.rigidbody.linearVelocity = new Vector2(collision.rigidbody.linearVelocity.x, 0f);
         }
     }
 }
