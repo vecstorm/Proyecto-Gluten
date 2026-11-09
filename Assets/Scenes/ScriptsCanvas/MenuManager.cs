@@ -53,6 +53,7 @@ public class MenuManager : MonoBehaviour
     public void ChangeSceneToGame()
     {
         SceneManager.LoadScene("Tutorial_1-1");
+        Time.timeScale = 1f;
     }
 
     public void ChangeSceneToMenus()
