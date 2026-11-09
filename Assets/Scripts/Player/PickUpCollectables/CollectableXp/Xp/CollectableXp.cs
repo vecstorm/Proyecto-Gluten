@@ -11,8 +11,7 @@ public class CollectableXp : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            PlayerXp player = collision.GetComponent<PlayerXp>();
-        Debug.Log("entra colicion");
+            CharacterStats player = collision.GetComponent<CharacterStats>();
 
             if (player != null)
             {
