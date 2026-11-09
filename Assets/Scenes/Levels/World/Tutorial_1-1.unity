@@ -12841,12 +12841,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 727477662}
     m_Modifications:
     - target: {fileID: 1221743611248709618, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
+      propertyPath: doors
+      value: 
+      objectReference: {fileID: 1864787848}
+    - target: {fileID: 1221743611248709618, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
       propertyPath: targetTransform
       value: 
       objectReference: {fileID: 891664995}
     - target: {fileID: 1798289926387313172, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
       propertyPath: m_Name
       value: MiniBossEnemy2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 4343450151138682763, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
+      propertyPath: maxHealth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6572285903614451381, guid: 560917e97d947c64ca45b2239fa0f0af, type: 3}
       propertyPath: m_LocalPosition.x
@@ -54334,6 +54342,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8674931674049096901, guid: 6ed92cd0286baec4cbdd29c42f90d820, type: 3}
   m_PrefabInstance: {fileID: 1862755609}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1864787848 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3089656897322464013, guid: a7875da0a88492343be38690f277047a, type: 3}
+  m_PrefabInstance: {fileID: 7819360723861884488}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &1866061524 stripped
 Transform:
