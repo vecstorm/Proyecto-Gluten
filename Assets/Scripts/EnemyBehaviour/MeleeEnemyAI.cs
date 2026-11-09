@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -48,8 +47,6 @@ public class MeleeEnemyAI : EnemyAI
     private Vector3 lastTargetPos;
 
     private float timer;
-
-    
 
     #region MAIN LOOP
 
@@ -157,7 +154,7 @@ public class MeleeEnemyAI : EnemyAI
 
         ToPatrol();
 
-        rb.linearVelocity = Vector3.zero;
+        rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
     }
 
     // Comportamiento en estado PATROL
@@ -187,7 +184,7 @@ public class MeleeEnemyAI : EnemyAI
 
         if (!DetectedGround())
         {
-            rb.linearVelocity = Vector3.zero;
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
         }
     }
 
@@ -215,7 +212,7 @@ public class MeleeEnemyAI : EnemyAI
     {
         if (timer > 0f) timer -= Time.deltaTime;
 
-        rb.linearVelocity = Vector3.zero;
+        rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
 
         if (timer <= 0f)
         {

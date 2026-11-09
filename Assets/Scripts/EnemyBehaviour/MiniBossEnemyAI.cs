@@ -98,6 +98,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     private Rigidbody2D rb;
     private float timer;
     private bool invertedDirection = false;
+    private Vector3 originalScale;
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
@@ -117,6 +118,8 @@ public class MiniBossEnemyAI : MonoBehaviour
         rendererColor = GetComponent<SpriteRenderer>().color;
 
         spawnPosition = transform.position;
+
+        originalScale = transform.localScale;
 
         healthModule = characterStats.MaxHealth / (float)healthToDivideDifficulty;
     }
@@ -332,7 +335,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     // Comportamiento de transición a JUMP_ATTACK
     private void ToJump()
     {
-        transform.localScale = new Vector3(3f, 3f, 3f);
+        transform.localScale = originalScale;
 
         jumpStartPosition = transform.position;
         jumpLandingPosition = new Vector3(targetTransform.position.x, transform.position.y, transform.position.z);
@@ -493,7 +496,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     private IEnumerator HeavyAttackProcess()
     {
         alreadyHeavyAttacking = true;
-        transform.localScale = new Vector3(3f, 3.2f, 3f);
+        transform.localScale = new Vector3(originalScale.x, originalScale.y + 0.2f, originalScale.z);
 
         yield return new WaitForSeconds(StatWithMultiplier(heavyAttackDelay, delayMultiplier));
 
@@ -502,7 +505,7 @@ public class MiniBossEnemyAI : MonoBehaviour
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
 
-        transform.localScale = new Vector3(3f, 3f, 3f);
+        transform.localScale = originalScale;
 
         StartCoroutine(SpawnSpikes());
 
@@ -519,7 +522,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         alreadyJumpAttacking = true;
 
-        transform.localScale = new Vector3(3f, 2.8f, 3f);
+        transform.localScale = new Vector3(originalScale.x, originalScale.y - 0.2f, originalScale.z);
 
         yield return new WaitForSeconds(StatWithMultiplier(jumpPreparationTime, delayMultiplier));
 
