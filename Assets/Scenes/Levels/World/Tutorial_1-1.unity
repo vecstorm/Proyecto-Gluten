@@ -2960,6 +2960,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d49f6058b88214d4a806dbf9ae0ac2e1, type: 3}
+--- !u!114 &88813060 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1489273991430339292, guid: d59089164f36e0c499ce935c044644b1, type: 3}
+  m_PrefabInstance: {fileID: 2001703537}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1001 &90341865
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -58978,7 +58989,19 @@ PrefabInstance:
       objectReference: {fileID: 891664998}
     - target: {fileID: 5605205160645720153, guid: d59089164f36e0c499ce935c044644b1, type: 3}
       propertyPath: m_Name
-      value: Canvas
+      value: CanvasUIGameplay
+      objectReference: {fileID: 0}
+    - target: {fileID: 6249218984988589853, guid: d59089164f36e0c499ce935c044644b1, type: 3}
+      propertyPath: textTotalXP
+      value: 
+      objectReference: {fileID: 88813060}
+    - target: {fileID: 6249218984988589853, guid: d59089164f36e0c499ce935c044644b1, type: 3}
+      propertyPath: CharacterStatsInstance
+      value: 
+      objectReference: {fileID: 891664998}
+    - target: {fileID: 6924469222180761595, guid: d59089164f36e0c499ce935c044644b1, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 7780639047570082637, guid: d59089164f36e0c499ce935c044644b1, type: 3}
       propertyPath: m_AnchorMax.y

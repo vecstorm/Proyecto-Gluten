@@ -4,7 +4,7 @@ using UnityEngine;
 public class KeyDoorManager : MonoBehaviour
 {
 
-    public HashSet<int> keys = new HashSet<int>();
+    public HashSet<int> keys = new HashSet<int>(); //Coleccion de llaves que tiene el personaje
 
     public void SaveKey(KeyData key)
     {
