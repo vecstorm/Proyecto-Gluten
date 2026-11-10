@@ -4,17 +4,32 @@ using UnityEngine.UI;
 public class StaminaBarUI : MonoBehaviour
 {
     [Header("Referencias")]
-    [Tooltip("Arrastra aquí el objeto que tenga el script CharacterStats (Jugador).")]
-    [SerializeField] private CharacterStats characterStats;
-
     [Tooltip("El componente Slider de la barra de estamina.")]
     [SerializeField] private Slider staminaSlider;
+
+    // Referencia interna guardada automáticamente
+    private CharacterStats characterStats;
+
+    private void Awake()
+    {
+        // Buscamos al jugador por su etiqueta al iniciar la escena
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            characterStats = player.GetComponent<CharacterStats>();
+        }
+
+        if (characterStats == null)
+        {
+            Debug.LogError("StaminaBarUI no pudo encontrar un CharacterStats con la etiqueta 'Player'.", this);
+        }
+    }
 
     private void Start()
     {
         if (characterStats != null && staminaSlider != null)
         {
-            // Inicializa la barra llena con los valores máximos al arrancar
+            // Inicializa la barra con los valores máximos al arrancar
             staminaSlider.maxValue = characterStats.MaxStamina;
             staminaSlider.value = characterStats.CurrentStamina;
         }
@@ -22,18 +37,18 @@ public class StaminaBarUI : MonoBehaviour
 
     private void OnEnable()
     {
+        // Usamos la referencia guardada de forma segura
         if (characterStats != null)
         {
-            // Nos suscribimos al evento de estamina
             characterStats.OnStaminaChanged += ActualizarBarra;
         }
     }
 
     private void OnDisable()
     {
+        // Nos desuscribimos usando exactamente la misma referencia para evitar fugas de memoria
         if (characterStats != null)
         {
-            // Desuscripción obligatoria para evitar fugas de memoria o errores
             characterStats.OnStaminaChanged -= ActualizarBarra;
         }
     }

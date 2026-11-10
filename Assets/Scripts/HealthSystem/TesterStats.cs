@@ -16,7 +16,7 @@ public class TesterStats : MonoBehaviour
         // Pulsar 'T' para infligir 10 de daño
         if (Keyboard.current.tKey.wasPressedThisFrame)
         {
-            characterStats.TakeDamage(10f);
+            characterStats.TakeDamage(100f);
             Debug.Log($"Daño recibido. Vida actual: {characterStats.CurrentHealth}");
         }
 

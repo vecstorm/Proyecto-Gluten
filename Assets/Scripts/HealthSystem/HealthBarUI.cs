@@ -3,8 +3,23 @@ using UnityEngine.UI;
 
 public class HealthBarUI : MonoBehaviour
 {
-    [SerializeField] private CharacterStats characterStats;
     [SerializeField] private Slider healthSlider;
+    private CharacterStats characterStats; // Referencia interna guardada
+
+    private void Awake()
+    {
+        // Buscamos al jugador al arrancar el script
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            characterStats = player.GetComponent<CharacterStats>();
+        }
+
+        if (characterStats == null)
+        {
+            Debug.LogError("HealthBarUI no pudo encontrar un CharacterStats con la etiqueta 'Player'.", this);
+        }
+    }
 
     private void Start()
     {
@@ -18,6 +33,7 @@ public class HealthBarUI : MonoBehaviour
 
     private void OnEnable()
     {
+        // Usamos la referencia guardada de forma segura
         if (characterStats != null)
         {
             characterStats.OnHealthChanged += ActualizarBarra;
@@ -26,6 +42,7 @@ public class HealthBarUI : MonoBehaviour
 
     private void OnDisable()
     {
+        // Nos desuscribimos usando exactamente la misma referencia para evitar fugas
         if (characterStats != null)
         {
             characterStats.OnHealthChanged -= ActualizarBarra;
@@ -36,6 +53,7 @@ public class HealthBarUI : MonoBehaviour
     {
         if (healthSlider != null)
         {
+            Debug.Log($"Actualizando barra de vida: Actual = {vidaActual}, Máxima = {vidaMaxima}");
             healthSlider.maxValue = vidaMaxima;
             healthSlider.value = vidaActual;
         }
