@@ -39,35 +39,41 @@ public class MoveCollision : MonoBehaviour
 
     private bool InitializePoints()
     {
-        // Buscamos todos los objetos que tengan el tag indicado
-        GameObject[] points = GameObject.FindGameObjectsWithTag(pointTag);
-        if (points.Length < 2) return false;
+        // Buscamos los puntos dentro de este prefab y no en toda la escena
+        Transform root = transform.parent != null ? transform.parent : transform;
 
         // Creamos las variables para guardar los dos puntos más cercanos y sus distancias
         Transform p1 = null, p2 = null;
         float minDist = float.MaxValue, secondDist = float.MaxValue;
 
-        // Recorremos los puntos para encontrar los dos más cercanos a la plataforma
-        foreach (var p in points)
+        // Recorremos los hijos del prefab para encontrar los dos puntos más cercanos a la plataforma
+        foreach (var p in root.GetComponentsInChildren<Transform>(true))
         {
+            // Ignoramos la propia plataforma y los objetos que no tengan el tag de punto
+            if (p == transform || !p.CompareTag(pointTag)) continue;
+
             // Calculamos la distancia entre la plataforma y cada punto
-            float dist = Vector2.Distance(transform.position, p.transform.position);
+            float dist = Vector2.Distance(transform.position, p.position);
 
             if (dist < minDist)
             {
                 // Guardamos el punto anterior como segundo y el actual como primero
                 secondDist = minDist; p2 = p1;
-                minDist = dist; p1 = p.transform;
+                minDist = dist; p1 = p;
             }
             else if (dist < secondDist)
             {
                 // Guardamos el punto actual como segundo más cercano
-                secondDist = dist; p2 = p.transform;
+                secondDist = dist; p2 = p;
             }
         }
 
         // Comprobamos que se hayan encontrado los dos puntos necesarios
-        if (!p1 || !p2) return false;
+        if (!p1 || !p2)
+        {
+            Debug.Log($"Movimiento Colisión la plataforma necesita 2 hijos con el tag '{pointTag}' (PointA y PointB).", this);
+            return false;
+        }
 
         // Guardamos las posiciones de los dos puntos encontrados
         pointA = p1.position;
@@ -86,11 +92,11 @@ public class MoveCollision : MonoBehaviour
         // Calculamos la distancia que se desplazará la plataforma en este paso
         Vector2 movementStep = nextPos - currentPos;
 
+        // Movemos primero al jugador para evitar que pierda la detección de la plataforma
+        HandlePlayerRider(movementStep);
+
         // Movemos la plataforma a la siguiente posición
         rb.position = nextPos;
-
-        // Comprobamos si hay un jugador encima y lo movemos junto a la plataforma
-        HandlePlayerRider(movementStep);
 
         // Comprobamos si la plataforma ha llegado a su punto de destino
         if (Vector2.Distance(nextPos, target) <= 0.001f)
