@@ -164,8 +164,13 @@ public class MoveCollision : MonoBehaviour
         foreach (var hit in hits)
         {
             // Comprobamos si el objeto tiene el tag Player y un Rigidbody asociado
-            if (hit.CompareTag("Player") && hit.attachedRigidbody != null)
-                return hit.attachedRigidbody;
+            if (!hit.CompareTag("Player") || hit.attachedRigidbody == null) continue;
+
+            // Su centro tiene que estar sobre la plataforma: si esta al lado no cuenta
+            Bounds p = hit.bounds;
+            if (p.center.x < b.min.x || p.center.x > b.max.x) continue;
+
+            return hit.attachedRigidbody;
         }
 
         // Devolvemos null si no encontramos ningún jugador
