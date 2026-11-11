@@ -20,7 +20,7 @@ public class CheckpointInteract : MonoBehaviour
 
     private void Update()
     {
-        // 2. Comprobamos la tecla usando el nuevo Input System
+        
         if (jugadorEnRango && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             ActivarCheckpoint();
@@ -44,6 +44,12 @@ public class CheckpointInteract : MonoBehaviour
                     respawn.respawnPointPlayer = transform.position; // Actualiza el punto de respawn
                 }
             }
+        }
+
+        // 2. Ordenamos al GameManager central que resetee a los enemigos
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RespawnAllEnemies();
         }
 
         Debug.Log("Checkpoint activado en: " + transform.position);
