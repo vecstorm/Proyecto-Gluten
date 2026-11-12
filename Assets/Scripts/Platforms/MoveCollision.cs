@@ -31,9 +31,18 @@ public class MoveCollision : MonoBehaviour
     private readonly Collider2D[] playerHits = new Collider2D[16];
 
     // Guardamos las distancias y direcciones que utilizaremos para empujar al jugador
-    private readonly float[] pushDistances = new float[4];
-    private readonly bool[] pushTried = new bool[4];
-    private static readonly Vector2[] pushDirections = { Vector2.up, Vector2.right, Vector2.left, Vector2.down };
+    // 4 lados cardinales (arriba, derecha, izquierda, abajo) + 4 diagonales
+    private readonly float[] pushDistances = new float[8];
+    private readonly bool[] pushTried = new bool[8];
+    private readonly float[] pushPriority = new float[8];
+    private static readonly Vector2[] pushDirections =
+    {
+        Vector2.up, Vector2.right, Vector2.left, Vector2.down,
+        new Vector2(0.7071068f, 0.7071068f),
+        new Vector2(-0.7071068f, 0.7071068f),
+        new Vector2(0.7071068f, -0.7071068f),
+        new Vector2(-0.7071068f, -0.7071068f)
+    };
     private static readonly Vector3 extraSize = new Vector3(0.04f, 0.04f, 0f);
 
     // Filtramos los objetos que vamos a detectar
@@ -226,8 +235,22 @@ public class MoveCollision : MonoBehaviour
         Bounds future = platformCol.bounds;
         future.center += (Vector3)movementStep;
 
+        // Centro y tamaño de la caja de búsqueda
+        Vector3 boxCenter = future.center;
+        Vector3 boxSize = future.size + extraSize;
+
+        // Si la plataforma se mueve en diagonal la caja tiene que cubrir también la franja
+        // que barre al moverse, si no el jugador no se detecta y no se le empuja ni se le daña
+        if (movementStep.x != 0f && movementStep.y != 0f)
+        {
+            boxCenter.x += movementStep.x * 0.5f;
+            boxCenter.y += movementStep.y * 0.5f;
+            boxSize.x += Mathf.Abs(movementStep.x);
+            boxSize.y += Mathf.Abs(movementStep.y);
+        }
+
         // Buscamos los jugadores que coincidirán con la siguiente posición
-        int count = Physics2D.OverlapBox(future.center, future.size + extraSize, 0f, filter, playerHits);
+        int count = Physics2D.OverlapBox(boxCenter, boxSize, 0f, filter, playerHits);
 
         for (int i = 0; i < count; i++)
         {
@@ -271,26 +294,52 @@ public class MoveCollision : MonoBehaviour
         if (!player.Intersects(future)) return true;
 
         // Calculamos cuánto tiene que moverse el jugador para salir por cada lado
-        pushDistances[0] = future.max.y - player.min.y + 0.02f;
-        pushDistances[1] = future.max.x - player.min.x + 0.02f;
-        pushDistances[2] = player.max.x - future.min.x + 0.02f;
-        pushDistances[3] = player.max.y - future.min.y + 0.02f;
+        pushDistances[0] = future.max.y - player.min.y + 0.02f; // arriba
+        pushDistances[1] = future.max.x - player.min.x + 0.02f; // derecha
+        pushDistances[2] = player.max.x - future.min.x + 0.02f; // izquierda
+        pushDistances[3] = player.max.y - future.min.y + 0.02f; // abajo
+        
+        // Indicamos la distancia que necesita el jugador para salir por las diagonales                                                       
+        pushDistances[4] = Mathf.Max(pushDistances[0], pushDistances[1]) * 1.41421356f; // arriba-derecha
+        pushDistances[5] = Mathf.Max(pushDistances[0], pushDistances[2]) * 1.41421356f; // arriba-izquierda
+        pushDistances[6] = Mathf.Max(pushDistances[3], pushDistances[1]) * 1.41421356f; // abajo-derecha
+        pushDistances[7] = Mathf.Max(pushDistances[3], pushDistances[2]) * 1.41421356f; // abajo-izquierda
 
         // Reiniciamos los lados que ya hemos probado
-        pushTried[0] = pushTried[1] = pushTried[2] = pushTried[3] = false;
+        for (int i = 0; i < 8; i++) pushTried[i] = false;
+
+        // Comprobamos hacia donde se mueve la plataforma
+        Vector2 move = (Vector2)(future.center - platformCol.bounds.center);
+        bool diagonal = move.x != 0f && move.y != 0f;
+
+        // Indicamos la dirección del movimiento
+        if (move.sqrMagnitude > 0f) move.Normalize();
+
+        // Indicamos la prioridad de cada dirección que vamos a probar
+        for (int i = 0; i < 8; i++)
+        {
+            pushPriority[i] = diagonal ? Vector2.Dot(pushDirections[i], move) : -pushDistances[i];
+        }
 
         // Guardamos la posición y los límites iniciales del jugador
         Vector2 startPosition = body.position;
         Bounds startBounds = col.bounds;
 
-        // Probamos primero la dirección que necesita menos desplazamiento
-        for (int attempt = 0; attempt < 4; attempt++)
+        // Probamos primero la dirección con mayor prioridad
+        for (int attempt = 0; attempt < 8; attempt++)
         {
             int best = -1;
 
-            for (int i = 0; i < 4; i++)
-                if (!pushTried[i] && (best == -1 || pushDistances[i] < pushDistances[best]))
+            // Comprobamos qué dirección tiene la mayor prioridad entre las que faltan por probar
+            for (int i = 0; i < 8; i++)
+            {
+                if (pushTried[i]) continue;
+
+                if (best == -1 ||
+                    pushPriority[i] > pushPriority[best] ||
+                    (pushPriority[i] == pushPriority[best] && pushDistances[i] < pushDistances[best]))
                     best = i;
+            }
 
             pushTried[best] = true;
 
