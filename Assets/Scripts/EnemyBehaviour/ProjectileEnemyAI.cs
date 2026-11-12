@@ -7,9 +7,17 @@ public class ProjectileEnemyAI : EnemyAI
 
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private float projectileSpeed = 6;
+    [SerializeField] private int ampedProjectileCount = 4;
+    [SerializeField] private float attackCooldown = 1.5f;
 
     private Transform targetTransform;
     private Vector3 lastTargetPos;
+
+    private int projectileCount;
+
+    private float timer;
 
     private void Awake()
     {
@@ -31,11 +39,11 @@ public class ProjectileEnemyAI : EnemyAI
                 break;
 
             case ENEMY_STATE.CHASING:
-                //OnChasing();
+                OnChasing();
                 break;
 
             case ENEMY_STATE.ATTACK:
-                //OnAttack();
+                OnAttack();
                 break;
 
             case ENEMY_STATE.RAMMING:
@@ -71,8 +79,63 @@ public class ProjectileEnemyAI : EnemyAI
     {
         if (TargetDetectedOnArea(areaRadius))
         {
-            Debug.Log("DETECTADO");
+            ToAttack();
+            return;
         }
+    }
+
+    private void OnChasing()
+    {
+
+    }
+
+    private void OnAttack()
+    {
+        if (!TargetDetectedOnArea(areaRadius))
+        {
+            ToChasing();
+            return;
+        }
+
+        timer -= Time.fixedDeltaTime;
+
+        lastTargetPos = targetTransform.position;
+
+        if (timer <= 0)
+        {
+            projectileCount++;
+
+            GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+            newProjectile.GetComponent<EnemyProjectileController>().SetMovement(projectileSpeed, targetTransform.position);
+
+            if (projectileCount >= ampedProjectileCount)
+            {
+                projectileCount = 0;
+                newProjectile.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            }
+            
+            timer = attackCooldown;
+        }
+
+        if (PlayerBehind() != invertedDirection)
+        {
+            Flip();
+        }
+    }
+
+    private void ToPatrol()
+    {
+        state = ENEMY_STATE.PATROL;
+    }
+
+    private void ToChasing()
+    {
+        state = ENEMY_STATE.CHASING;
+    }
+
+    private void ToAttack()
+    {
+        state = ENEMY_STATE.ATTACK;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -104,6 +167,14 @@ public class ProjectileEnemyAI : EnemyAI
         }
 
         return false;
+    }
+
+    // Devuelve si el jugador esta detras del enemigo o no
+    private bool PlayerBehind()
+    {
+        float deltaX = targetTransform.position.x - transform.position.x;
+
+        return deltaX < 0;
     }
 
     public override void ResetEnemy()

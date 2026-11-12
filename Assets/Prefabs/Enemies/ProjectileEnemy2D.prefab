@@ -524,6 +524,10 @@ MonoBehaviour:
     m_Bits: 8
   areaRadius: 10
   contactDamage: 10
+  projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
+  projectileSpeed: 8
+  ampedProjectileCount: 4
+  attackCooldown: 1.5
 --- !u!114 &8841831874865696730
 MonoBehaviour:
   m_ObjectHideFlags: 0
