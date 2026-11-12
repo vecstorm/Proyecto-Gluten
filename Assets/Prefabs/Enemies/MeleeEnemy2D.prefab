@@ -295,7 +295,7 @@ MonoBehaviour:
   attackRange: 2
   attackRadius: 1
   attackDuration: 0.1
-  attackCooldown: 2
+  attackCooldown: 0.5
   attackPreparationTime: 0.5
   attackPreparationForce: 5
   minPatrolDelay: 0.5
@@ -304,6 +304,8 @@ MonoBehaviour:
   maxChaseDelay: 0.7
   minIdleDelay: 7
   maxIdleDelay: 20
+  minSearchingDelay: 2
+  maxSearchingDelay: 2.5
 --- !u!114 &2436022556067805073
 MonoBehaviour:
   m_ObjectHideFlags: 0

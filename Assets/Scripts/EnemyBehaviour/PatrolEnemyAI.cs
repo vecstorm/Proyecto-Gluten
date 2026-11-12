@@ -69,7 +69,7 @@ public class PatrolEnemyAI : EnemyAI
     {
         rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
-        if (!DetectedGround())
+        if (!DetectedEdge())
         {
             Flip();
         }
@@ -114,7 +114,7 @@ public class PatrolEnemyAI : EnemyAI
     }
 
     // Devuelve si esta detectando suelo delante suyo
-    private bool DetectedGround()
+    private bool DetectedEdge()
     {
         Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
         return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);

@@ -36,14 +36,12 @@ public class MeleeEnemyAI : EnemyAI
     [SerializeField] private float maxChaseDelay = 0.7f;
     [SerializeField] private float minIdleDelay = 7f;
     [SerializeField] private float maxIdleDelay = 20f;
+    [SerializeField] private float minSearchingDelay = 1f;
+    [SerializeField] private float maxSearchingDelay = 1.5f;
 
     private bool alreadyAttacking = false;
     private bool hitboxCreated = false;
     private Transform targetTransform;
-
-    private bool waitingToPatrol = false;
-    private bool waitingToChase = false;
-    private bool waitingToDecideIdle = false;
 
     private Vector3 lastTargetPos;
 
@@ -89,6 +87,10 @@ public class MeleeEnemyAI : EnemyAI
                 OnPatrol();
                 break;
 
+            case ENEMY_STATE.PREPARING_CHASE:
+                OnPreparingChase();
+                break;
+
             case ENEMY_STATE.CHASING:
                 OnChasing();
                 break;
@@ -126,7 +128,7 @@ public class MeleeEnemyAI : EnemyAI
         if (detectedAreaActive)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, state == ENEMY_STATE.PATROL || state == ENEMY_STATE.IDLE ? areaRadius : detectedAreaRadius);
+            Gizmos.DrawWireSphere(transform.position, state == ENEMY_STATE.PATROL || state == ENEMY_STATE.IDLE || state == ENEMY_STATE.PREPARING_CHASE ? areaRadius : detectedAreaRadius);
         }
 
         if (lastTargetPos != Vector3.zero)
@@ -145,39 +147,85 @@ public class MeleeEnemyAI : EnemyAI
     // Comportamiento en estado IDLE
     private void OnIdle()
     {
-        if (TargetDetected() || TargetDetectedOnArea(areaRadius)) ToChasing();
+        if (TargetDetected() || TargetDetectedOnArea(areaRadius)) 
+        {
+            ToPreparingChase();
+            return;
+        }
 
-        ToPatrol();
+        timer -= Time.fixedDeltaTime;
 
+        if (timer <= 0)
+        {
+            ToPatrol();
+        }
+        
         rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
     }
 
     // Comportamiento en estado PATROL
     protected virtual void OnPatrol()
     {
-        if (TargetDetected() || TargetDetectedOnArea(areaRadius)) ToChasing();
+        if (TargetDetected() || TargetDetectedOnArea(areaRadius))
+        {
+            ToPreparingChase();
+            return;
+        }
 
-        ToIdle();
+        timer -= Time.fixedDeltaTime;
 
+        if (timer <= 0)
+        {
+            ToIdle();
+            return;
+        }
+        
         rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
-        if (!DetectedGround())
+        if (!DetectedEdge())
         {
             Flip();
+        }
+    }
+
+    private void OnPreparingChase()
+    {
+        timer -= Time.fixedDeltaTime;
+
+        rb.linearVelocity = rb.linearVelocity;
+
+        if (timer <= 0)
+        {
+            if (!TargetDetected() && !TargetDetectedOnArea(areaRadius))
+            {
+                ToPatrol();
+                return;
+            }
+
+            ToChasing();
         }
     }
 
     // Comportamiento en estado CHASING
     private void OnChasing()
     {
-        if (!TargetDetectedOnArea(detectedAreaRadius)) ToSearching();
-        if (targetTransform != null && OnAttackRange(targetTransform.position)) ToAttack();
+        if (!TargetDetectedOnArea(detectedAreaRadius)) 
+        {
+            ToSearching();
+            return;
+        }
 
+        if (targetTransform != null && OnAttackRange(targetTransform.position)) 
+        {
+            ToAttack();
+            return;
+        }
+        
         if (PlayerBehind() != invertedDirection) Flip();
 
         rb.linearVelocity = new Vector3(GetTargetDirection().x * (speed * 2f), rb.linearVelocity.y);
 
-        if (!DetectedGround())
+        if (!DetectedEdge())
         {
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
         }
@@ -186,11 +234,15 @@ public class MeleeEnemyAI : EnemyAI
     // Comportamiento en estado SEARCHING
     private void OnSearching()
     {
-        if (TargetDetectedOnArea(detectedAreaRadius)) ToChasing();
-
+        if (TargetDetectedOnArea(detectedAreaRadius)) 
+        {
+            ToPreparingChase();
+            return;
+        }
+        
         Vector3 movementPosition = new Vector3(lastTargetPos.x, transform.position.y, transform.position.z);
         
-        if (!DetectedGround())
+        if (!DetectedEdge())
         {
             movementPosition = transform.position;
         }
@@ -199,13 +251,18 @@ public class MeleeEnemyAI : EnemyAI
 
         if (Vector3.Distance(transform.position, movementPosition) < 0.1f)
         {
-            ToPatrol();
+            timer -= Time.fixedDeltaTime;
+
+            if (timer <= 0)
+            {
+                ToPatrol();
+            }
         }
     }
 
     private void OnStunned()
     {
-        if (timer > 0f) timer -= Time.deltaTime;
+        timer -= Time.fixedDeltaTime;
 
         rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
 
@@ -219,8 +276,20 @@ public class MeleeEnemyAI : EnemyAI
     // Comportamiento en estado ATTACK
     private void OnAttack()
     {
-        if (TargetDetectedOnArea(detectedAreaRadius) && !OnAttackRange(targetTransform.position)) ToChasing();
-        if (!TargetDetectedOnArea(detectedAreaRadius) && !OnAttackRange(targetTransform.position)) ToSearching();
+        bool onAttackRange = OnAttackRange(targetTransform.position);
+        bool targetDetected = TargetDetectedOnArea(detectedAreaRadius);
+
+        if (targetDetected && !onAttackRange && !alreadyAttacking) 
+        {
+            ToChasing();
+            return;
+        }
+
+        if (!targetDetected && !onAttackRange && !alreadyAttacking) 
+        {
+            ToSearching();
+            return;
+        } 
 
         if (!alreadyAttacking)
         {
@@ -256,25 +325,43 @@ public class MeleeEnemyAI : EnemyAI
 
     private void ToIdle()
     {
-        if (!waitingToDecideIdle) StartCoroutine(WaitToIdle());
-    }
+        timer = Random.Range(minPatrolDelay, maxPatrolDelay);
+        rb.linearVelocity = Vector3.zero;
+        detection.EnableVision();
 
-    // Comportamiento de transición a CHASING
-    private void ToChasing()
-    {
-        if (!waitingToChase) StartCoroutine(WaitToChase());
+        state = ENEMY_STATE.IDLE;
     }
 
     // Comportamiento de transición a PATROL
     private void ToPatrol()
     {
-        if (!waitingToPatrol) StartCoroutine(WaitToPatrol());
+        lastTargetPos = Vector3.zero;
+        timer = Random.Range(minIdleDelay, maxIdleDelay);
+        detection.EnableVision();
+
+        state = ENEMY_STATE.PATROL;
+    }
+
+    private void ToPreparingChase()
+    {
+        timer = Random.Range(minChaseDelay, maxChaseDelay);
+
+        state = ENEMY_STATE.PREPARING_CHASE;
+    }
+
+    // Comportamiento de transición a CHASING
+    private void ToChasing()
+    {
+        detection.DisableVision();
+
+        state = ENEMY_STATE.CHASING;
     }
 
     // Comportamiento de transición a SEARCHING
     private void ToSearching()
     {
-        Debug.Log("Changed to SEARCHING");
+        timer = Random.Range(minSearchingDelay, maxSearchingDelay);
+
         state = ENEMY_STATE.SEARCHING;
     }
 
@@ -282,13 +369,6 @@ public class MeleeEnemyAI : EnemyAI
     {
         timer = stunnedTimerDuration;
         stunnedIcon.SetActive(true);
-
-        alreadyAttacking = false;
-        hitboxCreated = false;
-        waitingToPatrol = false;
-        waitingToChase = false;
-        waitingToDecideIdle = false;
-
         state = ENEMY_STATE.STUNNED;
     }
 
@@ -307,60 +387,6 @@ public class MeleeEnemyAI : EnemyAI
         isDead = true;
         state = ENEMY_STATE.DEAD;
         gameObject.SetActive(false);
-    }
-
-    // Espera un determinado tiempo a volver a estado PATROL, a menos que vuelva a detectar al objetivo
-    private IEnumerator WaitToPatrol()
-    {
-        waitingToPatrol = true;
-
-        yield return new WaitForSeconds(Random.Range(minPatrolDelay, maxPatrolDelay));
-
-        if (!TargetDetectedOnArea(areaRadius))
-        {
-            Debug.Log("Changed to PATROL");
-
-            RandomFlip();
-
-            lastTargetPos = Vector3.zero;
-            detection.EnableVision();
-            state = ENEMY_STATE.PATROL;
-        }
-
-        waitingToPatrol = false;
-    }
-
-    // Espera un determinado tiempo a volver a estado CHASING, a menos que vuelva a detectar al objetivo
-    private IEnumerator WaitToChase()
-    {
-        waitingToChase = true;
-
-        yield return new WaitForSeconds(Random.Range(minChaseDelay, maxChaseDelay));
-
-        if (TargetDetected() || TargetDetectedOnArea(detectedAreaRadius))
-        {
-            Debug.Log("Changed to CHASING");
-            detection.DisableVision();
-            state = ENEMY_STATE.CHASING;
-        }
-
-        waitingToChase = false;
-    }
-
-    private IEnumerator WaitToIdle()
-    {
-        waitingToDecideIdle = true;
-
-        detection.EnableVision();
-
-        yield return new WaitForSeconds(Random.Range(minIdleDelay, maxIdleDelay));
-
-        if (!TargetDetected() || !TargetDetectedOnArea(detectedAreaRadius))
-        {
-            state = ENEMY_STATE.IDLE;
-        }
-
-        waitingToDecideIdle = false;
     }
 
     #endregion
@@ -388,6 +414,8 @@ public class MeleeEnemyAI : EnemyAI
 
         transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 20));
 
+        //Debug.Log("PREPARING ATTACK");
+
         yield return new WaitForSeconds(attackPreparationTime);
 
         transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0));
@@ -397,11 +425,17 @@ public class MeleeEnemyAI : EnemyAI
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
 
+        //Debug.Log("ATTACKING");
+
         yield return new WaitForSeconds(attackDuration);
+
+        //Debug.Log("STOPPED ATTACKING");
 
         hitboxCreated = false;
 
         yield return new WaitForSeconds(attackCooldown);
+
+        //Debug.Log("ATTACK ON COOLDOWN");
 
         alreadyAttacking = false;
     }
@@ -456,7 +490,7 @@ public class MeleeEnemyAI : EnemyAI
     }
 
     // Devuelve si esta detectando suelo delante suyo
-    private bool DetectedGround()
+    private bool DetectedEdge()
     {
         Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
         return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
@@ -476,17 +510,6 @@ public class MeleeEnemyAI : EnemyAI
         }
     }
 
-    // Da una probabilidad de que el enemigo se de la vuelta
-    private void RandomFlip()
-    {
-        ENEMY_STATE[] validStates = { ENEMY_STATE.IDLE };
-
-        if (validStates.Contains(state) && Random.Range(0f, 100f) <= probabilityToTurn)
-        {
-            Flip();
-        }
-    }
-
     // Devuelve si el jugador esta detras del enemigo o no
     private bool PlayerBehind()
     {
@@ -501,9 +524,6 @@ public class MeleeEnemyAI : EnemyAI
 
         alreadyAttacking = false;
         hitboxCreated = false;
-        waitingToPatrol = false;
-        waitingToChase = false;
-        waitingToDecideIdle = false;
 
         ResetColor();
         rb.linearVelocity = Vector3.zero;

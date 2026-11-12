@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent (typeof (CharacterStats))]
 public abstract class EnemyAI : MonoBehaviour
 {
-    protected enum ENEMY_STATE { IDLE, PATROL, CHASING, ATTACK, SEARCHING, RAMMING, STUNNED, RETREAT, DEAD }
+    protected enum ENEMY_STATE { IDLE, PATROL, PREPARING_CHASE, CHASING, ATTACK, SEARCHING, RAMMING, STUNNED, RETREAT, DEAD }
 
     [Header("Debug:")]
     [SerializeField] protected ENEMY_STATE state;
