@@ -62,6 +62,7 @@ public class FlyingEnemyAI : EnemyAI
     private int currentPathIndex = 0;
 
     private float timer;
+    private float attackTimer;
 
     private bool lostTarget = false;
 
@@ -81,12 +82,6 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnEnable()
     {
-        /*if (isDead)
-        {
-            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
-            ResetEnemy();
-        }*/
-            
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
         characterStats.OnDamageTaken += FlashColor;
@@ -252,23 +247,35 @@ public class FlyingEnemyAI : EnemyAI
         {
             ToChasing();
             return;
-        } 
+        }
 
-        //rb.linearVelocity = Vector3.zero;
-        localMovement = Vector3.zero;
-
-        timer += Time.fixedDeltaTime;
+        attackTimer -= Time.fixedDeltaTime;
 
         lastTargetPos = targetTransform.position;
 
-        if (timer >= attackCooldown)
+        localMovement = Vector3.Lerp(localMovement, Vector3.zero, externalMovementDecay * Time.fixedDeltaTime);
+
+        if (attackTimer <= 0)
         {
             Debug.Log("Projectile shot!");
             GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
             newProjectile.GetComponent<EnemyProjectileController>().SetMovement(projectileSpeed, targetTransform.position);
 
-            timer = 0;
+            attackTimer = attackCooldown;
         }
+
+        if (Vector3.Distance(transform.position, targetTransform.position) <= personalBubbleRadius)
+        {
+            localMovement = (transform.position - targetTransform.position).normalized * (speed / 2f);
+        }
+
+        /*if (Vector3.Distance(transform.position, targetTransform.position) <= transitableAreaRadius)
+        {
+            if (PlayerAbove())
+            {
+                localMovement += Vector3.up * 0.5f;
+            }
+        }*/
 
         if (PlayerBehind() != invertedDirection)
         {
@@ -464,6 +471,13 @@ public class FlyingEnemyAI : EnemyAI
         float deltaX = targetTransform.position.x - transform.position.x;
 
         return deltaX < 0;
+    }
+
+    private bool PlayerAbove()
+    {
+        float deltaY = targetTransform.position.y - transform.position.y;
+
+        return deltaY > 0;
     }
 
     private void ResetTimer()

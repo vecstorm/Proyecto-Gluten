@@ -2776,6 +2776,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PatrolEnemy2D (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 8692649148323337908, guid: ada78de851d899842a66794b91db174f, type: 3}
+      propertyPath: verticalKnockback
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6290,6 +6294,14 @@ PrefabInstance:
     - target: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_Name
       value: Enemy2D (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6730863921510643207, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: knockbackForce
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6730863921510643207, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: externalMovementDecay
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -11443,8 +11455,8 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7027607547376839603, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
-      propertyPath: playerDetectionLayer.m_Bits
-      value: 136
+      propertyPath: personalBubbleRadius
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7104162806299584454, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
       propertyPath: m_LocalPosition.x

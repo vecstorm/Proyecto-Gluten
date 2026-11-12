@@ -514,7 +514,7 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Dash:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack);
 
             case PlayerState.WallGrab:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.WallSlide, PlayerState.WallJump, PlayerState.Airborne, PlayerState.Hook, PlayerState.Dash);

@@ -377,8 +377,8 @@ MonoBehaviour:
     m_Bits: 136
   horizontalKnockback: 1
   verticalKnockback: 1
-  knockbackForce: 5
-  externalMovementDecay: 5
+  knockbackForce: 7
+  externalMovementDecay: 3
   groundDetection: {fileID: 0}
   groundLayer:
     serializedVersion: 2
@@ -410,7 +410,7 @@ MonoBehaviour:
   rammingDelay: 1.5
   rammingSpeed: 15
   rammignTurnSpeed: 4
-  personalBubbleRadius: 2
+  personalBubbleRadius: 4
   transitableAreaRadius: 6
   minFloorDistance: 3
   maxFloorDistance: 7
