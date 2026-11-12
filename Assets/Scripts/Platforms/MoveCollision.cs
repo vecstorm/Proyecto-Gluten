@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class MoveCollision : MonoBehaviour
@@ -19,8 +20,15 @@ public class MoveCollision : MonoBehaviour
     // Referencia al punto de teletransporte si el jugador se atasca
     private Transform tpPlayerPoint;
 
-    // Daño al jugador
-    private float Damage = 2f;
+    // Daño al jugador (visible y editable en el Inspector)
+    [SerializeField] private float Damage = 2f;
+
+    // Buffers reutilizables (sin allocs por frame)
+    private readonly Collider2D[] playerHits = new Collider2D[16];
+    private ContactFilter2D playerFilter = new ContactFilter2D();
+
+    // Buffer reutilizable para detectar obstáculos delante del jugador
+    private readonly RaycastHit2D[] obstacleHits = new RaycastHit2D[16];
 
     private void Start()
     {
@@ -31,6 +39,11 @@ public class MoveCollision : MonoBehaviour
         // Configuramos las físicas para controlar el movimiento de la plataforma mediante código
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
+        // Filtro para detección de jugador (sin triggers, todas las capas)
+        playerFilter.useTriggers = false;
+        playerFilter.useLayerMask = true;
+        playerFilter.layerMask = Physics2D.AllLayers;
 
         // Buscamos los dos puntos de movimiento más cercanos a la plataforma
         if (!InitializePoints())
@@ -53,7 +66,7 @@ public class MoveCollision : MonoBehaviour
 
         foreach (var p in root.GetComponentsInChildren<Transform>(true))
         {
-            if (p.CompareTag(tpPointTag) || p.name == "TpPlayer")
+            if (p.name == tpPointTag || p.name == "TpPlayer")
             {
                 tpPlayerPoint = p;
                 break;
@@ -152,7 +165,7 @@ public class MoveCollision : MonoBehaviour
         if (currentRider != null)
         {
             // Verificamos si el jugador está atrapado contra una pared
-            if (tpPlayerPoint != null && CheckPlayerTrapped(currentRider))
+            if (tpPlayerPoint != null && CheckPlayerTrapped(currentRider, movementStep))
             {
                 currentRider.position = tpPlayerPoint.position;
 
@@ -187,27 +200,54 @@ public class MoveCollision : MonoBehaviour
         }
     }
 
-    private bool CheckPlayerTrapped(Rigidbody2D player)
+    private bool CheckPlayerTrapped(Rigidbody2D player, Vector2 movementStep)
     {
-        // Detecta si el jugador colisiona horizontalmente con una pared mientras está en la plataforma
+        // Detecta si el jugador está siendo aplastado entre la plataforma y una pared
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return false;
 
-        // Comprobamos si hay una pared a la izquierda o derecha tocando al jugador
-        ContactFilter2D filter = new ContactFilter2D();
-        filter.useTriggers = false;
+        // Comprobamos si la plataforma se está moviendo
+        if (movementStep.sqrMagnitude < 0.000001f) return false;
 
-        Collider2D[] results = new Collider2D[2];
-        int hitCount = playerCol.Overlap(filter, results);
+        // Dirección en la que se mueve la plataforma
+        Vector2 direction = movementStep.normalized;
+
+        // Comprobamos si la plataforma está presionando al jugador
+        ColliderDistance2D platformContact = platformCol.Distance(playerCol);
+
+        if (platformContact.distance > 0.05f ||
+            Vector2.Dot(platformContact.normal, direction) < 0.5f)
+        {
+            return false;
+        }
+
+        // Comprobamos si hay una pared delante del jugador antes de que avance la plataforma
+        float castDistance = movementStep.magnitude + 0.05f;
+
+        int hitCount = playerCol.Cast(
+            direction,
+            playerFilter,
+            obstacleHits,
+            castDistance
+        );
 
         for (int i = 0; i < hitCount; i++)
         {
-            // En caso que no toque la plataforma, ni el jugador, diremos que es una pared
-            if (results[i] != null && results[i] != platformCol && !results[i].CompareTag("Player"))
+            // Comprobamos el obstáculo detectado
+            Collider2D obstacle = obstacleHits[i].collider;
+
+            if (obstacle == null || obstacle == platformCol ||
+                obstacle == playerCol || obstacle.CompareTag("Player"))
+                continue;
+
+            // Comprobamos si la pared está bloqueando el movimiento del jugador
+            if (Vector2.Dot(obstacleHits[i].normal, direction) < -0.5f)
             {
+                // La pared está delante y puede impedir el desplazamiento del jugador
                 return true;
             }
         }
+
         return false;
     }
 
@@ -217,17 +257,19 @@ public class MoveCollision : MonoBehaviour
         Bounds b = platformCol.bounds;
 
         // Calculamos el centro y el tamaño de la zona donde detectaremos al jugador
-        Vector2 boxCenter = new Vector2(b.center.x, b.max.y - 0.085f);
-        Vector2 boxSize = new Vector2(b.size.x, 0.23f);
+        Vector2 boxCenter = new Vector2(b.center.x, b.max.y - 0.15f);
+        Vector2 boxSize = new Vector2(b.size.x, 0.5f);
 
         // Detectamos todos los objetos que se encuentren dentro de la zona indicada
-        Collider2D[] hits = Physics2D.OverlapBoxAll(boxCenter, boxSize, 0f);
+        int count = Physics2D.OverlapBox(boxCenter, boxSize, 0f, playerFilter, playerHits);
 
         // Recorremos los objetos detectados para buscar al jugador
-        foreach (var hit in hits)
+        for (int i = 0; i < count; i++)
         {
+            Collider2D hit = playerHits[i];
+
             // Comprobamos si el objeto tiene el tag Player y un Rigidbody asociado
-            if (!hit.CompareTag("Player") || hit.attachedRigidbody == null) continue;
+            if (hit == null || !hit.CompareTag("Player") || hit.attachedRigidbody == null) continue;
 
             // Su centro tiene que estar sobre la plataforma: si esta al lado no cuenta
             Bounds p = hit.bounds;
