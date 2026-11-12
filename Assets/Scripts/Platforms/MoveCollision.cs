@@ -19,6 +19,9 @@ public class MoveCollision : MonoBehaviour
     // Referencia al punto de teletransporte si el jugador se atasca
     private Transform tpPlayerPoint;
 
+    // Daño al jugador
+    private float Damage = 2f;
+
     private void Start()
     {
         // Obtenemos los componentes de la plataforma
@@ -148,10 +151,18 @@ public class MoveCollision : MonoBehaviour
         // Comprobamos si hay un jugador encima para moverlo junto a la plataforma
         if (currentRider != null)
         {
-            // Verificamos si el jugador está atrapado contra una pared (opcional para pass-through)
+            // Verificamos si el jugador está atrapado contra una pared
             if (tpPlayerPoint != null && CheckPlayerTrapped(currentRider))
             {
                 currentRider.position = tpPlayerPoint.position;
+
+                // Obtenemos las estadísticas del jugador desde su propio GameObject para aplicar el daño correctamente
+                CharacterStats playerstats = currentRider.GetComponent<CharacterStats>();
+                if (playerstats != null)
+                {
+                    playerstats.TakeDamage(Damage);
+                }
+
                 return;
             }
 
