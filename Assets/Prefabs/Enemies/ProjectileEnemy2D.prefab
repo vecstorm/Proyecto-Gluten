@@ -339,6 +339,7 @@ GameObject:
   - component: {fileID: 7210173820073990641}
   - component: {fileID: 8491045692491655306}
   - component: {fileID: 8751262418739232579}
+  - component: {fileID: 4248775071714004198}
   - component: {fileID: 8841831874865696730}
   - component: {fileID: 7877052925465416808}
   m_Layer: 0
@@ -491,6 +492,38 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &4248775071714004198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7870550453005360677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ea267da6f67e3b45b8ee378adaed5e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileEnemyAI
+  state: 1
+  defaultState: 0
+  showGizmos: 1
+  canRespawn: 1
+  isAerial: 0
+  flashTimer: 0.2
+  stunnedIcon: {fileID: 0}
+  playerDetectionLayer:
+    serializedVersion: 2
+    m_Bits: 136
+  horizontalKnockback: 1
+  verticalKnockback: 0
+  knockbackForce: 10
+  externalMovementDecay: 5
+  groundDetection: {fileID: 5589942049983994211}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  areaRadius: 10
+  contactDamage: 10
 --- !u!114 &8841831874865696730
 MonoBehaviour:
   m_ObjectHideFlags: 0

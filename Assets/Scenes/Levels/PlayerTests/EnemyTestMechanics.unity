@@ -11452,7 +11452,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4053497137332864045, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7027607547376839603, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
       propertyPath: personalBubbleRadius
@@ -12389,6 +12389,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5589942049983994211, guid: 95022d6d693645746ba3d3caaa584b1b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.63
+      objectReference: {fileID: 0}
     - target: {fileID: 7870550453005360677, guid: 95022d6d693645746ba3d3caaa584b1b, type: 3}
       propertyPath: m_Name
       value: ProjectileEnemy2D
