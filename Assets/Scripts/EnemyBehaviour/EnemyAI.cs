@@ -13,9 +13,14 @@ public abstract class EnemyAI : MonoBehaviour
     [SerializeField] protected ENEMY_STATE defaultState;
     [SerializeField] protected bool showGizmos = true;
     [SerializeField] protected bool canRespawn = true;
+    [SerializeField] protected bool isAerial = false;
     [SerializeField] protected float flashTimer = 0.2f;
     [SerializeField] protected GameObject stunnedIcon;
-    [SerializeField] protected LayerMask playerDetectionMask;
+    [SerializeField] protected LayerMask playerDetectionLayer;
+
+    [Header("Ground Detection:")]
+    [SerializeField] protected Transform groundDetection;
+    [SerializeField] protected LayerMask groundLayer;
 
     protected Vector3 spawnPosition;
     protected Vector3 spawnRotation;
@@ -41,9 +46,19 @@ public abstract class EnemyAI : MonoBehaviour
 
     protected void Flip()
     {
+        if (!GroundBeneath()) return;
+            
         invertedDirection = !invertedDirection;
 
         transform.Rotate(0, 180, 0);
+    }
+
+    private bool GroundBeneath()
+    {
+        if (isAerial) return true;
+
+        Debug.DrawRay(groundDetection.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(groundDetection.position, Vector3.down, 1f, groundLayer);
     }
 
     protected void FlashColor()
@@ -72,7 +87,7 @@ public abstract class EnemyAI : MonoBehaviour
     {
         Vector3 targetDirection = targetPosition - transform.position;
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, targetDirection, distance, playerDetectionMask);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, targetDirection, distance, playerDetectionLayer);
 
         if (hit)
         {

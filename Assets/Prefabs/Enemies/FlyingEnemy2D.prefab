@@ -369,11 +369,16 @@ MonoBehaviour:
   defaultState: 0
   showGizmos: 1
   canRespawn: 1
+  isAerial: 1
   flashTimer: 0.2
   stunnedIcon: {fileID: 0}
-  playerDetectionMask:
+  playerDetectionLayer:
     serializedVersion: 2
     m_Bits: 136
+  groundDetection: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
   areaRadius: 10
   speed: 3
   timeToStopSearching: 2

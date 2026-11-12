@@ -15,9 +15,8 @@ public class MeleeEnemyAI : EnemyAI
     private bool detectedAreaActive = true;
     private VisionCone detection;
 
-    [Header("Ground Detection:")]
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask groundLayer;
+    [Header("Edge Detection:")]
+    [SerializeField] private Transform edgeCheck;
 
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
@@ -69,12 +68,6 @@ public class MeleeEnemyAI : EnemyAI
         characterStats.OnDeath += ToDead;
         characterStats.OnStunApplied += ToStunned;
         characterStats.OnDamageTaken += FlashColor;
-
-        /*if (isDead)
-        {
-            ResetEnemy();
-            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
-        }*/
     }
 
     private void OnDisable()
@@ -218,8 +211,6 @@ public class MeleeEnemyAI : EnemyAI
 
         if (timer <= 0f)
         {
-            //transform.rotation = Quaternion.Euler(new Vector3(0, transform.localRotation.y, 0));
-            //GetComponent<SpriteRenderer>().color = Color.red;
             stunnedIcon.SetActive(false);
             ToPatrol();
         }
@@ -247,7 +238,6 @@ public class MeleeEnemyAI : EnemyAI
 
         if (hitboxCreated)
         {
-            //Vector3 colliderPosition = transform.position + GetTargetDirection() * attackRange;
             Vector3 colliderPosition = transform.position + transform.right * attackRange;
 
             Collider2D[] hits = Physics2D.OverlapCircleAll(colliderPosition, attackRadius);
@@ -291,12 +281,7 @@ public class MeleeEnemyAI : EnemyAI
     private void ToStunned()
     {
         timer = stunnedTimerDuration;
-        //detection.DisableVision();
-
-        //GetComponent<SpriteRenderer>().color = Color.yellow;
         stunnedIcon.SetActive(true);
-
-        //transform.rotation = Quaternion.Euler(new Vector3(0, transform.localRotation.y, 25f));
 
         alreadyAttacking = false;
         hitboxCreated = false;
@@ -401,13 +386,10 @@ public class MeleeEnemyAI : EnemyAI
     {
         alreadyAttacking = true;
 
-        //rb.AddForce(-transform.right * attackPreparationForce, ForceMode2D.Impulse);
-
         transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 20));
 
         yield return new WaitForSeconds(attackPreparationTime);
 
-        //rb.AddForce(transform.right * attackPreparationForce, ForceMode2D.Impulse);
         transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0));
 
         hitboxCreated = true;
@@ -476,8 +458,8 @@ public class MeleeEnemyAI : EnemyAI
     // Devuelve si esta detectando suelo delante suyo
     private bool DetectedGround()
     {
-        Debug.DrawRay(groundCheck.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
+        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
     }
 
     // Gira al enemigo si colisiona con un elemento del escenario

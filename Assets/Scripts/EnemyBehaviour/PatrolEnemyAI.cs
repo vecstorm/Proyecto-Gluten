@@ -8,9 +8,8 @@ public class PatrolEnemyAI : EnemyAI
     [Header("Movement:")]
     [SerializeField] private float speed = 2f;
 
-    [Header("Ground Detection:")]
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask groundLayer;
+    [Header("Edge Detection:")]
+    [SerializeField] private Transform edgeCheck;
 
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
@@ -117,8 +116,8 @@ public class PatrolEnemyAI : EnemyAI
     // Devuelve si esta detectando suelo delante suyo
     private bool DetectedGround()
     {
-        Debug.DrawRay(groundCheck.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
+        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
     }
 
     // Gira al enemigo si colisiona con un elemento del escenario
