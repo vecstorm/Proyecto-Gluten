@@ -375,6 +375,10 @@ MonoBehaviour:
   playerDetectionLayer:
     serializedVersion: 2
     m_Bits: 136
+  horizontalKnockback: 1
+  verticalKnockback: 1
+  knockbackForce: 5
+  externalMovementDecay: 5
   groundDetection: {fileID: 0}
   groundLayer:
     serializedVersion: 2

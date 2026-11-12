@@ -90,6 +90,7 @@ public class FlyingEnemyAI : EnemyAI
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
         characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += AddKnockback;
     }
 
     private void OnDisable()
@@ -97,6 +98,7 @@ public class FlyingEnemyAI : EnemyAI
         characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
         characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= AddKnockback;
     }
 
     private void FixedUpdate()
@@ -130,6 +132,10 @@ public class FlyingEnemyAI : EnemyAI
             case ENEMY_STATE.DEAD:
                 break;
         }
+
+        externalMovement = Vector3.Lerp(externalMovement, Vector3.zero, externalMovementDecay * Time.fixedDeltaTime);
+
+        rb.linearVelocity = localMovement + externalMovement;
     }
 
     private void OnDrawGizmos()
@@ -188,11 +194,16 @@ public class FlyingEnemyAI : EnemyAI
     #region STATE BEHAVIOUR
     private void OnPatrol()
     {
-        if (TargetDetectedOnArea(areaRadius)) ToChasing();
+        if (TargetDetectedOnArea(areaRadius)) 
+        {
+            ToChasing();
+            return;
+        } 
 
         timer += Time.fixedDeltaTime;
 
-        rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+        //rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+        localMovement = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
         if (timer >= Random.Range(minTimeToTurn, maxTimeToTurn) || DetectedWall())
         {
@@ -203,8 +214,17 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnChasing()
     {
-        if (!TargetDetectedOnArea(areaRadius)) ToSearching();
-        if (Vector3.Distance(transform.position, targetTransform.position) <= attackMinDistance) ToAttack();
+        if (!TargetDetectedOnArea(areaRadius))
+        {
+            ToSearching();
+            return;
+        }
+
+        if (Vector3.Distance(transform.position, targetTransform.position) <= attackMinDistance) 
+        {
+            ToAttack();
+            return;
+        } 
 
         UpdateNodeGrid();
 
@@ -222,10 +242,20 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnAttack()
     {
-        if (!TargetDetectedOnArea(areaRadius)) ToSearching();
-        if (Vector3.Distance(transform.position, targetTransform.position) >= attackMinDistance && TargetDetectedOnArea(areaRadius)) ToChasing();
+        if (!TargetDetectedOnArea(areaRadius)) 
+        {
+            ToSearching();
+            return;
+        }
 
-        rb.linearVelocity = Vector3.zero;
+        if (Vector3.Distance(transform.position, targetTransform.position) >= attackMinDistance && TargetDetectedOnArea(areaRadius)) 
+        {
+            ToChasing();
+            return;
+        } 
+
+        //rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
 
         timer += Time.fixedDeltaTime;
 
@@ -256,7 +286,8 @@ public class FlyingEnemyAI : EnemyAI
         {
             rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
 
-            rb.linearVelocity = rammingDirection * rammingSpeed;
+            //rb.linearVelocity = rammingDirection * rammingSpeed;
+            localMovement = rammingDirection * rammingSpeed;
         }
         else
         {
@@ -284,7 +315,8 @@ public class FlyingEnemyAI : EnemyAI
 
             timer += Time.fixedDeltaTime;
 
-            rb.linearVelocity = Vector3.zero;
+            //rb.linearVelocity = Vector3.zero;
+            localMovement = Vector3.zero;
 
             if (timer >= timeToStopSearching)
             {
@@ -325,7 +357,8 @@ public class FlyingEnemyAI : EnemyAI
     private void ToPatrol()
     {
         ResetTimer();
-        rb.linearVelocity = Vector3.zero;
+        //rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
         state = ENEMY_STATE.PATROL;
     }
 
@@ -449,7 +482,8 @@ public class FlyingEnemyAI : EnemyAI
         state = defaultState;
         isDead = false;
 
-        rb.linearVelocity = Vector3.zero;
+        //rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
         characterStats.FullHeal();
         ResetTimer();
     }
@@ -634,7 +668,8 @@ public class FlyingEnemyAI : EnemyAI
 
             Vector3 targetNodePosition = currentPath[currentPathIndex].Position;
 
-            rb.linearVelocity = (targetNodePosition - startPosition).normalized * speed;
+            //rb.linearVelocity = (targetNodePosition - startPosition).normalized * speed;
+            localMovement = (targetNodePosition - startPosition).normalized * speed;
 
             if (Vector3.Distance(startPosition, targetNodePosition) < 0.4f)
             {
@@ -643,7 +678,8 @@ public class FlyingEnemyAI : EnemyAI
         }
         else
         {
-            rb.linearVelocity = (targetPosition - startPosition).normalized * speed;
+            //rb.linearVelocity = (targetPosition - startPosition).normalized * speed;
+            localMovement = (targetPosition - startPosition).normalized * speed; ;
         }
     }
 

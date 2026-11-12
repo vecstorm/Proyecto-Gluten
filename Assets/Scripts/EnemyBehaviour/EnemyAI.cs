@@ -18,6 +18,12 @@ public abstract class EnemyAI : MonoBehaviour
     [SerializeField] protected GameObject stunnedIcon;
     [SerializeField] protected LayerMask playerDetectionLayer;
 
+    [Header("Knockback:")]
+    [SerializeField] protected bool horizontalKnockback = true;
+    [SerializeField] protected bool verticalKnockback = false;
+    [SerializeField] protected float knockbackForce = 5f;
+    [SerializeField] protected float externalMovementDecay = 5f;
+
     [Header("Ground Detection:")]
     [SerializeField] protected Transform groundDetection;
     [SerializeField] protected LayerMask groundLayer;
@@ -27,6 +33,9 @@ public abstract class EnemyAI : MonoBehaviour
     protected bool invertedDirection = false;
     protected bool isDead = false;
     protected Color rendererColor;
+
+    protected Vector3 localMovement;
+    protected Vector3 externalMovement;
 
     protected Rigidbody2D rb;
     protected CharacterStats characterStats;
@@ -110,6 +119,13 @@ public abstract class EnemyAI : MonoBehaviour
         {
             renderer.color = rendererColor;
         }
+    }
+
+    protected void AddKnockback()
+    {
+        Vector3 knockbackDirection = (transform.position - characterStats.LastDamagePosition).normalized;
+
+        externalMovement = new Vector3(horizontalKnockback ? knockbackDirection.x : 0, verticalKnockback ? knockbackDirection.y : 0, 0) * knockbackForce;
     }
 
     public abstract void ResetEnemy();

@@ -2728,6 +2728,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1626098131391707273, guid: ada78de851d899842a66794b91db174f, type: 3}
+      propertyPath: maxHealth
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2609393749061166953, guid: ada78de851d899842a66794b91db174f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.5158005
@@ -12166,6 +12170,10 @@ PrefabInstance:
     - target: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_Name
       value: Enemy2D (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3396738433899943286, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: maxHealth
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6730863921510643207, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: canRespawn

@@ -66,6 +66,7 @@ public class MeleeEnemyAI : EnemyAI
         characterStats.OnDeath += ToDead;
         characterStats.OnStunApplied += ToStunned;
         characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += AddKnockback;
     }
 
     private void OnDisable()
@@ -73,6 +74,7 @@ public class MeleeEnemyAI : EnemyAI
         characterStats.OnDeath -= ToDead;
         characterStats.OnStunApplied -= ToStunned;
         characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= AddKnockback;
     }
 
     private void FixedUpdate()
@@ -110,6 +112,10 @@ public class MeleeEnemyAI : EnemyAI
             case ENEMY_STATE.DEAD:
                 break;
         }
+
+        externalMovement = Vector3.Lerp(externalMovement, Vector3.zero, externalMovementDecay * Time.fixedDeltaTime);
+
+        rb.linearVelocity = localMovement + externalMovement;
     }
 
     private void OnDrawGizmos()
@@ -160,7 +166,8 @@ public class MeleeEnemyAI : EnemyAI
             ToPatrol();
         }
         
-        rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+        //rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+        localMovement = new Vector3(0, rb.linearVelocity.y, 0);
     }
 
     // Comportamiento en estado PATROL
@@ -179,8 +186,9 @@ public class MeleeEnemyAI : EnemyAI
             ToIdle();
             return;
         }
-        
-        rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+
+        //rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+        localMovement = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
         if (!DetectedEdge())
         {
@@ -223,11 +231,13 @@ public class MeleeEnemyAI : EnemyAI
         
         if (PlayerBehind() != invertedDirection) Flip();
 
-        rb.linearVelocity = new Vector3(GetTargetDirection().x * (speed * 2f), rb.linearVelocity.y);
+        //rb.linearVelocity = new Vector3(GetTargetDirection().x * (speed * 2f), rb.linearVelocity.y);
+        localMovement = new Vector3(GetTargetDirection().x * (speed * 2f), rb.linearVelocity.y);
 
         if (!DetectedEdge())
         {
-            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            //rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            localMovement = new Vector3(0, rb.linearVelocity.y, 0);
         }
     }
 
@@ -264,7 +274,8 @@ public class MeleeEnemyAI : EnemyAI
     {
         timer -= Time.fixedDeltaTime;
 
-        rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+        //rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+        localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
         if (timer <= 0f)
         {
@@ -303,7 +314,8 @@ public class MeleeEnemyAI : EnemyAI
             }
         }
 
-        rb.linearVelocity = Vector3.zero;
+        //rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
 
         if (hitboxCreated)
         {
@@ -326,7 +338,8 @@ public class MeleeEnemyAI : EnemyAI
     private void ToIdle()
     {
         timer = Random.Range(minPatrolDelay, maxPatrolDelay);
-        rb.linearVelocity = Vector3.zero;
+        //rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
         detection.EnableVision();
 
         state = ENEMY_STATE.IDLE;
@@ -376,7 +389,8 @@ public class MeleeEnemyAI : EnemyAI
     private void ToAttack()
     {
         Debug.Log("Changed to ATTACK");
-        rb.linearVelocity = Vector3.zero;
+        //rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
 
         state = ENEMY_STATE.ATTACK;
     }
@@ -526,7 +540,8 @@ public class MeleeEnemyAI : EnemyAI
         hitboxCreated = false;
 
         ResetColor();
-        rb.linearVelocity = Vector3.zero;
+        //rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
         isDead = false;
         state = defaultState;
         characterStats.FullHeal();

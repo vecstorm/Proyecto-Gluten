@@ -79,6 +79,10 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public int currentXp = 0;
     [SerializeField] private float knockbackForce = 3f;
 
+    private Vector3 lastDamagePosition;
+
+    public Vector3 LastDamagePosition => lastDamagePosition;
+
     private void Awake()
     {
         currentHealth = maxHealth;
@@ -129,6 +133,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
         if (!canTakeDamage) return false;
 
+        lastDamagePosition = damage.HitPoint;
         TakeDamage(damage.Amount);
         AddKnockback(damage.HitPoint);
         return true;

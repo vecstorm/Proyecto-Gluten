@@ -31,6 +31,7 @@ public class PatrolEnemyAI : EnemyAI
     {
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += AddKnockback;
 
         if (isDead)
         {
@@ -43,6 +44,7 @@ public class PatrolEnemyAI : EnemyAI
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= AddKnockback;
     }
 
     private void FixedUpdate()
@@ -56,6 +58,10 @@ public class PatrolEnemyAI : EnemyAI
             case ENEMY_STATE.DEAD:
                 break;
         }
+
+        externalMovement = Vector3.Lerp(externalMovement, Vector3.zero, externalMovementDecay * Time.fixedDeltaTime);
+
+        rb.linearVelocity = localMovement + externalMovement;
     }
 
     #endregion
@@ -67,7 +73,8 @@ public class PatrolEnemyAI : EnemyAI
     // Comportamiento en estado PATROL
     private void OnPatrol()
     {
-        rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+        //rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+        localMovement = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
         if (!DetectedEdge())
         {
