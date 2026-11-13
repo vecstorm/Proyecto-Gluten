@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Define todos los estados en los que puede encontrarse el jugador.
 /// </summary>
-public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Crouch, Attack, Parry, Hurt, Dead }
+public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Attack, Parry, Hurt, Dead }
 
 /// <summary>
 /// Gestiona todo el control del jugador mediante una máquina de estados.
@@ -496,13 +496,13 @@ public class PlayerController : MonoBehaviour
         switch (from)
         {
             case PlayerState.Idle:
-                return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Walk:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Run:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Jump:
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
@@ -528,11 +528,8 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Hook:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry);
 
-            case PlayerState.Crouch:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Attack, PlayerState.Hook, PlayerState.Dash, PlayerState.Parry);
-
             case PlayerState.Attack:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Crouch, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
 
             case PlayerState.Parry:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Attack);
@@ -786,10 +783,6 @@ public class PlayerController : MonoBehaviour
 
             case PlayerState.Hook:
                 Hook();
-                break;
-
-            case PlayerState.Crouch:
-                Crouch();
                 break;
 
             case PlayerState.Attack:
@@ -1090,14 +1083,6 @@ public class PlayerController : MonoBehaviour
 
         if (TryHook())
             return;
-    }
-
-    /// <summary>
-    /// Estado de agacharse.
-    /// </summary>
-    private void Crouch()
-    {
-        throw new NotImplementedException();
     }
 
     #endregion
