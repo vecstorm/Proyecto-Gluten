@@ -17,6 +17,7 @@ public abstract class EnemyAI : MonoBehaviour
     [SerializeField] protected float flashTimer = 0.2f;
     [SerializeField] protected GameObject stunnedIcon;
     [SerializeField] protected LayerMask playerDetectionLayer;
+    [SerializeField] protected Transform targetTransform;
 
     [Header("Knockback:")]
     [SerializeField] protected bool horizontalKnockback = true;
@@ -140,6 +141,11 @@ public abstract class EnemyAI : MonoBehaviour
         Vector3 knockbackDirection = (transform.position - characterStats.LastDamagePosition).normalized;
 
         externalMovement = new Vector3(horizontalKnockback ? knockbackDirection.x : 0, verticalKnockback ? knockbackDirection.y : 0, 0) * knockbackForce;
+    }
+
+    public void SetTargetTransform(Transform newTargetTransform)
+    {
+        targetTransform = newTargetTransform;
     }
 
     public abstract void ResetEnemy();

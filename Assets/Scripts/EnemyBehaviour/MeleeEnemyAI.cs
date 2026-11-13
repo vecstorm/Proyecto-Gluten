@@ -41,7 +41,6 @@ public class MeleeEnemyAI : EnemyAI
 
     private bool alreadyAttacking = false;
     private bool hitboxCreated = false;
-    private Transform targetTransform;
 
     private Vector3 lastTargetPos;
 

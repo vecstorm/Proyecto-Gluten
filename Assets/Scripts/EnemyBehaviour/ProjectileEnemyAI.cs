@@ -26,7 +26,6 @@ public class ProjectileEnemyAI : EnemyAI
     [SerializeField] private float maxSearchingDelay = 5f;
     [SerializeField] private float newSpawnPositionDelay = 3f;
 
-    private Transform targetTransform;
     private Vector3 lastTargetPos;
 
     private Vector3 dynamicSpawnPosition;

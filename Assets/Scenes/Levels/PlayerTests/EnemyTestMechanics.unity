@@ -12328,6 +12328,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 924484066343811457, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.192
+      objectReference: {fileID: 0}
+    - target: {fileID: 3089656897322464013, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4507168691552244414, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.6531429
+      objectReference: {fileID: 0}
+    - target: {fileID: 4507168691552244414, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.33850002
+      objectReference: {fileID: 0}
+    - target: {fileID: 4507168691552244414, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4.656613e-10
+      objectReference: {fileID: 0}
     - target: {fileID: 4872017242917056614, guid: a7875da0a88492343be38690f277047a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 42.86
@@ -12368,18 +12388,38 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5017795094675712196, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.5468572
+      objectReference: {fileID: 0}
+    - target: {fileID: 5017795094675712196, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.33850002
+      objectReference: {fileID: 0}
+    - target: {fileID: 5017795094675712196, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4.656613e-10
+      objectReference: {fileID: 0}
     - target: {fileID: 5344381383452453168, guid: a7875da0a88492343be38690f277047a, type: 3}
       propertyPath: m_Name
-      value: Square
+      value: BossArea
       objectReference: {fileID: 0}
     - target: {fileID: 5344381383452453168, guid: a7875da0a88492343be38690f277047a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5771574584915324100, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_Name
+      value: LeftDoor
       objectReference: {fileID: 0}
     - target: {fileID: 6398533780995097466, guid: a7875da0a88492343be38690f277047a, type: 3}
       propertyPath: ownedBoss
       value: 
       objectReference: {fileID: 868835281}
+    - target: {fileID: 8850919805361216554, guid: a7875da0a88492343be38690f277047a, type: 3}
+      propertyPath: m_Name
+      value: RightDoor
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

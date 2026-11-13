@@ -54,7 +54,6 @@ public class FlyingEnemyAI : EnemyAI
     private Vector3 movementPoint;
     private Vector3 rammingDirection;
 
-    private Transform targetTransform;
     private Vector3 lastTargetPos;
 
     private float pathUpdateTimer;
