@@ -3,7 +3,8 @@ using UnityEngine;
 public class ProjectileEnemyAI : EnemyAI
 {
     [Header("Target Detection:")]
-    [SerializeField] private float areaRadius = 13f;
+    [SerializeField] private float areaRadius = 15f;
+    [SerializeField] private float attackAreaRadius = 12f;
 
     [Header("Movement:")]
     [SerializeField] private float speed = 2;
@@ -19,6 +20,10 @@ public class ProjectileEnemyAI : EnemyAI
     [SerializeField] private float projectileSpeed = 6;
     [SerializeField] private int ampedProjectileCount = 4;
     [SerializeField] private float attackCooldown = 1.5f;
+
+    [Header("Delays:")]
+    [SerializeField] private float minSearchingDelay = 3f;
+    [SerializeField] private float maxSearchingDelay = 5f;
 
     private Transform targetTransform;
     private Vector3 lastTargetPos;
@@ -54,16 +59,8 @@ public class ProjectileEnemyAI : EnemyAI
                 OnAttack();
                 break;
 
-            case ENEMY_STATE.RAMMING:
-                //OnRamming();
-                break;
-
             case ENEMY_STATE.SEARCHING:
-                //OnSearching();
-                break;
-
-            case ENEMY_STATE.RETREAT:
-                //OnRetreat();
+                OnSearching();
                 break;
 
             case ENEMY_STATE.DEAD:
@@ -81,13 +78,16 @@ public class ProjectileEnemyAI : EnemyAI
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, areaRadius);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, attackAreaRadius);
     }
 
     private void OnPatrol()
     {
         if (TargetDetectedOnArea(areaRadius))
         {
-            ToAttack();
+            ToChasing();
             return;
         }
 
@@ -102,19 +102,30 @@ public class ProjectileEnemyAI : EnemyAI
         }
         else
         {
+            if (spawnRotation != transform.rotation.eulerAngles)
+            {
+                Flip();
+            }
+
             localMovement = Vector3.zero;
         }
     }
 
     private void OnChasing()
     {
-        if (TargetDetectedOnArea(areaRadius))
+        if (!TargetDetectedOnArea(areaRadius))
+        {
+            ToSearching();
+            return;
+        }
+
+        if (TargetDetectedOnArea(attackAreaRadius))
         {
             ToAttack();
             return;
         }
 
-        timer -= Time.fixedDeltaTime;
+        lastTargetPos = targetTransform.position;
 
         if (TargetBehind(targetTransform.position)) Flip();
 
@@ -122,19 +133,13 @@ public class ProjectileEnemyAI : EnemyAI
 
         if (!DetectedEdge())
         {
-            //rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
             localMovement = new Vector3(0, rb.linearVelocity.y, 0);
-        }
-
-        if (timer <= 0)
-        {
-            ToPatrol();
         }
     }
 
     private void OnAttack()
     {
-        if (!TargetDetectedOnArea(areaRadius))
+        if (!TargetDetectedOnArea(attackAreaRadius))
         {
             ToChasing();
             return;
@@ -166,24 +171,66 @@ public class ProjectileEnemyAI : EnemyAI
         }
     }
 
+    private void OnSearching()
+    {
+        if (TargetDetectedOnArea(areaRadius))
+        {
+            ToChasing();
+            return;
+        }
+
+        Vector3 movementPosition = new Vector3(lastTargetPos.x, transform.position.y, transform.position.z);
+
+        if (!DetectedEdge())
+        {
+            movementPosition = transform.position;
+        }
+
+        if (Vector3.Distance(transform.position, movementPosition) < 0.1f)
+        {
+            timer -= Time.fixedDeltaTime;
+
+            if (timer <= 0)
+            {
+                ToPatrol();
+            }
+        }
+    }
+
     private void ToPatrol()
     {
+        Debug.Log("Changed to PATROL");
+
         state = ENEMY_STATE.PATROL;
     }
 
     private void ToChasing()
     {
+        Debug.Log("Changed to CHASING");
+
         projectileCount--;
 
-        timer = Random.Range(minChasingDelay, maxChasingDelay);
+        //timer = Random.Range(minChasingDelay, maxChasingDelay);
 
         state = ENEMY_STATE.CHASING;
     }
 
     private void ToAttack()
     {
+        Debug.Log("Changed to ATTACK");
+
         localMovement = Vector3.zero;
+
         state = ENEMY_STATE.ATTACK;
+    }
+
+    private void ToSearching()
+    {
+        Debug.Log("Changed to SEARCHING");
+
+        timer = Random.Range(minSearchingDelay, maxSearchingDelay);
+
+        state = ENEMY_STATE.SEARCHING;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -218,7 +265,7 @@ public class ProjectileEnemyAI : EnemyAI
 
         foreach (Collider2D collider in detectionArea)
         {
-            if (collider.CompareTag("Player") && !ObstacleBlocksTarget(collider.transform.position, areaRadius))
+            if (collider.CompareTag("Player") && !ObstacleBlocksTarget(collider.transform.position, radius))
             {
                 lastTargetPos = collider.transform.position;
                 targetTransform = collider.transform;
@@ -239,6 +286,15 @@ public class ProjectileEnemyAI : EnemyAI
 
     public override void ResetEnemy()
     {
-        throw new System.NotImplementedException();
+        ResetColor();
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
+        state = defaultState;
+        isDead = false;
+
+        localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
+        characterStats.FullHeal();
     }
 }

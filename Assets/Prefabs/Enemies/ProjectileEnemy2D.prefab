@@ -522,14 +522,19 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  areaRadius: 10
+  areaRadius: 20
+  attackAreaRadius: 15
   speed: 2
+  minChasingDelay: 3
+  maxChasingDelay: 5
   edgeCheck: {fileID: 8570909192793290940}
   contactDamage: 10
   projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
   projectileSpeed: 8
   ampedProjectileCount: 4
   attackCooldown: 1.5
+  minSearchingDelay: 3
+  maxSearchingDelay: 5
 --- !u!114 &8841831874865696730
 MonoBehaviour:
   m_ObjectHideFlags: 0
