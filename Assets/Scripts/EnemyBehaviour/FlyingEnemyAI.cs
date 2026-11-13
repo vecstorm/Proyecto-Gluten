@@ -137,14 +137,14 @@ public class FlyingEnemyAI : EnemyAI
     {
         if (!showGizmos) return;
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, personalBubbleRadius);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, areaRadius);
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, transitableAreaRadius);
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, areaRadius);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, personalBubbleRadius);
     
         if (movementPoint != Vector3.zero)
         {

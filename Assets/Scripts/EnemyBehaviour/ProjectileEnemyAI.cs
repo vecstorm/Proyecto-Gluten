@@ -3,13 +3,12 @@ using UnityEngine;
 public class ProjectileEnemyAI : EnemyAI
 {
     [Header("Target Detection:")]
+    [SerializeField] private float personalBubbleRadius = 7f;
     [SerializeField] private float areaRadius = 15f;
     [SerializeField] private float attackAreaRadius = 12f;
 
     [Header("Movement:")]
     [SerializeField] private float speed = 2;
-    [SerializeField] private float minChasingDelay = 3f;
-    [SerializeField] private float maxChasingDelay = 5f;
 
     [Header("Edge Detection:")]
     [SerializeField] private Transform edgeCheck;
@@ -41,6 +40,20 @@ public class ProjectileEnemyAI : EnemyAI
     {
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+    }
+
+    private void OnEnable()
+    {
+        characterStats.OnDeath += ToDead;
+        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += AddKnockback;
+    }
+
+    private void OnDisable()
+    {
+        characterStats.OnDeath -= ToDead;
+        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= AddKnockback;
     }
 
     private void FixedUpdate()
@@ -81,6 +94,9 @@ public class ProjectileEnemyAI : EnemyAI
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, attackAreaRadius);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, personalBubbleRadius);
     }
 
     private void OnPatrol()
@@ -210,7 +226,7 @@ public class ProjectileEnemyAI : EnemyAI
 
         projectileCount--;
 
-        //timer = Random.Range(minChasingDelay, maxChasingDelay);
+        if (projectileCount <= 0) projectileCount = 0;
 
         state = ENEMY_STATE.CHASING;
     }
@@ -219,7 +235,9 @@ public class ProjectileEnemyAI : EnemyAI
     {
         Debug.Log("Changed to ATTACK");
 
-        localMovement = Vector3.zero;
+        timer = attackCooldown;
+
+        localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
         state = ENEMY_STATE.ATTACK;
     }
@@ -231,6 +249,13 @@ public class ProjectileEnemyAI : EnemyAI
         timer = Random.Range(minSearchingDelay, maxSearchingDelay);
 
         state = ENEMY_STATE.SEARCHING;
+    }
+
+    protected void ToDead()
+    {
+        isDead = true;
+        state = ENEMY_STATE.DEAD;
+        gameObject.SetActive(false);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
