@@ -43,7 +43,7 @@ public abstract class EnemyAI : MonoBehaviour
     protected CharacterStats characterStats;
     protected readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
-    protected void InitializeBasicComponents()
+    protected virtual void InitializeBasicComponents()
     {
         EnemyManager.EnemiesOnMap.Add(this);
 

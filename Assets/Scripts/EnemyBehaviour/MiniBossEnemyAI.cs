@@ -1,16 +1,12 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
-public class MiniBossEnemyAI : EnemyAI
+public class MiniBossEnemyAI : BossAI
 {
     private enum BOSS_STATE { INTRO, IDLE, ATTACK, HEAVY_ATTACK, PREPARING_JUMP, JUMP_ATTACK };
 
-    [Header("Debug:")]
     [SerializeField] private BOSS_STATE bossState;
-    [SerializeField] private bool bossActive = false;
     [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
 
     [Header("Intro / Idle:")]
@@ -603,6 +599,7 @@ public class MiniBossEnemyAI : EnemyAI
     {
         isDead = true;
         gameObject.SetActive(false);
+        bossArea.DisableDoors();
     }
 
     private void CheckHealthLeft()
@@ -624,19 +621,11 @@ public class MiniBossEnemyAI : EnemyAI
         return currenthealth % healthModule == 0 && currenthealth != characterStats.MaxHealth && currenthealth != 0;
     }
 
-    public void BossActive(bool value)
-    {
-        bossActive = value;
-    }
-
-    public bool IsDead()
-    {
-        return isDead;
-    }
-
     public override void ResetEnemy()
     {
         if (isDead) return;
+
+        bossArea.DisableDoors();
 
         gameObject.SetActive(true);
 

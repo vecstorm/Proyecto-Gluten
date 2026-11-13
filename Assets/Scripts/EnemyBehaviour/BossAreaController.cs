@@ -2,21 +2,24 @@ using UnityEngine;
 
 public class BossAreaController : MonoBehaviour
 {
-    [SerializeField] private GameObject ownedBoss;
-    [SerializeField] private GameObject areaDoor;
+    private BossAI ownedBoss;
+    private GameObject areaDoor;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            MiniBossEnemyAI bossAI = ownedBoss.GetComponent<MiniBossEnemyAI>();
-
-            if (bossAI != null)
+            if (ownedBoss != null)
             {
+                if (ownedBoss.IsDead())
+                {
+                    return;
+                }
+
                 Debug.Log("Player entered the boss area!");
-                areaDoor.SetActive(true);
-                bossAI.BossActive(true);
-                bossAI.SetTargetTransform(collision.transform);
+                EnableDoors();
+                ownedBoss.BossActive(true);
+                ownedBoss.SetTargetTransform(collision.transform);
             }
         }
     }
@@ -25,20 +28,38 @@ public class BossAreaController : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            MiniBossEnemyAI bossAI = ownedBoss.GetComponent<MiniBossEnemyAI>();
-
-            if (bossAI != null)
+            if (ownedBoss != null)
             {
-                if (!bossAI.IsDead())
+                if (!ownedBoss.IsDead())
                 {
                     return;
                 }
 
                 Debug.Log("Player exited the boss area!");
-                areaDoor.SetActive(false);
-                bossAI.BossActive(false);
-                bossAI.SetTargetTransform(null);
+                DisableDoors();
+                ownedBoss.BossActive(false);
+                ownedBoss.SetTargetTransform(null);
             }
         }
+    }
+
+    public void DisableDoors()
+    {
+        areaDoor.SetActive(false);
+    }
+
+    public void EnableDoors()
+    {
+        areaDoor.SetActive(true);
+    }
+
+    public void SetAreaDoor(GameObject areaDoor)
+    {
+        this.areaDoor = areaDoor;
+    }
+
+    public void SetOwnedBoss(BossAI ownedBoss)
+    {
+        this.ownedBoss = ownedBoss;
     }
 }
