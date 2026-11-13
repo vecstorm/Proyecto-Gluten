@@ -118,6 +118,56 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private bool parryPressed;
 
+    [Header("Input Buffering")]
+
+    [Tooltip("Tiempo durante el que se guarda una pulsación de salto")]
+    [SerializeField, Min(0f)] private float jumpBufferDuration = 0.12f;
+
+    [Tooltip("Tiempo durante el que se guarda una pulsación de dash")]
+    [SerializeField, Min(0f)] private float dashBufferDuration = 0.12f;
+
+    [Tooltip("Tiempo durante el que se guarda una pulsación de gancho")]
+    [SerializeField, Min(0f)] private float hookBufferDuration = 0.12f;
+
+    [Tooltip("Tiempo durante el que se guarda una pulsación de ataque básico")]
+    [SerializeField, Min(0f)] private float attackBufferDuration = 0.12f;
+
+    [Tooltip("Tiempo durante el que se guarda una pulsación de ataque a distancia")]
+    [SerializeField, Min(0f)] private float rangedAttackBufferDuration = 0.12f;
+
+    [Tooltip("Tiempo durante el que se guarda una pulsación de parry")]
+    [SerializeField, Min(0f)] private float parryBufferDuration = 0.10f;
+
+    /// <summary>
+    /// Tiempo que queda de buffer de salto.
+    /// </summary>
+    private float jumpBufferTimer;
+
+    /// <summary>
+    /// Tiempo que queda de buffer de dash.
+    /// </summary>
+    private float dashBufferTimer;
+
+    /// <summary>
+    /// Tiempo que queda de buffer de gancho.
+    /// </summary>
+    private float hookBufferTimer;
+
+    /// <summary>
+    /// Tiempo que queda de buffer de ataque.
+    /// </summary>
+    private float attackBufferTimer;
+
+    /// <summary>
+    /// Tiempo que queda de buffer de ataque a distancia.
+    /// </summary>
+    private float rangedAttackBufferTimer;
+
+    /// <summary>
+    /// Tiempo que queda de buffer de parry.
+    /// </summary>
+    private float parryBufferTimer;
+
     #endregion
 
     #region Movement
@@ -338,6 +388,7 @@ public class PlayerController : MonoBehaviour
         if (hurtTimer > 0f)
             hurtTimer -= Time.fixedDeltaTime;
 
+        UpdateInputBuffers();
         CheckGround();
         CheckWall();
 
@@ -366,13 +417,7 @@ public class PlayerController : MonoBehaviour
                 UpdateState();
         }
 
-        jumpPressed = false;
         jumpReleased = false;
-        dashPressed = false;
-        hookPressed = false;
-        attackPressed = false;
-        rangedAttackPressed = false;
-        parryPressed = false;
     }
 
     private void OnDisable()
@@ -404,25 +449,25 @@ public class PlayerController : MonoBehaviour
         runPressed = glutenActionControls.Player.Sprint.IsPressed();
 
         if (glutenActionControls.Player.Jump.WasPressedThisFrame())
-            jumpPressed = true;
+            BufferInput(ref jumpPressed, ref jumpBufferTimer, jumpBufferDuration);
 
         if (glutenActionControls.Player.Jump.WasReleasedThisFrame())
             jumpReleased = true;
 
         if (glutenActionControls.Player.Dash.WasPressedThisFrame())
-            dashPressed = true;
+            BufferInput(ref dashPressed, ref dashBufferTimer, dashBufferDuration);
 
         if (glutenActionControls.Player.Hook.WasPressedThisFrame())
-            hookPressed = true;
+            BufferInput(ref hookPressed, ref hookBufferTimer, hookBufferDuration);
 
         if (glutenActionControls.Player.Attack.WasPressedThisFrame())
-            attackPressed = true;
+            BufferInput(ref attackPressed, ref attackBufferTimer, attackBufferDuration);
 
         if (glutenActionControls.Player.RangedAttack.WasPressedThisFrame())
-            rangedAttackPressed = true;
+            BufferInput(ref rangedAttackPressed, ref rangedAttackBufferTimer, rangedAttackBufferDuration);
 
         if (glutenActionControls.Player.Parry.WasPressedThisFrame())
-            parryPressed = true;
+            BufferInput(ref parryPressed, ref parryBufferTimer, parryBufferDuration);
     }
 
     /// <summary>
@@ -526,7 +571,7 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Hook:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Attack:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
@@ -842,8 +887,10 @@ public class PlayerController : MonoBehaviour
         if (!jumpPressed || !isGrounded)
             return false;
 
-        jumpPressed = false;
-        ChangeState(PlayerState.Jump);
+        if (!ChangeState(PlayerState.Jump))
+            return false;
+
+        ConsumeJumpInput();
 
         return true;
     }
@@ -861,12 +908,14 @@ public class PlayerController : MonoBehaviour
 
         if (!CanUseSkill("DASH"))
             return false;
+        
+        if (!ChangeState(PlayerState.Dash))
+            return false;
 
         canDash = false;
-        dashPressed = false;
         dashCooldownTimer = dashCooldown;
 
-        ChangeState(PlayerState.Dash);
+        ConsumeDashInput();
 
         return true;
     }
@@ -888,28 +937,30 @@ public class PlayerController : MonoBehaviour
         if (!playerHook.CanFire)
             return false;
 
-        hookPressed = false;
+        if (!ChangeState(PlayerState.Hook))
+            return false;
 
-        ChangeState(PlayerState.Hook);
+        ConsumeHookInput();
 
         return true;
     }
 
     /// <summary>
-    /// Comprobamos si se pueden usar las habilidades mientras se lanza el gancho
+    /// Comprobamos si se pueden usar las habilidades mientras se lanza el gancho.
     /// </summary>
     private void CheckHookAbilities()
     {
         // Doble salto
         if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
         {
-            jumpPressed = false;
-            canDoubleJump = false;
-
             playerHook.CancelHook();
 
-            ChangeState(PlayerState.DoubleJump);
-            return;
+            if (ChangeState(PlayerState.DoubleJump))
+            {
+                canDoubleJump = false;
+                ConsumeJumpInput();
+                return;
+            }
         }
 
         // Dash
@@ -932,35 +983,117 @@ public class PlayerController : MonoBehaviour
         // El parry tiene prioridad si se pulsan ambos botones
         if (parryPressed && characterStats.CanParry)
         {
-            parryPressed = false;
-            attackPressed = false;
-            rangedAttackPressed = false;
-
-            ChangeState(PlayerState.Parry);
-
-            return true;
+            if (ChangeState(PlayerState.Parry))
+            {
+                ConsumeParryInput();
+                ConsumeAttackInput();
+                ConsumeRangedAttackInput();
+            
+                return true;
+            }
         }
 
         // Ataque básico
         if (attackPressed && playerCombat.CanAttack)
         {
-            attackPressed = false;
-            rangedAttackPressed = false;
+            if (ChangeState(PlayerState.Attack))
+            {
+                ConsumeAttackInput();
+                ConsumeRangedAttackInput();
 
-            ChangeState(PlayerState.Attack);
-
-            return true;
+                return true;
+            }
         }
 
         // Ataque a distancia
         if (rangedAttackPressed)
         {
-            rangedAttackPressed = false;
-
-            playerCombat.PerformRangedAttack();
+            if (playerCombat.PerformRangedAttack())
+            {
+                ConsumeRangedAttackInput();
+            }
         }
 
         return false;
+    }
+
+    #endregion
+
+    #region Input Buffering
+
+    /// <summary>
+    /// Guarda una pulsación y reinicia su temporizador.
+    /// </summary>
+    private void BufferInput(ref bool inputPressed, ref float timer, float duration)
+    {
+        inputPressed = true;
+        timer = duration;
+    }
+
+    /// <summary>
+    /// Reduce el tiempo restante de un buffer, cuando llega a cero, descarta la pulsación.
+    /// </summary>
+    private void UpdateInputBuffer(ref bool inputPressed, ref float timer)
+    {
+        if (!inputPressed)
+            return;
+
+        timer = Mathf.Max(0f, timer - Time.fixedDeltaTime);
+
+        if (timer <= 0f)
+            inputPressed = false;
+    }
+
+    /// <summary>
+    /// Actualiza todos los buffers del jugador.
+    /// </summary>
+    private void UpdateInputBuffers()
+    {
+        UpdateInputBuffer(ref jumpPressed, ref jumpBufferTimer);
+        UpdateInputBuffer(ref dashPressed, ref dashBufferTimer);
+        UpdateInputBuffer(ref hookPressed, ref hookBufferTimer);
+        UpdateInputBuffer(ref attackPressed, ref attackBufferTimer);
+        UpdateInputBuffer(ref rangedAttackPressed, ref rangedAttackBufferTimer);
+        UpdateInputBuffer(ref parryPressed, ref parryBufferTimer);
+    }
+
+    /// <summary>
+    /// Consume una pulsación y elimina su buffer.
+    /// </summary>
+    private void ConsumeInput(ref bool inputPressed, ref float timer)
+    {
+        inputPressed = false;
+        timer = 0f;
+    }
+
+    private void ConsumeJumpInput()
+    {
+        ConsumeInput(ref jumpPressed, ref jumpBufferTimer);
+    }
+
+    private void ConsumeDashInput()
+    {
+        ConsumeInput(ref dashPressed, ref dashBufferTimer);
+    }
+
+    private void ConsumeHookInput()
+    {
+        ConsumeInput(ref hookPressed, ref hookBufferTimer);
+    }
+
+    private void ConsumeAttackInput()
+    {
+        ConsumeInput(ref attackPressed, ref attackBufferTimer);
+    }
+
+    private void ConsumeRangedAttackInput()
+    {
+        ConsumeInput(ref rangedAttackPressed, ref rangedAttackBufferTimer);
+    }
+
+    private void ConsumeParryInput()
+    {
+        ConsumeInput(ref parryPressed, ref parryBufferTimer);
     }
 
     #endregion
@@ -1133,9 +1266,12 @@ public class PlayerController : MonoBehaviour
         // Si se ha presionado el salto en el aire, se puede realizar un doble salto y tenemos la habilidad, se ejecuta
         if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
         {
-            canDoubleJump = false;
-            ChangeState(PlayerState.DoubleJump);
-            return;
+            if (ChangeState(PlayerState.DoubleJump))
+            {
+                canDoubleJump = false;
+                ConsumeJumpInput();
+                return;
+            }
         }
 
         // Si estamos tocando la pared, no estamos en el suelo y tenemos la habilidad, hacemos wall grab
@@ -1164,8 +1300,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void DoubleJump()
     {
-        jumpPressed = false;
-
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
 
         ChangeState(PlayerState.Airborne);
@@ -1183,9 +1317,9 @@ public class PlayerController : MonoBehaviour
 
         rb.linearVelocity = Vector2.zero;
 
-        if (jumpPressed)
+        if (jumpPressed && ChangeState(PlayerState.WallJump))
         {
-            ChangeState(PlayerState.WallJump);
+            ConsumeJumpInput();
             return;
         }
 
@@ -1231,9 +1365,9 @@ public class PlayerController : MonoBehaviour
 
         rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
 
-        if (jumpPressed)
+        if (jumpPressed && ChangeState(PlayerState.WallJump))
         {
-            ChangeState(PlayerState.WallJump);
+            ConsumeJumpInput();
             return;
         }
 
