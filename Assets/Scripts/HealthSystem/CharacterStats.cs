@@ -9,13 +9,17 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public CombatTeam Team => team;
 
     [Header("Configuración de Vida")]
-    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private float maxHealth = 10;
     [SerializeField] private float currentHealth;
+    [SerializeField] private HelthUpgradeMenu healthUI;
+
 
     [Header("Configuración de Estamina / Magia")]
     [SerializeField] private float maxStamina = 100f;
     [SerializeField] private float staminaRegenRate = 15f;
     private float currentStamina;
+
+    [SerializeField] private int healthUpgradeTokens = 0;
 
     Rigidbody2D rb;
 
@@ -32,6 +36,9 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public float CurrentStamina => currentStamina;
     public float MaxHealth => maxHealth;
     public float MaxStamina => maxStamina;
+
+    public int HealthUpgradeTokens => healthUpgradeTokens;
+
 
     private bool isPlayer;
     
@@ -87,6 +94,12 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         rb = GetComponent<Rigidbody2D>();
     }
 
+    private void Start()
+    {
+        if (!isPlayer) return;
+        healthUI.Initialize(maxHealth);
+        //healthUI.UpdateHealth(currentHealth);
+    }
     private void Update()
     {
         if (isPlayer)
@@ -103,6 +116,11 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         // Finaliza automáticamente el parry cuando termina su ventana temporal
         if (isParrying && parryTimer <= 0f)
             isParrying = false;
+    }
+
+    public void AddHealthUpgradeToken()
+    {
+        healthUpgradeTokens++;
     }
 
     /// <summary>
