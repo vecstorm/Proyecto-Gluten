@@ -635,6 +635,10 @@ public class MiniBossEnemyAI : BossAI
 
         targetTransform = null;
 
+        difficultyLevel = 0;
+        multiAttackCount = 0;
+        multiJumpCount = 0;
+
         alreadyAttacking = false;
         attackHitboxActive = false;
         alreadyHeavyAttacking = false;
