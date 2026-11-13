@@ -181,6 +181,16 @@ public class ProjectileEnemyAI : EnemyAI
             timer = attackCooldown;
         }
 
+        if (TargetDetectedOnArea(personalBubbleRadius))
+        {
+            Vector3 movementDirection = (transform.position - targetTransform.position).normalized;
+            localMovement = new Vector3(movementDirection.x * speed, rb.linearVelocity.y, 0);
+        }
+        else
+        {
+            localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+        }
+
         if (TargetBehind(targetTransform.position))
         {
             Flip();
@@ -217,6 +227,8 @@ public class ProjectileEnemyAI : EnemyAI
     {
         Debug.Log("Changed to PATROL");
 
+        localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+
         state = ENEMY_STATE.PATROL;
     }
 
@@ -227,6 +239,8 @@ public class ProjectileEnemyAI : EnemyAI
         projectileCount--;
 
         if (projectileCount <= 0) projectileCount = 0;
+
+        localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
         state = ENEMY_STATE.CHASING;
     }
@@ -245,6 +259,8 @@ public class ProjectileEnemyAI : EnemyAI
     private void ToSearching()
     {
         Debug.Log("Changed to SEARCHING");
+
+        localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
         timer = Random.Range(minSearchingDelay, maxSearchingDelay);
 
