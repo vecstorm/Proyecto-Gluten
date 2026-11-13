@@ -348,7 +348,7 @@ public class FlyingEnemyAI : EnemyAI
         UpdateNodeGrid();
         MoveThroughPathBetween(transform.position, spawnPosition);
 
-        if (TargetBehind(targetTransform.position)) Flip();
+        if (TargetBehind(spawnPosition)) Flip();
 
         if (Vector3.Distance(transform.position, spawnPosition) <= 0.1f)
         {
@@ -374,6 +374,9 @@ public class FlyingEnemyAI : EnemyAI
     private void ToPatrol()
     {
         ResetTimer();
+
+        nodes.Clear();
+
         //rb.linearVelocity = Vector3.zero;
         localMovement = Vector3.zero;
         state = ENEMY_STATE.PATROL;
