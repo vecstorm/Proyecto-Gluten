@@ -5,6 +5,14 @@ public class ProjectileEnemyAI : EnemyAI
     [Header("Target Detection:")]
     [SerializeField] private float areaRadius = 13f;
 
+    [Header("Movement:")]
+    [SerializeField] private float speed = 2;
+    [SerializeField] private float minChasingDelay = 3f;
+    [SerializeField] private float maxChasingDelay = 5f;
+
+    [Header("Edge Detection:")]
+    [SerializeField] private Transform edgeCheck;
+
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
     [SerializeField] private GameObject projectilePrefab;
@@ -82,11 +90,46 @@ public class ProjectileEnemyAI : EnemyAI
             ToAttack();
             return;
         }
+
+        if (Vector3.Distance(transform.position, spawnPosition) >= 0.1f)
+        {
+            if (TargetBehind(spawnPosition))
+            {
+                Flip();
+            }
+            
+            localMovement = (spawnPosition - transform.position).normalized * speed;
+        }
+        else
+        {
+            localMovement = Vector3.zero;
+        }
     }
 
     private void OnChasing()
     {
+        if (TargetDetectedOnArea(areaRadius))
+        {
+            ToAttack();
+            return;
+        }
 
+        timer -= Time.fixedDeltaTime;
+
+        if (TargetBehind(targetTransform.position)) Flip();
+
+        localMovement = new Vector3(GetTargetDirection().x * speed, rb.linearVelocity.y);
+
+        if (!DetectedEdge())
+        {
+            //rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+        }
+
+        if (timer <= 0)
+        {
+            ToPatrol();
+        }
     }
 
     private void OnAttack()
@@ -117,7 +160,7 @@ public class ProjectileEnemyAI : EnemyAI
             timer = attackCooldown;
         }
 
-        if (PlayerBehind() != invertedDirection)
+        if (TargetBehind(targetTransform.position))
         {
             Flip();
         }
@@ -130,11 +173,16 @@ public class ProjectileEnemyAI : EnemyAI
 
     private void ToChasing()
     {
+        projectileCount--;
+
+        timer = Random.Range(minChasingDelay, maxChasingDelay);
+
         state = ENEMY_STATE.CHASING;
     }
 
     private void ToAttack()
     {
+        localMovement = Vector3.zero;
         state = ENEMY_STATE.ATTACK;
     }
 
@@ -148,6 +196,19 @@ public class ProjectileEnemyAI : EnemyAI
             CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
         }
+    }
+
+    // Devuelve la direccion hacia el objetivo
+    private Vector3 GetTargetDirection()
+    {
+        Vector3 targetDirection = Vector3.zero;
+
+        if (targetTransform != null)
+        {
+            targetDirection = targetTransform.position - transform.position;
+        }
+
+        return targetDirection.normalized;
     }
 
     // Devuelve si ha detectado al objetivo dentro de un area determinada
@@ -169,12 +230,11 @@ public class ProjectileEnemyAI : EnemyAI
         return false;
     }
 
-    // Devuelve si el jugador esta detras del enemigo o no
-    private bool PlayerBehind()
+    // Devuelve si esta detectando suelo delante suyo
+    private bool DetectedEdge()
     {
-        float deltaX = targetTransform.position.x - transform.position.x;
-
-        return deltaX < 0;
+        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
     }
 
     public override void ResetEnemy()

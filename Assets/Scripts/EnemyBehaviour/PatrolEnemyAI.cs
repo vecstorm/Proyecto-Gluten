@@ -146,7 +146,8 @@ public class PatrolEnemyAI : EnemyAI
         if (!canRespawn) return;
 
         ResetColor();
-        rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
         isDead = false;
         state = defaultState;
         characterStats.FullHeal();

@@ -229,7 +229,7 @@ public class FlyingEnemyAI : EnemyAI
 
         MoveThroughPathBetween(transform.position, targetTransform.position);
 
-        if (PlayerBehind() != invertedDirection)
+        if (TargetBehind(targetTransform.position))
         {
             Flip();
         }
@@ -277,7 +277,7 @@ public class FlyingEnemyAI : EnemyAI
             }
         }*/
 
-        if (PlayerBehind() != invertedDirection)
+        if (TargetBehind(targetTransform.position))
         {
             Flip();
         }
@@ -304,7 +304,11 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnSearching()
     {
-        if (TargetDetectedOnArea(areaRadius)) ToChasing();
+        if (TargetDetectedOnArea(areaRadius)) 
+        {
+            ToChasing();
+            return;
+        } 
 
         if (Vector3.Distance(transform.position, lastTargetPos) > 0.1f)
         {
@@ -335,10 +339,16 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnRetreat()
     {
-        if (TargetDetectedOnArea(areaRadius)) ToChasing();
-
+        if (TargetDetectedOnArea(areaRadius)) 
+        {
+            ToChasing();
+            return;
+        }
+        
         UpdateNodeGrid();
         MoveThroughPathBetween(transform.position, spawnPosition);
+
+        if (TargetBehind(targetTransform.position)) Flip();
 
         if (Vector3.Distance(transform.position, spawnPosition) <= 0.1f)
         {
@@ -466,13 +476,6 @@ public class FlyingEnemyAI : EnemyAI
         movementPoint = candidatePoint;
     }
 
-    private bool PlayerBehind()
-    {
-        float deltaX = targetTransform.position.x - transform.position.x;
-
-        return deltaX < 0;
-    }
-
     private bool PlayerAbove()
     {
         float deltaY = targetTransform.position.y - transform.position.y;
@@ -496,8 +499,8 @@ public class FlyingEnemyAI : EnemyAI
         state = defaultState;
         isDead = false;
 
-        //rb.linearVelocity = Vector3.zero;
         localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
         characterStats.FullHeal();
         ResetTimer();
     }

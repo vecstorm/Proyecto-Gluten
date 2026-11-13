@@ -229,7 +229,7 @@ public class MeleeEnemyAI : EnemyAI
             return;
         }
         
-        if (PlayerBehind() != invertedDirection) Flip();
+        if (TargetBehind(targetTransform.position)) Flip();
 
         //rb.linearVelocity = new Vector3(GetTargetDirection().x * (speed * 2f), rb.linearVelocity.y);
         localMovement = new Vector3(GetTargetDirection().x * (speed * 2f), rb.linearVelocity.y);
@@ -308,7 +308,7 @@ public class MeleeEnemyAI : EnemyAI
         }
         else
         {
-            if (PlayerBehind() != invertedDirection)
+            if (TargetBehind(targetTransform.position))
             {
                 Flip();
             }
@@ -524,14 +524,6 @@ public class MeleeEnemyAI : EnemyAI
         }
     }
 
-    // Devuelve si el jugador esta detras del enemigo o no
-    private bool PlayerBehind()
-    {
-        float deltaX = targetTransform.position.x - transform.position.x;
-
-        return deltaX < 0;
-    }
-
     public override void ResetEnemy()
     {
         if (!canRespawn) return;
@@ -540,8 +532,8 @@ public class MeleeEnemyAI : EnemyAI
         hitboxCreated = false;
 
         ResetColor();
-        //rb.linearVelocity = Vector3.zero;
         localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
         isDead = false;
         state = defaultState;
         characterStats.FullHeal();

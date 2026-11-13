@@ -121,6 +121,14 @@ public abstract class EnemyAI : MonoBehaviour
         }
     }
 
+    // Devuelve si el jugador esta detras del enemigo o no
+    protected bool TargetBehind(Vector3 targetPosition)
+    {
+        float deltaX = targetPosition.x - transform.position.x;
+
+        return (deltaX < 0) != invertedDirection;
+    }
+
     protected void AddKnockback()
     {
         Vector3 knockbackDirection = (transform.position - characterStats.LastDamagePosition).normalized;
