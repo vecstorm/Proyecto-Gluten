@@ -12,6 +12,7 @@ public class ProjectileEnemyAI : EnemyAI
 
     [Header("Edge Detection:")]
     [SerializeField] private Transform edgeCheck;
+    [SerializeField] private Transform backEdgeCheck;
 
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
@@ -147,7 +148,7 @@ public class ProjectileEnemyAI : EnemyAI
 
         localMovement = new Vector3(GetTargetDirection().x * speed, rb.linearVelocity.y);
 
-        if (!DetectedEdge())
+        if (!DetectedEdge(edgeCheck.position))
         {
             localMovement = new Vector3(0, rb.linearVelocity.y, 0);
         }
@@ -181,14 +182,17 @@ public class ProjectileEnemyAI : EnemyAI
             timer = attackCooldown;
         }
 
+        localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+
         if (TargetDetectedOnArea(personalBubbleRadius))
         {
             Vector3 movementDirection = (transform.position - targetTransform.position).normalized;
             localMovement = new Vector3(movementDirection.x * speed, rb.linearVelocity.y, 0);
-        }
-        else
-        {
-            localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+
+            if (!DetectedEdge(backEdgeCheck.position))
+            {
+                localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+            }
         }
 
         if (TargetBehind(targetTransform.position))
@@ -207,7 +211,7 @@ public class ProjectileEnemyAI : EnemyAI
 
         Vector3 movementPosition = new Vector3(lastTargetPos.x, transform.position.y, transform.position.z);
 
-        if (!DetectedEdge())
+        if (!DetectedEdge(edgeCheck.position))
         {
             movementPosition = transform.position;
         }
@@ -319,10 +323,10 @@ public class ProjectileEnemyAI : EnemyAI
     }
 
     // Devuelve si esta detectando suelo delante suyo
-    private bool DetectedEdge()
+    private bool DetectedEdge(Vector3 edgeCheck)
     {
-        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
+        Debug.DrawRay(edgeCheck, Vector3.down, Color.red);
+        return Physics2D.Raycast(edgeCheck, Vector3.down, 1f, groundLayer);
     }
 
     public override void ResetEnemy()

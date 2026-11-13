@@ -191,6 +191,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8204671401075562310}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4049137804417291732
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6143666569087548949}
+  m_Layer: 2
+  m_Name: BackEdgeCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6143666569087548949
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4049137804417291732}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.63, y: -0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8204671401075562310}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4229459164376234667
 GameObject:
   m_ObjectHideFlags: 0
@@ -364,6 +395,7 @@ Transform:
   m_Children:
   - {fileID: 5589942049983994211}
   - {fileID: 8570909192793290940}
+  - {fileID: 6143666569087548949}
   - {fileID: 6717257523431619107}
   - {fileID: 5892189305983616403}
   - {fileID: 7456515833792919755}
@@ -522,12 +554,12 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  personalBubbleRadius: 7
   areaRadius: 20
   attackAreaRadius: 15
   speed: 2
-  minChasingDelay: 3
-  maxChasingDelay: 5
   edgeCheck: {fileID: 8570909192793290940}
+  backEdgeCheck: {fileID: 6143666569087548949}
   contactDamage: 10
   projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
   projectileSpeed: 8
