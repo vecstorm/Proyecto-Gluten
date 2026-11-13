@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class MiniBossEnemyAI : EnemyAI
 {
@@ -111,20 +112,28 @@ public class MiniBossEnemyAI : EnemyAI
 
     private void OnEnable()
     {
-        characterStats.OnDeath += Death;
+        characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
         characterStats.OnDamageTaken += FlashColor;
     }
 
     private void OnDisable()
     {
-        characterStats.OnDeath -= Death;
+        characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
         characterStats.OnDamageTaken -= FlashColor;
     }
 
     private void FixedUpdate()
     {
+        if (!bossActive)
+        {
+            bossState = defaultBossState;
+            rb.linearVelocity = Vector3.zero;
+            transform.position = new Vector3(spawnPosition.x, transform.position.y);
+            return;
+        }
+
         switch (bossState)
         {
             case BOSS_STATE.INTRO:
@@ -183,14 +192,12 @@ public class MiniBossEnemyAI : EnemyAI
     // Comportamiento en estado INTRO
     private void OnIntro()
     {
-        if (!bossActive) return;
+        timer += Time.fixedDeltaTime;
 
-        timer -= Time.fixedDeltaTime;
-
-        if (timer <= 0)
+        if (timer >= introTime)
         {
             ProbabilityToAct(baseAttackProbability, ToAttack, ToPreparingJump);
-            timer = introTime;
+            timer = 0;
         }
     }
 
@@ -592,8 +599,9 @@ public class MiniBossEnemyAI : EnemyAI
         return baseStat + (difficultyLevel * statMultiplier);
     }
 
-    private void Death()
+    private void ToDead()
     {
+        isDead = true;
         gameObject.SetActive(false);
     }
 
@@ -630,7 +638,11 @@ public class MiniBossEnemyAI : EnemyAI
     {
         if (isDead) return;
 
+        gameObject.SetActive(true);
+
         Debug.Log("Boss has been reseted");
+
+        timer = 0;
 
         targetTransform = null;
 

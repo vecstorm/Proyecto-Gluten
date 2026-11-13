@@ -534,6 +534,8 @@ public class MeleeEnemyAI : EnemyAI
     {
         if (!canRespawn) return;
 
+        gameObject.SetActive(true);
+
         alreadyAttacking = false;
         hitboxCreated = false;
 

@@ -152,6 +152,8 @@ public class PatrolEnemyAI : EnemyAI
     {
         if (!canRespawn) return;
 
+        gameObject.SetActive(true);
+
         ResetColor();
         localMovement = Vector3.zero;
         externalMovement = Vector3.zero;

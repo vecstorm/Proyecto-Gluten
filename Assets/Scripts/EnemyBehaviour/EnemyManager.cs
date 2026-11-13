@@ -18,7 +18,6 @@ public static class EnemyManager
             enemiesResetedCount++;
             Debug.Log( "Reseted " + enemiesResetedCount + " enemies.");
 
-            enemy.gameObject.SetActive(true);
             enemy.ResetEnemy();
         }
     }

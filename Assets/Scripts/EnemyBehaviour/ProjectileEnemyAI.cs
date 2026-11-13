@@ -350,6 +350,9 @@ public class ProjectileEnemyAI : EnemyAI
 
     public override void ResetEnemy()
     {
+        if (!canRespawn) return;
+
+        gameObject.SetActive(true);
         ResetColor();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);

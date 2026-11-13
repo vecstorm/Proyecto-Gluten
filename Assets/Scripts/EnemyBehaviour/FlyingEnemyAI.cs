@@ -494,6 +494,8 @@ public class FlyingEnemyAI : EnemyAI
     {
         if (!canRespawn) return;
 
+        gameObject.SetActive(true);
+
         ResetColor();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
