@@ -123,6 +123,17 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         healthUpgradeTokens++;
     }
 
+    public bool UseHealthUpgradeToken()
+    {
+        if (healthUpgradeTokens <= 0)
+            return false;
+
+        healthUpgradeTokens--;
+        //IncreaseMaxHealth(1f);
+
+        return true;
+    }
+
     /// <summary>
     /// Recibe daño a través del contrato común de combate.
     /// </summary>
