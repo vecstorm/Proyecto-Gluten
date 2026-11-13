@@ -517,6 +517,13 @@ public class MeleeEnemyAI : EnemyAI
         {
             ContactPoint2D contact = collision.GetContact(0);
 
+            if (tryiedFlipAirborne && GroundBeneath())
+            {
+                tryiedFlipAirborne = false;
+                Flip();
+                return;
+            }
+
             if (Mathf.Abs(contact.normal.x) > 0.5f)
             {
                 Flip();

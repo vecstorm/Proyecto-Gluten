@@ -33,6 +33,7 @@ public abstract class EnemyAI : MonoBehaviour
     protected bool invertedDirection = false;
     protected bool isDead = false;
     protected Color rendererColor;
+    protected bool tryiedFlipAirborne = false;
 
     protected Vector3 localMovement;
     protected Vector3 externalMovement;
@@ -55,14 +56,19 @@ public abstract class EnemyAI : MonoBehaviour
 
     protected void Flip()
     {
-        if (!GroundBeneath()) return;
+        if (!GroundBeneath())
+        {
+            //Debug.Log(gameObject.name + " tryied to flip on air");
+            tryiedFlipAirborne = true;
+            return;
+        }
             
         invertedDirection = !invertedDirection;
 
         transform.Rotate(0, 180, 0);
     }
 
-    private bool GroundBeneath()
+    protected bool GroundBeneath()
     {
         if (isAerial) return true;
 
