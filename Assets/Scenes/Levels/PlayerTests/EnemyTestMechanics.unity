@@ -11323,7 +11323,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4053497137332864045, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7027607547376839603, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
       propertyPath: personalBubbleRadius
@@ -12052,6 +12052,10 @@ PrefabInstance:
     - target: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_Name
       value: Enemy2D (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3396738433899943286, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: maxHealth

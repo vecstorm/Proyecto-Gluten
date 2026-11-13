@@ -24,9 +24,12 @@ public class ProjectileEnemyAI : EnemyAI
     [Header("Delays:")]
     [SerializeField] private float minSearchingDelay = 3f;
     [SerializeField] private float maxSearchingDelay = 5f;
+    [SerializeField] private float newSpawnPositionDelay = 3f;
 
     private Transform targetTransform;
     private Vector3 lastTargetPos;
+
+    private Vector3 dynamicSpawnPosition;
 
     private int projectileCount;
 
@@ -45,6 +48,7 @@ public class ProjectileEnemyAI : EnemyAI
 
     private void OnEnable()
     {
+        dynamicSpawnPosition = spawnPosition;
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += FlashColor;
         characterStats.OnDamageTaken += AddKnockback;
@@ -114,8 +118,22 @@ public class ProjectileEnemyAI : EnemyAI
             {
                 Flip();
             }
-            
-            localMovement = (spawnPosition - transform.position).normalized * speed;
+
+            Vector3 movementDirection = (dynamicSpawnPosition - transform.position).normalized;
+
+            localMovement = new Vector3(movementDirection.x * speed, rb.linearVelocity.y);
+
+            if (!DetectedEdge(edgeCheck.position))
+            {
+                timer -= Time.fixedDeltaTime;
+
+                localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+
+                if (timer <= 0)
+                {
+                    dynamicSpawnPosition = transform.position;
+                }
+            }
         }
         else
         {
@@ -124,7 +142,7 @@ public class ProjectileEnemyAI : EnemyAI
                 Flip();
             }
 
-            localMovement = Vector3.zero;
+            localMovement = new Vector3(0, rb.linearVelocity.y, 0);
         }
     }
 
@@ -230,6 +248,8 @@ public class ProjectileEnemyAI : EnemyAI
     private void ToPatrol()
     {
         Debug.Log("Changed to PATROL");
+
+        timer = newSpawnPositionDelay;
 
         localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
