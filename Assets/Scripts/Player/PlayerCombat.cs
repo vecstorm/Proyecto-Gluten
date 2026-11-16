@@ -117,6 +117,14 @@ public class PlayerCombat : MonoBehaviour
     /// </summary>
     public bool CanRangedAttack => rangedAttackCooldownTimer <= 0f;
 
+
+    public float BasicAttackDamage => basicAttackDamage;
+
+    public void IncreaseBasicAttackDamage(float amount)
+    {
+        basicAttackDamage += amount;
+    }
+
     #endregion
 
     #region Debug Configuration

@@ -7,12 +7,19 @@ public class HelthUpgradeMenu : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Transform healthContainer;
-    [SerializeField] private Image heartPrefab;
+    [SerializeField] private Transform attackContainer;
 
-/*    [Header("Heart Sprites")]
-    [SerializeField] private Sprite fullHeart;
-    [SerializeField] private Sprite halfHeart;
-    [SerializeField] private Sprite emptyHeart;*/
+    [Header("Prefabs")]
+    [SerializeField] private Image statPointPrefab;
+    [SerializeField] private Button upgradeButtonPrefab;
+
+    [SerializeField] private PlayerCombat playerCombat;
+    [SerializeField] private CharacterStats characterStats;
+
+    /*    [Header("Heart Sprites")]
+        [SerializeField] private Sprite fullHeart;
+        [SerializeField] private Sprite halfHeart;
+        [SerializeField] private Sprite emptyHeart;*/
 
     private List<Image> hearts = new();
 
@@ -28,7 +35,7 @@ public class HelthUpgradeMenu : MonoBehaviour
         for (int i = 0; i < heartCount; i++)
         {
             Image newHeart = Instantiate(
-                heartPrefab,
+                statPointPrefab,
                 healthContainer,
                 false
             );

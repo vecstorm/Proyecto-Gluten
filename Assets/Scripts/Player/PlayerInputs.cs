@@ -68,6 +68,8 @@ public class PlayerInputs : MonoBehaviour
     /// </summary>
     private bool parryPressed;
 
+    private bool actionPressed;
+
     /// <summary>
     /// [Getter] Indica si se ha pulsado el salto durante este frame.
     /// </summary>
@@ -102,6 +104,8 @@ public class PlayerInputs : MonoBehaviour
     /// [Getter] Indica si se ha solicitado realizar un parry.
     /// </summary>
     public bool ParryPressed => parryPressed;
+
+    public bool ActionPressed => actionPressed;
 
     #endregion
 
@@ -212,6 +216,9 @@ public class PlayerInputs : MonoBehaviour
 
         if (glutenActionControls.Player.Parry.WasPressedThisFrame())
             BufferInput(ref parryPressed, ref parryBufferTimer, parryBufferDuration);
+
+        if (glutenActionControls.Player.Action.WasPressedThisFrame())
+            actionPressed = true;
     }
 
     #endregion
@@ -317,6 +324,11 @@ public class PlayerInputs : MonoBehaviour
     public void ConsumeJumpRelease()
     {
         jumpReleased = false;
+    }
+
+    public void ConsumeActionPressed()
+    {
+        actionPressed = false;
     }
 
     #endregion
