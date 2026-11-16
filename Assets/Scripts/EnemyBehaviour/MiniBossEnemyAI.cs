@@ -399,9 +399,9 @@ public class MiniBossEnemyAI : BossAI
         if (bossActive)
         {
             DecideAction();
-
-            waitingToAct = false;
         }
+
+        waitingToAct = false;
     }
 
     // Decide a que estado cambiar dependiendo de cual ha sido su ultimo ataque realizado
@@ -479,6 +479,8 @@ public class MiniBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(StatWithMultiplier(attackRecoverDuration, recoverDurationMultiplier));
 
+        //Debug.Log("ATTACK PROCESS ENDED");
+
         attackHitboxActive = false;
         alreadyAttacking = false;
 
@@ -503,6 +505,8 @@ public class MiniBossEnemyAI : BossAI
         StartCoroutine(SpawnSpikes());
 
         yield return new WaitForSeconds(StatWithMultiplier(heavyAttackRecoverDuration, recoverDurationMultiplier));
+
+        //Debug.Log("HEAVY ATTACK PROCESS ENDED");
 
         heavyAttackHitboxActive = false;
         alreadyHeavyAttacking = false;
@@ -604,21 +608,33 @@ public class MiniBossEnemyAI : BossAI
 
     private void CheckHealthLeft()
     {
-        //float currenthealth = characterStats.CurrentHealth;
+        if (!HealthCheck()) return;
 
-        if (HealthCheck())
-        {
-            //Debug.Log("Ha subido la dificultad | Current Health: " + currenthealth + " | Health Module: " + healthModule + " | Resultado: " + currenthealth % healthModule + " | Max Health: " + characterStats.MaxHealth);
-            alreadyMultiJumpAttacking = true;
-            difficultyLevel++;
-            ToConsecutiveJump();
-        }
+        StopAllCoroutines();
+
+        alreadyAttacking = false;
+        alreadyHeavyAttacking = false;
+        alreadyJumpAttacking = false;
+        waitingToAct = false;
+
+        alreadyMultiJumpAttacking = true;
+        difficultyLevel++;
+
+        ToConsecutiveJump();
     }
 
     private bool HealthCheck()
     {
         float currenthealth = characterStats.CurrentHealth;
-        return currenthealth % healthModule == 0 && currenthealth != characterStats.MaxHealth && currenthealth != 0;
+
+        if (currenthealth == characterStats.MaxHealth || currenthealth == 0)
+        {
+            return false;
+        }
+
+        float healthRemaining = currenthealth % healthModule;
+
+        return Mathf.Abs(healthRemaining) < 0.01f;
     }
 
     public override void ResetEnemy()

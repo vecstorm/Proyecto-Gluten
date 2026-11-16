@@ -11762,22 +11762,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 7027607547376839603, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
-      propertyPath: personalBubbleRadius
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7027607547376839603, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
-      propertyPath: collisionTags.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7027607547376839603, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
-      propertyPath: 'collisionTags.Array.data[0]'
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 7027607547376839603, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
-      propertyPath: 'collisionTags.Array.data[1]'
-      value: Ground
-      objectReference: {fileID: 0}
     - target: {fileID: 7104162806299584454, guid: 62a5f34835be00a4e822c2a6afa085cb, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.4922533

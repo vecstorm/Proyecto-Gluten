@@ -375,6 +375,7 @@ MonoBehaviour:
   playerDetectionLayer:
     serializedVersion: 2
     m_Bits: 136
+  targetTransform: {fileID: 0}
   horizontalKnockback: 1
   verticalKnockback: 1
   knockbackForce: 7
@@ -405,12 +406,15 @@ MonoBehaviour:
   projectileSpeed: 6
   attackCooldown: 1.7
   attackMinDistance: 6
+  collisionTags:
+  - Player
+  - Ground
   rammingDamage: 20
   healthToRam: 1
   rammingDelay: 1.5
   rammingSpeed: 15
   rammignTurnSpeed: 4
-  personalBubbleRadius: 4
+  personalBubbleRadius: 3
   transitableAreaRadius: 6
   minFloorDistance: 3
   maxFloorDistance: 7
