@@ -11,6 +11,8 @@ public class BossAreaController : MonoBehaviour
         {
             if (ownedBoss != null)
             {
+                Debug.Log("HA ENTRADO");
+
                 if (ownedBoss.IsDead())
                 {
                     return;
