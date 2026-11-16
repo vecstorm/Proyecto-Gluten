@@ -4,12 +4,13 @@ using UnityEngine;
 /// <summary>
 /// Define todos los estados en los que puede encontrarse el jugador.
 /// </summary>
-public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Crouch, Attack, Parry, Hurt, Dead }
+public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Attack, Parry, Hurt, Dead }
 
 /// <summary>
 /// Gestiona todo el control del jugador mediante una máquina de estados.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(PlayerInputs))]
 [RequireComponent(typeof(PlayerCombat))]
 [RequireComponent(typeof(PlayerHook))]
 [RequireComponent(typeof(CharacterStats))]
@@ -50,6 +51,11 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
 
     /// <summary>
+    /// Referencia al sistema de inputs del jugador.
+    /// </summary>
+    private PlayerInputs playerInputs;
+
+    /// <summary>
     /// Referencia al sistema de gancho del jugador.
     /// </summary>
     private PlayerHook playerHook;
@@ -63,60 +69,6 @@ public class PlayerController : MonoBehaviour
     /// Referencia al sistema de estadísticas del jugador.
     /// </summary>
     private CharacterStats characterStats;
-
-    #endregion
-
-    #region Inputs
-
-    /// <summary>
-    /// Referencia al sistema de inputs del jugador.
-    /// </summary>
-    private GlutenActionControls glutenActionControls;
-
-    /// <summary>
-    /// Dirección horizontal introducida por el jugador. Valores entre -1 y 1.
-    /// </summary>
-    private float movementDirection;
-
-    /// <summary>
-    /// Indica si se ha pulsado el salto durante este frame.
-    /// </summary>
-    private bool jumpPressed;
-
-    /// <summary>
-    /// Indica si se ha soltado el salto durante este frame.
-    /// </summary>
-    private bool jumpReleased;
-
-    /// <summary>
-    /// Indica si el jugador mantiene pulsado el botón de correr.
-    /// </summary>
-    private bool runPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado realizar un dash.
-    /// </summary>
-    private bool dashPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado usar el gancho.
-    /// </summary>
-    private bool hookPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado realizar un ataque.
-    /// </summary>
-    private bool attackPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado realizar un ataque a distancia.
-    /// </summary>
-    private bool rangedAttackPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado realizar un parry.
-    /// </summary>
-    private bool parryPressed;
 
     #endregion
 
@@ -144,6 +96,16 @@ public class PlayerController : MonoBehaviour
 
     [Tooltip("Indica si el jugador puede realizar un doble salto")]
     [SerializeField] private bool canDoubleJump;
+
+    [Header("Coyote Time")]
+
+    [Tooltip("Tiempo durante el que el jugador puede saltar después de abandonar el suelo")]
+    [SerializeField, Min(0f)] private float coyoteTimeDuration = 0.10f;
+
+    /// <summary>
+    /// Tiempo restante para poder realizar un salto después de abandonar el suelo.
+    /// </summary>
+    private float coyoteTimeTimer;
 
     #endregion
 
@@ -299,23 +261,19 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        glutenActionControls = new GlutenActionControls();
-
         characterStats = GetComponent<CharacterStats>();
 
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
+
+        if (playerInputs == null)
+            playerInputs = GetComponent<PlayerInputs>();
 
         if (playerHook == null)
             playerHook = GetComponent<PlayerHook>();
 
         if (playerCombat == null)
             playerCombat = GetComponent<PlayerCombat>();
-    }
-
-    private void OnEnable()
-    {
-        glutenActionControls.Enable();
     }
 
     private void Start()
@@ -329,7 +287,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        ReadInputs();
+        playerInputs.ReadInputs();
+
         UpdateFacingDirection();
     }
 
@@ -338,6 +297,7 @@ public class PlayerController : MonoBehaviour
         if (hurtTimer > 0f)
             hurtTimer -= Time.fixedDeltaTime;
 
+        playerInputs.UpdateInputBuffers();
         CheckGround();
         CheckWall();
 
@@ -366,18 +326,7 @@ public class PlayerController : MonoBehaviour
                 UpdateState();
         }
 
-        jumpPressed = false;
-        jumpReleased = false;
-        dashPressed = false;
-        hookPressed = false;
-        attackPressed = false;
-        rangedAttackPressed = false;
-        parryPressed = false;
-    }
-
-    private void OnDisable()
-    {
-        glutenActionControls.Disable();
+        playerInputs.ConsumeJumpRelease();
     }
 
     private void OnDrawGizmosSelected()
@@ -392,47 +341,16 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
-    #region Inputs
-
-    /// <summary>
-    /// Lee todos los inputs del jugador.
-    /// </summary>
-    private void ReadInputs()
-    {
-        movementDirection = glutenActionControls.Player.Move.ReadValue<Vector2>().x;
-
-        runPressed = glutenActionControls.Player.Sprint.IsPressed();
-
-        if (glutenActionControls.Player.Jump.WasPressedThisFrame())
-            jumpPressed = true;
-
-        if (glutenActionControls.Player.Jump.WasReleasedThisFrame())
-            jumpReleased = true;
-
-        if (glutenActionControls.Player.Dash.WasPressedThisFrame())
-            dashPressed = true;
-
-        if (glutenActionControls.Player.Hook.WasPressedThisFrame())
-            hookPressed = true;
-
-        if (glutenActionControls.Player.Attack.WasPressedThisFrame())
-            attackPressed = true;
-
-        if (glutenActionControls.Player.RangedAttack.WasPressedThisFrame())
-            rangedAttackPressed = true;
-
-        if (glutenActionControls.Player.Parry.WasPressedThisFrame())
-            parryPressed = true;
-    }
+    #region Direction
 
     /// <summary>
     /// Actualiza la dirección hacia la que mira el personaje.
     /// </summary>
     private void UpdateFacingDirection()
     {
-        if (movementDirection > 0)
+        if (playerInputs.MovementDirection > 0)
             facingDirection = 1;
-        else if (movementDirection < 0)
+        else if (playerInputs.MovementDirection < 0)
             facingDirection = -1;
 
         playerCombat?.SetFacingDirection(facingDirection);
@@ -496,19 +414,19 @@ public class PlayerController : MonoBehaviour
         switch (from)
         {
             case PlayerState.Idle:
-                return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Walk:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Run:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Jump:
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Airborne:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Jump, PlayerState.Run, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.DoubleJump:
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
@@ -526,13 +444,10 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Hook:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry);
-
-            case PlayerState.Crouch:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Attack, PlayerState.Hook, PlayerState.Dash, PlayerState.Parry);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Attack:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Crouch, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
 
             case PlayerState.Parry:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Attack);
@@ -589,7 +504,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    dashDirection = movementDirection;
+                    dashDirection = playerInputs.MovementDirection;
 
                     if (Mathf.Abs(dashDirection) < 0.01f)
                         dashDirection = facingDirection;
@@ -628,7 +543,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    direction = glutenActionControls.Player.Move.ReadValue<Vector2>();
+                    direction = playerInputs.MoveInput;
 
                     // Evitamos lanzar hacia abajo
                     direction.y = Mathf.Max(0f, direction.y);
@@ -711,12 +626,33 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void CheckGround()
     {
+        // Guardamos si el jugador estaba tocando el suelo en el paso anterior
+        bool wasGrounded = isGrounded;
+
+        // Comprobamos si sigue tocando el suelo
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
         if (isGrounded)
         {
+            // Recuperamos las habilidades al tocar el suelo
             canDash = true;
             canDoubleJump = true;
+
+            // Mientras estamos en el suelo, mantenemos el Coyote Time preparado.
+            coyoteTimeTimer = coyoteTimeDuration;
+        }
+        else
+        {
+            // Si acabamos de abandonar el suelo caminando o estando quietos, activamos la ventana de Coyote Time
+            if (wasGrounded && (currentState == PlayerState.Idle || currentState == PlayerState.Walk || currentState == PlayerState.Run))
+            {
+                coyoteTimeTimer = coyoteTimeDuration;
+            }
+            else if (coyoteTimeTimer > 0f)
+            {
+                // Reducimos el tiempo disponible mientras estamos en el aire
+                coyoteTimeTimer = Mathf.Max(0f, coyoteTimeTimer - Time.fixedDeltaTime);
+            }
         }
     }
 
@@ -788,10 +724,6 @@ public class PlayerController : MonoBehaviour
                 Hook();
                 break;
 
-            case PlayerState.Crouch:
-                Crouch();
-                break;
-
             case PlayerState.Attack:
                 Attack();
                 break;
@@ -815,9 +747,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void ChangeToGroundState()
     {
-        if (Mathf.Abs(movementDirection) > 0.01f)
+        if (Mathf.Abs(playerInputs.MovementDirection) > 0.01f)
         {
-            if (runPressed)
+            if (playerInputs.RunPressed)
                 ChangeState(PlayerState.Run);
             else
                 ChangeState(PlayerState.Walk);
@@ -846,11 +778,17 @@ public class PlayerController : MonoBehaviour
     /// </returns>
     private bool TryJump()
     {
-        if (!jumpPressed || !isGrounded)
+        if (!playerInputs.JumpPressed || (!isGrounded && coyoteTimeTimer <= 0f))
             return false;
 
-        jumpPressed = false;
-        ChangeState(PlayerState.Jump);
+        if (!ChangeState(PlayerState.Jump))
+            return false;
+
+        // Si hemos saltado desde el aire, consumimos el Coyote Time
+        if (!isGrounded)
+            coyoteTimeTimer = 0f;
+
+        playerInputs.ConsumeJumpInput();
 
         return true;
     }
@@ -863,17 +801,19 @@ public class PlayerController : MonoBehaviour
     /// </returns>
     private bool TryDash()
     {
-        if (!dashPressed || !canDash || dashCooldownTimer > 0)
+        if (!playerInputs.DashPressed || !canDash || dashCooldownTimer > 0)
             return false;
 
         if (!CanUseSkill("DASH"))
             return false;
+        
+        if (!ChangeState(PlayerState.Dash))
+            return false;
 
         canDash = false;
-        dashPressed = false;
         dashCooldownTimer = dashCooldown;
 
-        ChangeState(PlayerState.Dash);
+        playerInputs.ConsumeDashInput();
 
         return true;
     }
@@ -886,7 +826,7 @@ public class PlayerController : MonoBehaviour
     /// </returns>
     private bool TryHook()
     {
-        if (!hookPressed)
+        if (!playerInputs.HookPressed)
             return false;
 
         if (!CanUseSkill("GANCHO"))
@@ -895,32 +835,34 @@ public class PlayerController : MonoBehaviour
         if (!playerHook.CanFire)
             return false;
 
-        hookPressed = false;
+        if (!ChangeState(PlayerState.Hook))
+            return false;
 
-        ChangeState(PlayerState.Hook);
+        playerInputs.ConsumeHookInput();
 
         return true;
     }
 
     /// <summary>
-    /// Comprobamos si se pueden usar las habilidades mientras se lanza el gancho
+    /// Comprobamos si se pueden usar las habilidades mientras se lanza el gancho.
     /// </summary>
     private void CheckHookAbilities()
     {
         // Doble salto
-        if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
+        if (playerInputs.JumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
         {
-            jumpPressed = false;
-            canDoubleJump = false;
-
             playerHook.CancelHook();
 
-            ChangeState(PlayerState.DoubleJump);
-            return;
+            if (ChangeState(PlayerState.DoubleJump))
+            {
+                canDoubleJump = false;
+                playerInputs.ConsumeJumpInput();
+                return;
+            }
         }
 
         // Dash
-        if (dashPressed && canDash && dashCooldownTimer <= 0f && CanUseSkill("DASH"))
+        if (playerInputs.DashPressed && canDash && dashCooldownTimer <= 0f && CanUseSkill("DASH"))
         {
             playerHook.CancelHook();
 
@@ -937,34 +879,37 @@ public class PlayerController : MonoBehaviour
             return false;
 
         // El parry tiene prioridad si se pulsan ambos botones
-        if (parryPressed && characterStats.CanParry)
+        if (playerInputs.ParryPressed && characterStats.CanParry)
         {
-            parryPressed = false;
-            attackPressed = false;
-            rangedAttackPressed = false;
-
-            ChangeState(PlayerState.Parry);
-
-            return true;
+            if (ChangeState(PlayerState.Parry))
+            {
+                playerInputs.ConsumeParryInput();
+                playerInputs.ConsumeAttackInput();
+                playerInputs.ConsumeRangedAttackInput();
+            
+                return true;
+            }
         }
 
         // Ataque básico
-        if (attackPressed && playerCombat.CanAttack)
+        if (playerInputs.AttackPressed && playerCombat.CanAttack)
         {
-            attackPressed = false;
-            rangedAttackPressed = false;
+            if (ChangeState(PlayerState.Attack))
+            {
+                playerInputs.ConsumeAttackInput();
+                playerInputs.ConsumeRangedAttackInput();
 
-            ChangeState(PlayerState.Attack);
-
-            return true;
+                return true;
+            }
         }
 
         // Ataque a distancia
-        if (rangedAttackPressed)
+        if (playerInputs.RangedAttackPressed)
         {
-            rangedAttackPressed = false;
-
-            playerCombat.PerformRangedAttack();
+            if (playerCombat.PerformRangedAttack())
+            {
+                playerInputs.ConsumeRangedAttackInput();
+            }
         }
 
         return false;
@@ -981,22 +926,18 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Idle()
     {
-        // Calculamos la velocidad horizontal deseada.
+        // Calculamos la velocidad horizontal deseada
         float targetSpeed = 0f;
 
-        // Ajustamos progresivamente la velocidad horizontal.
-        float newSpeed = Mathf.MoveTowards(
-            rb.linearVelocity.x,
-            targetSpeed,
-            airborneAcceleration * Time.fixedDeltaTime
-        );
+        // Ajustamos progresivamente la velocidad horizontal
+        float newSpeed = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, airborneAcceleration * Time.fixedDeltaTime);
 
         rb.linearVelocity = new Vector2(newSpeed, rb.linearVelocity.y);
 
         // En cuanto se mueve, pasamos a estado de movimiento
-        if (Mathf.Abs(movementDirection) > 0.01f)
+        if (Mathf.Abs(playerInputs.MovementDirection) > 0.01f)
         {
-            if (runPressed)
+            if (playerInputs.RunPressed)
             {
                 ChangeState(PlayerState.Run);
                 return;
@@ -1024,16 +965,16 @@ public class PlayerController : MonoBehaviour
     private void Walk()
     {
         // Actualizamos velocidad lineal a walkSpeed en X
-        rb.linearVelocity = new Vector2(movementDirection * walkSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(playerInputs.MovementDirection * walkSpeed, rb.linearVelocity.y);
 
         // Si se deja de mover, pasamos a estado de reposo
-        if (Mathf.Abs(movementDirection) < 0.01f)
+        if (Mathf.Abs(playerInputs.MovementDirection) < 0.01f)
         {
             ChangeState(PlayerState.Idle);
             return;
         }
 
-        if (runPressed)
+        if (playerInputs.RunPressed)
         {
             ChangeState(PlayerState.Run);
             return;
@@ -1061,16 +1002,16 @@ public class PlayerController : MonoBehaviour
     private void Run()
     {
         // Actualizamos velocidad lineal a runSpeed en X
-        rb.linearVelocity = new Vector2(movementDirection * runSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(playerInputs.MovementDirection * runSpeed, rb.linearVelocity.y);
         
         // Si se deja de mover, pasamos a estado de reposo
-        if (Mathf.Abs(movementDirection) < 0.01f)
+        if (Mathf.Abs(playerInputs.MovementDirection) < 0.01f)
         {
             ChangeState(PlayerState.Idle);
             return;
         }
 
-        if (!runPressed)
+        if (!playerInputs.RunPressed)
         {
             ChangeState(PlayerState.Walk);
             return;
@@ -1092,14 +1033,6 @@ public class PlayerController : MonoBehaviour
             return;
     }
 
-    /// <summary>
-    /// Estado de agacharse.
-    /// </summary>
-    private void Crouch()
-    {
-        throw new NotImplementedException();
-    }
-
     #endregion
 
     #region Air States
@@ -1109,8 +1042,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Jump()
     {
-        jumpPressed = false;
-
         // Actualizamos velocidad lineal a jumpForce en Y
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
@@ -1122,35 +1053,35 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Airborne()
     {
-        // Calculamos la velocidad horizontal deseada.
-        float targetSpeed = movementDirection * airborneSpeed;
+        // Calculamos la velocidad horizontal deseada
+        float targetSpeed = playerInputs.MovementDirection * airborneSpeed;
 
-        // Ajustamos progresivamente la velocidad horizontal.
-        float newSpeed = Mathf.MoveTowards(
-            rb.linearVelocity.x,
-            targetSpeed,
-            airborneAcceleration * Time.fixedDeltaTime
-        );
+        // Ajustamos progresivamente la velocidad horizontal
+        float newSpeed = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, airborneAcceleration * Time.fixedDeltaTime);
 
         rb.linearVelocity = new Vector2(newSpeed, rb.linearVelocity.y);
 
         // Si se ha soltado el salto, bajamos antes
-        if (jumpReleased && rb.linearVelocity.y > 0)
+        if (playerInputs.JumpReleased && rb.linearVelocity.y > 0)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                rb.linearVelocity.y * 0.5f
-            );
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
 
-            jumpReleased = false;
+            playerInputs.ConsumeJumpRelease();
         }
 
-        // Si se ha presionado el salto en el aire, se puede realizar un doble salto y tenemos la habilidad, se ejecuta
-        if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
-        {
-            canDoubleJump = false;
-            ChangeState(PlayerState.DoubleJump);
+        // Intentamos realizar un salto normal mediante Coyote Time
+        if (!isGrounded && TryJump())
             return;
+
+        // Si se ha presionado el salto en el aire, se puede realizar un doble salto y tenemos la habilidad, se ejecuta
+        if (playerInputs.JumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
+        {
+            if (ChangeState(PlayerState.DoubleJump))
+            {
+                canDoubleJump = false;
+                playerInputs.ConsumeJumpInput();
+                return;
+            }
         }
 
         // Si estamos tocando la pared, no estamos en el suelo y tenemos la habilidad, hacemos wall grab
@@ -1179,8 +1110,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void DoubleJump()
     {
-        jumpPressed = false;
-
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
 
         ChangeState(PlayerState.Airborne);
@@ -1198,9 +1127,9 @@ public class PlayerController : MonoBehaviour
 
         rb.linearVelocity = Vector2.zero;
 
-        if (jumpPressed)
+        if (playerInputs.JumpPressed && ChangeState(PlayerState.WallJump))
         {
-            ChangeState(PlayerState.WallJump);
+            playerInputs.ConsumeJumpInput();
             return;
         }
 
@@ -1222,7 +1151,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (movementDirection != facingDirection)
+        if (playerInputs.MovementDirection != facingDirection)
         {
             ChangeState(PlayerState.WallSlide);
             return;
@@ -1246,9 +1175,9 @@ public class PlayerController : MonoBehaviour
 
         rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
 
-        if (jumpPressed)
+        if (playerInputs.JumpPressed && ChangeState(PlayerState.WallJump))
         {
-            ChangeState(PlayerState.WallJump);
+            playerInputs.ConsumeJumpInput();
             return;
         }
 
