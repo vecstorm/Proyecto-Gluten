@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class FinalBossEnemyAI : BossAI
 {
-    private enum BOSS_STATE { INTRO, IDLE, STUNNED, SLAMMING, PREPARING_RAIN, RAINING, PREPARING_CLAP, CLAPPING, PUNCHING };
+    private enum BOSS_STATE { INTRO, IDLE, STUNNED, SLAMMING, RAINING, PREPARING_CLAP, CLAPPING, PUNCHING };
 
     [SerializeField] private BOSS_STATE bossState;
     [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
@@ -23,6 +23,16 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float slamDelay = 0.6f;
     [SerializeField] private float slammingSpeed = 25f;
     [SerializeField] private float slamRecoveryDelay = 1.5f;
+
+    [Header("Raining Attack:")]
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private int minProjectiles = 15;
+    [SerializeField] private int maxProjectiles = 20;
+    [SerializeField] private float rainDelay = 1f;
+    [SerializeField] private float rainWaitDelay = 1f;
+    [SerializeField] private float projectileDelay = 0.4f;
+    [SerializeField] private float projectileHorizontalArea = 15f;
+    [SerializeField] private float projectileVerticalPosition = 10f;
 
     [Header("Clap Attack:")]
     [SerializeField] private float clapFollowDelay = 5f;
@@ -84,6 +94,7 @@ public class FinalBossEnemyAI : BossAI
                 break;
 
             case BOSS_STATE.RAINING:
+                OnRaining();
                 break;
 
             case BOSS_STATE.CLAPPING:
@@ -105,7 +116,8 @@ public class FinalBossEnemyAI : BossAI
         {
             //ToSlamming();
             //ToClapping();
-            ToPunching();
+            //ToPunching();
+            ToRaining();
         }
     }
 
@@ -118,6 +130,15 @@ public class FinalBossEnemyAI : BossAI
             rightArm.MoveToPosition(targetFollowPosition, handFollowingSpeed);
 
             lastTargetPosition = targetTransform.position;
+        }
+    }
+
+    private void OnRaining()
+    {
+        if (isFollowing)
+        {
+            rightArm.MoveToPosition(new Vector3(rightArm.transform.position.x - 0.5f, rightArm.transform.position.y + 2f, 0), handFollowingSpeed);
+            leftArm.MoveToPosition(new Vector3(leftArm.transform.position.x + 0.5f, leftArm.transform.position.y + 2f, 0), handFollowingSpeed);
         }
     }
 
@@ -150,6 +171,13 @@ public class FinalBossEnemyAI : BossAI
         }
         
         bossState = BOSS_STATE.SLAMMING;
+    }
+
+    private void ToRaining()
+    {
+        StartCoroutine(RainingProcess());
+
+        bossState = BOSS_STATE.RAINING;
     }
 
     private void ToClapping()
@@ -193,6 +221,29 @@ public class FinalBossEnemyAI : BossAI
         rightArm.transform.Rotate(new Vector3(0, 0, -90));
         rightArm.ReturnToOrigin();
         alreadySlamming = false;
+    }
+
+    private IEnumerator RainingProcess()
+    {
+        isFollowing = true;
+
+        rightArm.transform.Rotate(new Vector3(0, 0, 200f));
+        leftArm.transform.Rotate(new Vector3(0, 0, -200f));
+
+        yield return new WaitForSeconds(rainDelay);
+
+        isFollowing = false;
+
+        yield return new WaitForSeconds(rainWaitDelay);
+
+        for (int i = 0; i < Random.Range(minProjectiles, maxProjectiles); i++)
+        {
+            float horizontalPosition = Random.Range(bossArea.transform.position.x - projectileHorizontalArea, bossArea.transform.position.x + projectileHorizontalArea);
+
+            GameObject newProjectile = Instantiate(projectilePrefab, new Vector3(horizontalPosition, transform.position.y + projectileVerticalPosition, 0), Quaternion.identity);
+
+            yield return new WaitForSeconds(projectileDelay);
+        }
     }
 
     private IEnumerator ClappingProcess()
@@ -254,7 +305,7 @@ public class FinalBossEnemyAI : BossAI
         yield return new WaitForSeconds(punchRecoveryDelay);
 
         leftArm.ReturnToOrigin();
-        ToPunching();
+        //ToPunching();
     }
 
     private bool BothArmsCollided()
