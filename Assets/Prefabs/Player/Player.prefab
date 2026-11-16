@@ -140,6 +140,8 @@ GameObject:
   - component: {fileID: 1987180075707234818}
   - component: {fileID: 1393423254232799740}
   - component: {fileID: 6673116204880292418}
+  - component: {fileID: 2479640207932901459}
+  - component: {fileID: 5285546512350607583}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -312,34 +314,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   currentState: 0
   skillManager: {fileID: 0}
-  walkSpeed: 8
-  runSpeed: 10
-  airborneSpeed: 5
-  airborneAcceleration: 100
-  jumpForce: 16.5
-  doubleJumpForce: 14
-  canDoubleJump: 0
   hurtTimerDuration: 0.3
-  isGrounded: 0
-  groundCheck: {fileID: 1791381231280308761}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundCheckRadius: 0.2
-  isTouchingWall: 0
-  wallCheck: {fileID: 4854839456935298327}
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  wallCheckDistance: 0.6
-  dashSpeed: 20
-  dashDuration: 0.15
-  dashCooldown: 0.4
-  wallGrabDuration: 0.5
-  wallSlideMaxSpeed: 3
-  wallSlideAcceleration: 1.5
-  wallJumpForceX: 15
-  wallJumpForceY: 12
   hookMomentumDuration: 0.1
 --- !u!114 &4847488173561140254
 MonoBehaviour:
@@ -441,6 +416,65 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d815f24f2b6709e4c88733e7ea1a6d25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KeyDoorManager
+--- !u!114 &2479640207932901459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755780057282232126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7109036b281d0e849a402c51c8d983f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  walkSpeed: 8
+  runSpeed: 10
+  airborneSpeed: 5
+  airborneAcceleration: 100
+  jumpForce: 16.5
+  doubleJumpForce: 14
+  canDoubleJump: 0
+  coyoteTimeDuration: 0.1
+  isGrounded: 0
+  groundCheck: {fileID: 1791381231280308761}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  groundCheckRadius: 0.2
+  isTouchingWall: 0
+  wallCheck: {fileID: 4854839456935298327}
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  wallCheckDistance: 0.6
+  dashSpeed: 20
+  dashDuration: 0.15
+  dashCooldown: 0.4
+  canDash: 1
+  wallGrabDuration: 0.5
+  wallSlideMaxSpeed: 3
+  wallSlideAcceleration: 1.5
+  wallJumpForceX: 15
+  wallJumpForceY: 12
+--- !u!114 &5285546512350607583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755780057282232126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1941af1b8abaa8d4fa1205bd1bb3da2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputs
+  jumpBufferDuration: 0.12
+  dashBufferDuration: 0.12
+  hookBufferDuration: 0.12
+  attackBufferDuration: 0.12
+  rangedAttackBufferDuration: 0.12
+  parryBufferDuration: 0.1
 --- !u!1 &5582248330238213830
 GameObject:
   m_ObjectHideFlags: 0
