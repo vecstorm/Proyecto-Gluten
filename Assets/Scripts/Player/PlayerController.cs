@@ -195,6 +195,16 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Indica si el jugador puede realizar un doble salto")]
     [SerializeField] private bool canDoubleJump;
 
+    [Header("Coyote Time")]
+
+    [Tooltip("Tiempo durante el que el jugador puede saltar después de abandonar el suelo")]
+    [SerializeField, Min(0f)] private float coyoteTimeDuration = 0.10f;
+
+    /// <summary>
+    /// Tiempo restante para poder realizar un salto después de abandonar el suelo.
+    /// </summary>
+    private float coyoteTimeTimer;
+
     #endregion
 
     #region Hurt
@@ -553,7 +563,7 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Airborne:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Jump, PlayerState.Run, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.DoubleJump:
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
@@ -753,12 +763,33 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void CheckGround()
     {
+        // Guardamos si el jugador estaba tocando el suelo en el paso anterior
+        bool wasGrounded = isGrounded;
+
+        // Comprobamos si sigue tocando el suelo
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
         if (isGrounded)
         {
+            // Recuperamos las habilidades al tocar el suelo
             canDash = true;
             canDoubleJump = true;
+
+            // Mientras estamos en el suelo, mantenemos el Coyote Time preparado.
+            coyoteTimeTimer = coyoteTimeDuration;
+        }
+        else
+        {
+            // Si acabamos de abandonar el suelo caminando o estando quietos, activamos la ventana de Coyote Time
+            if (wasGrounded && (currentState == PlayerState.Idle || currentState == PlayerState.Walk || currentState == PlayerState.Run))
+            {
+                coyoteTimeTimer = coyoteTimeDuration;
+            }
+            else if (coyoteTimeTimer > 0f)
+            {
+                // Reducimos el tiempo disponible mientras estamos en el aire
+                coyoteTimeTimer = Mathf.Max(0f, coyoteTimeTimer - Time.fixedDeltaTime);
+            }
         }
     }
 
@@ -884,11 +915,15 @@ public class PlayerController : MonoBehaviour
     /// </returns>
     private bool TryJump()
     {
-        if (!jumpPressed || !isGrounded)
+        if (!jumpPressed || (!isGrounded && coyoteTimeTimer <= 0f))
             return false;
 
         if (!ChangeState(PlayerState.Jump))
             return false;
+
+        // Si hemos saltado desde el aire, consumimos el Coyote Time
+        if (!isGrounded)
+            coyoteTimeTimer = 0f;
 
         ConsumeJumpInput();
 
@@ -1240,28 +1275,25 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Airborne()
     {
-        // Calculamos la velocidad horizontal deseada.
+        // Calculamos la velocidad horizontal deseada
         float targetSpeed = movementDirection * airborneSpeed;
 
-        // Ajustamos progresivamente la velocidad horizontal.
-        float newSpeed = Mathf.MoveTowards(
-            rb.linearVelocity.x,
-            targetSpeed,
-            airborneAcceleration * Time.fixedDeltaTime
-        );
+        // Ajustamos progresivamente la velocidad horizontal
+        float newSpeed = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, airborneAcceleration * Time.fixedDeltaTime);
 
         rb.linearVelocity = new Vector2(newSpeed, rb.linearVelocity.y);
 
         // Si se ha soltado el salto, bajamos antes
         if (jumpReleased && rb.linearVelocity.y > 0)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                rb.linearVelocity.y * 0.5f
-            );
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
 
             jumpReleased = false;
         }
+
+        // Intentamos realizar un salto normal mediante Coyote Time
+        if (!isGrounded && TryJump())
+            return;
 
         // Si se ha presionado el salto en el aire, se puede realizar un doble salto y tenemos la habilidad, se ejecuta
         if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
