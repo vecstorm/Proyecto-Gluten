@@ -3976,7 +3976,7 @@ MonoBehaviour:
   contactDamage: 10
   introTime: 2
   handFollowingSpeed: 15
-  handBeneathDistance: 7
+  slamHandBeneathDistance: 7
   slamFollowDelay: 3
   anticipationDistance: 2
   slamDelay: 0.1
@@ -3985,9 +3985,11 @@ MonoBehaviour:
   clapFollowDelay: 5
   handHorizontalDistance: 13
   punchWarning: {fileID: 561017133050389988, guid: f94e666ceeb544d43a12d2dad36a55ed, type: 3}
+  punchingSpeed: 30
   punchDelay: 1
+  punchHandBeneathDistance: 10
   warningDelay: 0.4
-  punchRecoveryDelay: 1
+  punchRecoveryDelay: 0.5
 --- !u!50 &477719139
 Rigidbody2D:
   serializedVersion: 5

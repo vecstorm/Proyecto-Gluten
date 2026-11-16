@@ -24,7 +24,7 @@ public class FinalBossHand : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (returning)
+        if (returning && !isBusy)
         {
             rb.MovePosition(Vector3.MoveTowards(transform.position, originPoint.position, returningSpeed * Time.fixedDeltaTime));
 
@@ -37,16 +37,20 @@ public class FinalBossHand : MonoBehaviour
 
     public void ReturnToOrigin()
     {
+        armCollided = false;
         returning = true;
+        isBusy = false;
     }
 
     public void MoveToPosition(Vector3 targetPosition, float speed)
     {
+        isBusy = true;
         rb.MovePosition(Vector3.MoveTowards(transform.position, targetPosition, speed * Time.fixedDeltaTime));
     }
 
     public void MoveToDirection(Vector3 targetDirection, float speed)
     {
+        isBusy = true;
         rb.linearVelocity = targetDirection * speed;
     }
 
@@ -57,6 +61,8 @@ public class FinalBossHand : MonoBehaviour
             Debug.Log("COLLIDED AND STOPPED");
             return;
         }
+
+        isBusy = true;
 
         rb.linearVelocity = targetDirection * speed;
     }

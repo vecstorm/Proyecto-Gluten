@@ -17,7 +17,7 @@ public class FinalBossEnemyAI : BossAI
 
     [Header("Slam Attack:")]
     [SerializeField] private float handFollowingSpeed = 15f;
-    [SerializeField] private float handBeneathDistance = 7f;
+    [SerializeField] private float slamHandBeneathDistance = 7f;
     [SerializeField] private float slamFollowDelay = 3f;
     [SerializeField] private float anticipationDistance = 2f;
     [SerializeField] private float slamDelay = 0.6f;
@@ -30,7 +30,9 @@ public class FinalBossEnemyAI : BossAI
 
     [Header("Punch Attack:")]
     [SerializeField] private GameObject punchWarning;
+    [SerializeField] private float punchingSpeed = 30f;
     [SerializeField] private float punchDelay = 1f;
+    [SerializeField] private float punchHandBeneathDistance = 10f;
     [SerializeField] private float warningDelay = 0.4f;
     [SerializeField] private float punchRecoveryDelay = 1f;
 
@@ -111,7 +113,7 @@ public class FinalBossEnemyAI : BossAI
     {
         if (isFollowing)
         {
-            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + (handBeneathDistance + anticipation), targetTransform.position.z);
+            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + (slamHandBeneathDistance + anticipation), targetTransform.position.z);
 
             rightArm.MoveToPosition(targetFollowPosition, handFollowingSpeed);
 
@@ -132,7 +134,7 @@ public class FinalBossEnemyAI : BossAI
     {
         if (isFollowing)
         {
-            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + 10f, targetTransform.position.z);
+            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + punchHandBeneathDistance, targetTransform.position.z);
 
             leftArm.MoveToPosition(targetFollowPosition, slammingSpeed);
 
@@ -245,13 +247,14 @@ public class FinalBossEnemyAI : BossAI
 
         leftArm.transform.Rotate(new Vector3(0, 0, -180));
 
-        leftArm.MoveTillCollision(targetSlamDirection, slammingSpeed);
+        leftArm.MoveTillCollision(targetSlamDirection, punchingSpeed);
 
         yield return new WaitUntil(() => leftArm.ArmCollided);
 
         yield return new WaitForSeconds(punchRecoveryDelay);
 
         leftArm.ReturnToOrigin();
+        ToPunching();
     }
 
     private bool BothArmsCollided()
