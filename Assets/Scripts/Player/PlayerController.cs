@@ -106,6 +106,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private int facingDirection = 1;
 
+    [SerializeField] private Transform spriteTransform;
+
     #endregion
 
     #endregion
@@ -193,8 +195,19 @@ public class PlayerController : MonoBehaviour
         else if (playerInputs.MovementDirection < 0)
             facingDirection = -1;
 
+        UpdateSpriteDirection();
+
         playerCombat?.SetFacingDirection(facingDirection);
         characterStats?.SetFacingDirection(facingDirection);
+    }
+
+    private void UpdateSpriteDirection()
+    {
+        Vector3 scale = spriteTransform.localScale;
+
+        scale.x = Mathf.Abs(scale.x) * facingDirection;
+
+        spriteTransform.localScale = scale;
     }
 
     #endregion
