@@ -38,7 +38,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float runSpeed = 10f;
 
     [Tooltip("Control horizontal en el aire")]
-    [SerializeField] private float airborneSpeed = 5f;
+    [SerializeField] private float airborneSpeed = 8f;
+
+    [Tooltip("Velocidad horizontal actual permitida en el aire")]
+    private float currentAirborneSpeed;
 
     [Tooltip("Aceleración horizontal del jugador en el aire")]
     [SerializeField] private float airborneAcceleration = 100f;
@@ -51,6 +54,10 @@ public class PlayerMovement : MonoBehaviour
 
     [Tooltip("Indica si el jugador puede realizar un doble salto")]
     [SerializeField] private bool canDoubleJump;
+
+    public float WalkSpeed => walkSpeed;
+
+    public float RunSpeed => runSpeed;
 
     public bool CanDoubleJump => canDoubleJump;
 
@@ -197,6 +204,8 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         originalGravity = rb.gravityScale;
+
+        currentAirborneSpeed = airborneSpeed;
     }
 
     #endregion
@@ -358,7 +367,7 @@ public class PlayerMovement : MonoBehaviour
     public void ApplyAirborneMovement(float movementDirection)
     {
         // Calculamos la velocidad horizontal deseada y la ajustamos progresivamente
-        float targetSpeed = movementDirection * airborneSpeed;
+        float targetSpeed = movementDirection * currentAirborneSpeed;
 
         float newSpeed = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, airborneAcceleration * Time.fixedDeltaTime);
 
@@ -374,6 +383,15 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
         }
+    }
+
+    /// <summary>
+    /// Establece la velocidad horizontal permitida en el aire.
+    /// </summary>
+    /// <param name="speed">Velocidad a establecer</param>
+    public void SetAirborneSpeed(float speed)
+    {
+        currentAirborneSpeed = speed;
     }
 
     #endregion

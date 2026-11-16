@@ -332,6 +332,21 @@ public class PlayerController : MonoBehaviour
     {
         switch (state)
         {
+            // Aplicamos velocidad en el aire según de que estado vengamos
+            case PlayerState.Jump:
+
+                playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
+                break;
+
+            case PlayerState.Airborne:
+
+                // Si hemos caído directamente desde Walk o Run, conservamos la velocidad del estado anterior
+                if (previousState == PlayerState.Walk || previousState == PlayerState.Run)
+                {
+                    playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
+                }
+                break;
+
             // Definimos timer, dirección y desactivamos la gravedad
             case PlayerState.Dash:
 

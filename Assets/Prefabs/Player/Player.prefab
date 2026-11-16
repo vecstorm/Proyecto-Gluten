@@ -428,9 +428,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7109036b281d0e849a402c51c8d983f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  speed: 0
   walkSpeed: 8
   runSpeed: 10
-  airborneSpeed: 5
+  airborneSpeed: 8
   airborneAcceleration: 100
   jumpForce: 16.5
   doubleJumpForce: 14
