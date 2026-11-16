@@ -34,6 +34,8 @@ public class ProjectileEnemyAI : EnemyAI
 
     private float timer;
 
+    #region MAIN LOOP
+
     private void Awake()
     {
         InitializeBasicComponents();
@@ -102,6 +104,10 @@ public class ProjectileEnemyAI : EnemyAI
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, personalBubbleRadius);
     }
+
+    #endregion
+
+    #region STATE BEHAVIOUR
 
     private void OnPatrol()
     {
@@ -244,6 +250,10 @@ public class ProjectileEnemyAI : EnemyAI
         }
     }
 
+    #endregion
+
+    #region STATE TRANSITION
+
     private void ToPatrol()
     {
         Debug.Log("Changed to PATROL");
@@ -296,6 +306,10 @@ public class ProjectileEnemyAI : EnemyAI
         state = ENEMY_STATE.DEAD;
         gameObject.SetActive(false);
     }
+
+    #endregion
+
+    #region STATE CONDITION
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -364,4 +378,6 @@ public class ProjectileEnemyAI : EnemyAI
         externalMovement = Vector3.zero;
         characterStats.FullHeal();
     }
+
+    #endregion
 }
