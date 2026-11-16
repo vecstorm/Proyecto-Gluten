@@ -20899,7 +20899,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.9250001, y: 0.9005234}
   m_AnchorMax: {x: 0.9250001, y: 0.9005234}
-  m_AnchoredPosition: {x: 0.00012207031, y: -1.0001831}
+  m_AnchoredPosition: {x: 0, y: -1.0002441}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &748612899
@@ -50635,6 +50635,7 @@ GameObject:
   - component: {fileID: 1710739312}
   - component: {fileID: 1710739314}
   - component: {fileID: 1710739313}
+  - component: {fileID: 1710739315}
   m_Layer: 5
   m_Name: UpgradePanel
   m_TagString: Untagged
@@ -50704,6 +50705,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1710739311}
   m_CullTransparentMesh: 1
+--- !u!114 &1710739315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710739311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc52fa70ebc6fe3418837813c5851f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthUpgradeMenu
+  healthContainer: {fileID: 1334177682}
+  attackContainer: {fileID: 766678664}
+  healthPointPrefab: {fileID: 2104668982839525214, guid: 6e8870b16e9458e4faf4fcf9167d26f6, type: 3}
+  attackPointPrefab: {fileID: 2104668982839525214, guid: 6e8870b16e9458e4faf4fcf9167d26f6, type: 3}
+  upgradeButtonPrefab: {fileID: 6724926786978463667, guid: 537017b7eb8d2bf4d848e5d455f4051c, type: 3}
+  playerCombat: {fileID: 1943521440}
+  characterStats: {fileID: 891664998}
 --- !u!1001 &1713887274
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -57880,6 +57900,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1941af1b8abaa8d4fa1205bd1bb3da2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputs
+--- !u!114 &1943521440 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8003488418989509812, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
+  m_PrefabInstance: {fileID: 1943521436}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e12d958adf197494c8783d68bd261f7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
 --- !u!1 &1945638528
 GameObject:
   m_ObjectHideFlags: 0

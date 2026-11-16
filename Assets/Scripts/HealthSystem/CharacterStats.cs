@@ -11,7 +11,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     [Header("Configuración de Vida")]
     [SerializeField] private float maxHealth = 10;
     [SerializeField] private float currentHealth;
-    [SerializeField] private HelthUpgradeMenu healthUI;
+    [SerializeField] private HealthUpgradeMenu healthUI;
 
 
     [Header("Configuración de Estamina / Magia")]
@@ -121,7 +121,8 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public void AddHealthUpgradeToken()
     {
         healthUpgradeTokens++;
-    }
+		Debug.Log("Ficha añadida. Total: " + healthUpgradeTokens);
+	}
 
     public bool UseHealthUpgradeToken()
     {
@@ -134,12 +135,17 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         return true;
     }
 
-    /// <summary>
-    /// Recibe daño a través del contrato común de combate.
-    /// </summary>
-    /// <param name="damage">Daño a recibir</param>
-    /// <returns>Devuelve false si el impacto no se ha aplicado.</returns>
-    public bool ReceiveDamage(CombatDamage damage)
+	public void IncreaseMaxHealth(float amount)
+	{
+		maxHealth += amount;
+	}
+
+	/// <summary>
+	/// Recibe daño a través del contrato común de combate.
+	/// </summary>
+	/// <param name="damage">Daño a recibir</param>
+	/// <returns>Devuelve false si el impacto no se ha aplicado.</returns>
+	public bool ReceiveDamage(CombatDamage damage)
     {
         if (currentHealth <= 0f || damage.Amount <= 0f)
             return false;
