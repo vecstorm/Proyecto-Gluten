@@ -287,6 +287,11 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnRamming()
     {
+        if (!colorFlashing)
+        {
+            ChangeColor(Color.red);
+        }
+        
         timer += Time.fixedDeltaTime;
 
         Vector3 targetDirection = (targetTransform.position - transform.position).normalized;

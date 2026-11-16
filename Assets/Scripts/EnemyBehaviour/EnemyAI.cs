@@ -35,6 +35,7 @@ public abstract class EnemyAI : MonoBehaviour
     protected bool isDead = false;
     protected Color rendererColor;
     protected bool tryiedFlipAirborne = false;
+    protected bool colorFlashing = false;
 
     protected Vector3 localMovement;
     protected Vector3 externalMovement;
@@ -84,6 +85,8 @@ public abstract class EnemyAI : MonoBehaviour
 
     private IEnumerator FlashSequence()
     {
+        colorFlashing = true;
+
         SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
 
         foreach (SpriteRenderer renderer in renderers)
@@ -97,6 +100,8 @@ public abstract class EnemyAI : MonoBehaviour
         {
             renderer.color = rendererColor;
         }
+
+        colorFlashing = false;
     }
 
     protected bool ObstacleBlocksTarget(Vector3 targetPosition, float distance)
@@ -125,6 +130,16 @@ public abstract class EnemyAI : MonoBehaviour
         foreach (SpriteRenderer renderer in renderers)
         {
             renderer.color = rendererColor;
+        }
+    }
+
+    protected void ChangeColor(Color newColor)
+    {
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            renderer.color = newColor;
         }
     }
 
