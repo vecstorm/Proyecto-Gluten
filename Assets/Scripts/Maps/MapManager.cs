@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using System.Collections.Generic;
 
 public class MapManager : MonoBehaviour
 { 
@@ -13,12 +14,15 @@ public class MapManager : MonoBehaviour
 
     private GameObject[] Map_Images;
 
+    // Esto guarda todas las zonas que haya
+    private List<int> unlockedZones = new List<int>();
+
     // Unica instancia del MapManager en todo el juego
     public static MapManager Instance;
 
     private void Awake()
     {
-        // Si ya hay un MapManager activo, este se destruye pero le pasa su zona
+        // Si ya hay un MapManager activo, este se destruye pero le pasa su ID
         if (Instance != null && Instance != this)
         {
             // El Canvas de esta escena sobra, el de la zona anterior sigue vivo
@@ -36,22 +40,22 @@ public class MapManager : MonoBehaviour
 
         Instance = this;
 
-        // Mantener el MapManager entre escenas
+        // Mantenemos el MapManager entre las escenas
         DontDestroyOnLoad(gameObject);
 
-        // Si el Canvas asignado es el prefab y no una instancia de la escena, lo creamos
+        // Si el canvas es asignado un prefab y no una instancia, lo creamos
         if (!MapCanva.scene.IsValid())
         {
             MapCanva = Instantiate(MapCanva);
         }
 
-        // Para poder mantener el Canvas entre escenas tiene que ser un objeto raiz
+        // Sera una raiz principal para poder mantenerlo entre las escenas
         if (MapCanva.transform.parent != null)
         {
             MapCanva.transform.SetParent(null, false);
         }
 
-        // Mantener el Canvas entre escenas
+        // Para que no destruya el canva
         DontDestroyOnLoad(MapCanva);
 
         // Si el Canvas tiene escala 0 no se ve, lo arreglamos
@@ -74,51 +78,50 @@ public class MapManager : MonoBehaviour
 
     private void Start()
     {
-        // Buscar automaticamente las imagenes del Canvas
+        // Buscamos automaticamente las imagenes del Canvas
         CollectImages();
 
-        // Mostrar la imagen de la zona actual
+        // Mostramos la imagen de la zona actual
         SetZone(Map_ID);
     }
 
-    // Buscar las imagenes de las zonas que hay dentro del Canvas
+    // Buscamos las imagenes de las zonas que hay dentro del Canvas
     private void CollectImages()
     {
         Map_Images = MapCanva.GetComponentsInChildren<Image>(true).Select(img => img.gameObject).Where(obj => obj != MapCanva).ToArray();
     }
 
-    // Muestra en el mapa la imagen de la zona indicada y oculta las demas
+    // Mostramos en el mapa la zona indicada, dejando las desbloqueadas
     public void SetZone(int zone)
     {
         // El mapa esta siempre visible
         MapCanva.SetActive(true);
 
-        // Si todavia no hemos buscado las imagenes, las buscamos
+        // Si todavia no tenemos las imagenes, las buscamos
         if (Map_Images == null)
         {
             CollectImages();
         }
 
-        // Ocultar todas las imagenes
+        // Si la zona no estaba desbloqueada, la desbloqueamos
+        if (!unlockedZones.Contains(zone))
+        {
+            unlockedZones.Add(zone);
+        }
+
+        // Mostramos las imagenes de las zonas desbloqueadas y ocultamos las demas
         foreach (GameObject image in Map_Images)
         {
             if (image != null)
             {
-                image.SetActive(false);
+                image.SetActive(unlockedZones.Any(id => image.name == "Zona" + id));
             }
         }
 
-        // Buscar la imagen de la zona por su nombre (Zona1, Zona2...)
-        foreach (GameObject image in Map_Images)
+        // Avisamos si esa zona no tiene imagen en el mapa
+        if (!Map_Images.Any(image => image != null && image.name == "Zona" + zone))
         {
-            if (image != null && image.name == "Zona" + zone)
-            {
-                image.SetActive(true);
-
-                return;
-            }
+            Debug.LogWarning($"No hay imagen para la zona {zone}", this);
         }
-
-        Debug.LogWarning($"No hay imagen para la zona {zone}", this);
     }
 }
