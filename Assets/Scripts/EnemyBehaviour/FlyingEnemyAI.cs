@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System.Linq;
 
 public class FlyingEnemyAI : EnemyAI
 {
@@ -34,6 +35,7 @@ public class FlyingEnemyAI : EnemyAI
     [SerializeField] private float attackMinDistance = 6f;
 
     [Header("Ramming:")]
+    [SerializeField] private string[] collisionTags;
     [SerializeField] private int rammingDamage = 20;
     [SerializeField] private int healthToRam = 3;
     [SerializeField] private float rammingDelay = 1f;
@@ -433,7 +435,7 @@ public class FlyingEnemyAI : EnemyAI
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
         }
 
-        if (state == ENEMY_STATE.RAMMING)
+        if (state == ENEMY_STATE.RAMMING && collisionTags.Contains(collision.tag))
         {
             characterStats.Death();
         }
