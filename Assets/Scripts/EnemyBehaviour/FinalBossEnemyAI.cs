@@ -97,7 +97,6 @@ public class FinalBossEnemyAI : BossAI
 
         if (timer <= 0)
         {
-            //ToPreparingSlam();
             ToSlamming();
         }
     }
@@ -124,6 +123,8 @@ public class FinalBossEnemyAI : BossAI
     {
         isFollowing = true;
 
+        rightArm.transform.Rotate(new Vector3(0, 0, 90));
+
         yield return new WaitForSeconds(followDelay);
 
         Vector3 targetSlamDirection = (lastTargetPosition - rightArm.transform.position).normalized;
@@ -142,6 +143,7 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(slamRecoveryDelay);
 
+        rightArm.transform.Rotate(new Vector3(0, 0, -90));
         rightArm.ReturnToOrigin();
     }
 
