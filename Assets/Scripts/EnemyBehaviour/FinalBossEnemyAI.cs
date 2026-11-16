@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class FinalBossEnemyAI : BossAI
 {
-    private enum BOSS_STATE { INTRO, IDLE, STUNNED, SLAMMING, PREPARING_RAIN, RAINING, PREPARING_CLAP, CLAPPING, PREPARING_PUNCH, PUNCHING };
+    private enum BOSS_STATE { INTRO, IDLE, STUNNED, SLAMMING, PREPARING_RAIN, RAINING, PREPARING_CLAP, CLAPPING, PUNCHING };
 
     [SerializeField] private BOSS_STATE bossState;
     [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
@@ -18,14 +18,25 @@ public class FinalBossEnemyAI : BossAI
     [Header("Slam Attack:")]
     [SerializeField] private float handFollowingSpeed = 15f;
     [SerializeField] private float handBeneathDistance = 7f;
-    [SerializeField] private float followDelay = 3f;
+    [SerializeField] private float slamFollowDelay = 3f;
     [SerializeField] private float anticipationDistance = 2f;
     [SerializeField] private float slamDelay = 0.6f;
     [SerializeField] private float slammingSpeed = 25f;
     [SerializeField] private float slamRecoveryDelay = 1.5f;
 
+    [Header("Clap Attack:")]
+    [SerializeField] private float clapFollowDelay = 5f;
+    [SerializeField] private float handHorizontalDistance = 10f;
+
+    [Header("Punch Attack:")]
+    [SerializeField] private GameObject punchWarning;
+    [SerializeField] private float punchDelay = 1f;
+    [SerializeField] private float warningDelay = 0.4f;
+    [SerializeField] private float punchRecoveryDelay = 1f;
+
     private float anticipation = 0f;
 
+    private bool alreadySlamming = false;
     private bool isFollowing;
 
     private float timer = 1f;
@@ -70,22 +81,15 @@ public class FinalBossEnemyAI : BossAI
                 OnSlamming();
                 break;
 
-            case BOSS_STATE.PREPARING_RAIN:
-                break;
-
             case BOSS_STATE.RAINING:
                 break;
 
-            case BOSS_STATE.PREPARING_CLAP:
-                break;
-
             case BOSS_STATE.CLAPPING:
-                break;
-
-            case BOSS_STATE.PREPARING_PUNCH:
+                OnClapping();
                 break;
 
             case BOSS_STATE.PUNCHING:
+                OnPunching();
                 break;
         }
     }
@@ -97,7 +101,9 @@ public class FinalBossEnemyAI : BossAI
 
         if (timer <= 0)
         {
-            ToSlamming();
+            //ToSlamming();
+            //ToClapping();
+            ToPunching();
         }
     }
 
@@ -113,10 +119,49 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
+    private void OnClapping()
+    {
+        if (isFollowing)
+        {
+            rightArm.MoveToPosition(new Vector3(transform.position.x + handHorizontalDistance, rightArm.transform.position.y, 0), handFollowingSpeed);
+            leftArm.MoveToPosition(new Vector3(transform.position.x - handHorizontalDistance, leftArm.transform.position.y, 0), handFollowingSpeed);
+        }
+    }
+
+    private void OnPunching()
+    {
+        if (isFollowing)
+        {
+            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + 10f, targetTransform.position.z);
+
+            leftArm.MoveToPosition(targetFollowPosition, slammingSpeed);
+
+            lastTargetPosition = targetTransform.position;
+        }
+    }
+
     private void ToSlamming()
     {
-        StartCoroutine(SlamProcess());
+        if (!alreadySlamming)
+        {
+            StartCoroutine(SlamProcess());
+        }
+        
         bossState = BOSS_STATE.SLAMMING;
+    }
+
+    private void ToClapping()
+    {
+        StartCoroutine(ClappingProcess());
+
+        bossState = BOSS_STATE.CLAPPING;
+    }
+
+    private void ToPunching()
+    {
+        StartCoroutine(PunchingProcess());
+
+        bossState = BOSS_STATE.PUNCHING;
     }
 
     private IEnumerator SlamProcess()
@@ -125,7 +170,7 @@ public class FinalBossEnemyAI : BossAI
 
         rightArm.transform.Rotate(new Vector3(0, 0, 90));
 
-        yield return new WaitForSeconds(followDelay);
+        yield return new WaitForSeconds(slamFollowDelay);
 
         Vector3 targetSlamDirection = (lastTargetPosition - rightArm.transform.position).normalized;
 
@@ -145,6 +190,73 @@ public class FinalBossEnemyAI : BossAI
 
         rightArm.transform.Rotate(new Vector3(0, 0, -90));
         rightArm.ReturnToOrigin();
+        alreadySlamming = false;
+    }
+
+    private IEnumerator ClappingProcess()
+    {
+        isFollowing = true;
+
+        rightArm.transform.Rotate(new Vector3(0, 0, 180));
+        leftArm.transform.Rotate(new Vector3(0, 0, 180));
+
+        yield return new WaitForSeconds(slamFollowDelay);
+
+        isFollowing = false;
+
+        //rightArm.MoveTillCollision((leftArm.transform.position - rightArm.transform.position).normalized, slammingSpeed);
+        //leftArm.MoveTillCollision((rightArm.transform.position - leftArm.transform.position).normalized, slammingSpeed);
+
+        yield return new WaitForSeconds(0);
+
+        rightArm.transform.Rotate(new Vector3(0, 0, -180));
+        leftArm.transform.Rotate(new Vector3(0, 0, -180));
+        rightArm.ReturnToOrigin();
+        leftArm.ReturnToOrigin();
+    }
+
+    private IEnumerator PunchingProcess()
+    {
+        isFollowing = true;
+
+        leftArm.transform.Rotate(new Vector3(0, 0, 180));
+
+        yield return new WaitForSeconds(punchDelay);
+
+        isFollowing = false;
+
+        Vector3 targetSlamDirection = (lastTargetPosition - leftArm.transform.position).normalized;
+
+        RaycastHit2D hit = Physics2D.Raycast(lastTargetPosition, Vector3.down, 8f, groundLayer);
+
+        GameObject warning = null;
+
+        if (hit.collider != null)
+        {
+            warning = Instantiate(punchWarning, hit.point, Quaternion.identity);
+        }
+
+        yield return new WaitForSeconds(warningDelay);
+
+        if (warning != null)
+        {
+            Destroy(warning);
+        }
+
+        leftArm.transform.Rotate(new Vector3(0, 0, -180));
+
+        leftArm.MoveTillCollision(targetSlamDirection, slammingSpeed);
+
+        yield return new WaitUntil(() => leftArm.ArmCollided);
+
+        yield return new WaitForSeconds(punchRecoveryDelay);
+
+        leftArm.ReturnToOrigin();
+    }
+
+    private bool BothArmsCollided()
+    {
+        return rightArm.ArmCollided && leftArm.ArmCollided;
     }
 
     public override void ResetEnemy()
