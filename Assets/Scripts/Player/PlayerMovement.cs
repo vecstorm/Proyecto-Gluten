@@ -46,6 +46,12 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Aceleración horizontal del jugador en el aire")]
     [SerializeField] private float airborneAcceleration = 100f;
 
+    [Tooltip("Multiplicador de gravedad durante la caída")]
+    [SerializeField, Min(1f)] private float fallGravityMultiplier = 2f;
+
+    [Tooltip("Velocidad vertical máxima durante la caída")]
+    [SerializeField, Min(0f)] private float maxFallSpeed = 15f;
+
     [Tooltip("Fuerza aplicada al salto")]
     [SerializeField] private float jumpForce = 16.5f;
 
@@ -347,6 +353,8 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     public void ApplyJump()
     {
+        rb.gravityScale = originalGravity;
+
         // Actualizamos velocidad lineal a jumpForce en Y
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
     }
@@ -356,6 +364,8 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     public void ApplyDoubleJump()
     {
+        rb.gravityScale = originalGravity;
+
         // Actualizamos velocidad lineal a doubleJumpForce en Y
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
     }
@@ -366,7 +376,20 @@ public class PlayerMovement : MonoBehaviour
     /// <param name="movementDirection">Dirección del jugador</param>
     public void ApplyAirborneMovement(float movementDirection)
     {
-        // Calculamos la velocidad horizontal deseada y la ajustamos progresivamente
+        // Ajustamos la gravedad dependiendo de si ascendemos o descendemos
+        if (rb.linearVelocity.y < 0f)
+        {
+            rb.gravityScale = originalGravity * fallGravityMultiplier;
+
+            // Limitamos la velocidad máxima de caída
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -maxFallSpeed));
+        }
+        else
+        {
+            rb.gravityScale = originalGravity;
+        }
+
+        // Control horizontal en el aire
         float targetSpeed = movementDirection * currentAirborneSpeed;
 
         float newSpeed = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, airborneAcceleration * Time.fixedDeltaTime);
