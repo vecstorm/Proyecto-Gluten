@@ -64,6 +64,7 @@ public class FlyingEnemyAI : EnemyAI
 
     private float timer;
     private float attackTimer;
+    private bool isRamming = false;
 
     private bool lostTarget = false;
 
@@ -296,6 +297,8 @@ public class FlyingEnemyAI : EnemyAI
 
             //rb.linearVelocity = rammingDirection * rammingSpeed;
             localMovement = rammingDirection * rammingSpeed;
+
+            isRamming = true;
         }
         else
         {
@@ -426,18 +429,19 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collisionTags.Contains(collision.tag))
         {
             // Limpia los objetivos del ataque anterior
             hitTargets.Clear();
 
             CombatDamage damage = new CombatDamage(state == ENEMY_STATE.RAMMING ? rammingDamage : contactDamage, characterStats, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
-        }
 
-        if (state == ENEMY_STATE.RAMMING && collisionTags.Contains(collision.tag))
-        {
-            characterStats.Death();
+            if (state == ENEMY_STATE.RAMMING && isRamming)
+            {
+                characterStats.Death();
+                isRamming = false;
+            }
         }
     }
 
