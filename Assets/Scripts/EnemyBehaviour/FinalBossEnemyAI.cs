@@ -19,9 +19,12 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float handFollowingSpeed = 15f;
     [SerializeField] private float handBeneathDistance = 7f;
     [SerializeField] private float followDelay = 3f;
+    [SerializeField] private float anticipationDistance = 2f;
     [SerializeField] private float slamDelay = 0.6f;
     [SerializeField] private float slammingSpeed = 25f;
     [SerializeField] private float slamRecoveryDelay = 1.5f;
+
+    private float anticipation = 0f;
 
     private bool isFollowing;
 
@@ -103,7 +106,7 @@ public class FinalBossEnemyAI : BossAI
     {
         if (isFollowing)
         {
-            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + handBeneathDistance, targetTransform.position.z);
+            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + (handBeneathDistance + anticipation), targetTransform.position.z);
 
             rightArm.MoveToPosition(targetFollowPosition, handFollowingSpeed);
 
@@ -124,9 +127,12 @@ public class FinalBossEnemyAI : BossAI
         yield return new WaitForSeconds(followDelay);
 
         Vector3 targetSlamDirection = (lastTargetPosition - rightArm.transform.position).normalized;
-        rightArm.MoveToDirection(-targetSlamDirection, handFollowingSpeed);
+
+        anticipation = anticipationDistance;
 
         yield return new WaitForSeconds(slamDelay);
+
+        anticipation = 0;
 
         isFollowing = false;
 
@@ -136,7 +142,7 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(slamRecoveryDelay);
 
-        Debug.Log("RETURNING TO POSITION");
+        rightArm.ReturnToOrigin();
     }
 
     public override void ResetEnemy()

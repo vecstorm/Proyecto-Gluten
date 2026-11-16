@@ -1,25 +1,45 @@
+using TMPro;
 using UnityEngine;
 
 [RequireComponent (typeof(Rigidbody2D))]
 public class FinalBossHand : MonoBehaviour
 {
+    [SerializeField] private Transform originPoint;
+
     private bool isBusy = false;
 
     private Rigidbody2D rb;
 
     private bool armCollided = false;
+    private bool returning = false;
+
+    private float returningSpeed = 20f;
 
     public bool ArmCollided => armCollided;
-
-    private Vector3 originPosition;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-
-        originPosition = transform.position;
     }
-    
+
+    private void FixedUpdate()
+    {
+        if (returning)
+        {
+            rb.MovePosition(Vector3.MoveTowards(transform.position, originPoint.position, returningSpeed * Time.fixedDeltaTime));
+
+            if (Vector3.Distance(transform.position, originPoint.position) <= 0.01f)
+            {
+                returning = false;
+            }
+        }
+    }
+
+    public void ReturnToOrigin()
+    {
+        returning = true;
+    }
+
     public void MoveToPosition(Vector3 targetPosition, float speed)
     {
         rb.MovePosition(Vector3.MoveTowards(transform.position, targetPosition, speed * Time.fixedDeltaTime));
