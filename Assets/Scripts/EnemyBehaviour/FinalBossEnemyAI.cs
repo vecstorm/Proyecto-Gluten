@@ -176,6 +176,8 @@ public class FinalBossEnemyAI : BossAI
         {
             ResetArmour();
             DisarmBoss(false);
+            rightArm.SetColliderActive(true);
+            leftArm.SetColliderActive(true);
             ToPunching();
         }
     }
@@ -196,8 +198,8 @@ public class FinalBossEnemyAI : BossAI
     {
         if (isFollowing)
         {
-            rightArm.MoveToPosition(new Vector3(rightArm.transform.position.x - 0.5f, rightArm.transform.position.y + 2f, 0), handFollowingSpeed);
-            leftArm.MoveToPosition(new Vector3(leftArm.transform.position.x + 0.5f, leftArm.transform.position.y + 2f, 0), handFollowingSpeed);
+            rightArm.MoveToPosition(new Vector3(rightArm.transform.position.x, transform.position.y + 2f, 0), handFollowingSpeed);
+            leftArm.MoveToPosition(new Vector3(leftArm.transform.position.x, transform.position.y + 2f, 0), handFollowingSpeed);
         }
     }
 
@@ -231,9 +233,11 @@ public class FinalBossEnemyAI : BossAI
         timer = stunnedTime;
 
         rightArm.ReturnToOrigin();
-        leftArm.ReturnToOrigin();
         rightArm.ResetRotation();
+        rightArm.SetColliderActive(false);
+        leftArm.ReturnToOrigin();
         leftArm.ResetRotation();
+        leftArm.SetColliderActive(false);
 
         DisarmBoss(true);
         state = BOSS_STATE.STUNNED;

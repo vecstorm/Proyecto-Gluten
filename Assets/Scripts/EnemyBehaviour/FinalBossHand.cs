@@ -15,6 +15,8 @@ public class FinalBossHand : MonoBehaviour
     private bool returning = false;
     private bool colorFlashing = false;
 
+    private CapsuleCollider2D damageCollider;
+
     private Vector3 spawnRotation;
 
     private float returningSpeed = 20f;
@@ -26,6 +28,8 @@ public class FinalBossHand : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         spawnRotation = transform.rotation.eulerAngles;
+
+        damageCollider = GetComponent<CapsuleCollider2D>();
     }
 
     private void FixedUpdate()
@@ -76,6 +80,11 @@ public class FinalBossHand : MonoBehaviour
         isBusy = true;
 
         rb.linearVelocity = targetDirection * speed;
+    }
+
+    public void SetColliderActive(bool value)
+    {
+        damageCollider.enabled = value;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
