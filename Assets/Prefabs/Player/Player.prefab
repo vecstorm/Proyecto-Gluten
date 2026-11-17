@@ -302,9 +302,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   basicAttackDamage: 1
-  basicAttackRange: 2
+  basicAttackDistance: 1
+  basicAttackRadius: 1
   basicAttackCooldown: 0.3
   basicAttackDuration: 0.2
+  attackIndicatorPrefab: {fileID: 7393363216913042194, guid: eb0d7e5226adf6c438a3410d4f3b878a, type: 3}
   projectilePrefab: {fileID: 398024231849982175, guid: 05457ca6e73de5c469da7f58f0e8e195, type: 3}
   projectileSpawnPoint: {fileID: 4854839456935298327}
   rangedAttackCooldown: 5
