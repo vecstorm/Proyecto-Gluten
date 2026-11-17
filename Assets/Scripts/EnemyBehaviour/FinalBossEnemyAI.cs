@@ -7,9 +7,11 @@ public class FinalBossEnemyAI : BossAI
 {
     private enum BOSS_STATE { INTRO, IDLE, STUNNED, SLAMMING, RAINING, PREPARING_CLAP, CLAPPING, PUNCHING };
 
-    [SerializeField] private BOSS_STATE bossState;
-    [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
+    [Header("States:")]
+    [SerializeField] private BOSS_STATE state;
+    [SerializeField] private BOSS_STATE defaultState;
 
+    [Header("Arms:")]
     [SerializeField] private FinalBossHand leftArm;
     [SerializeField] private FinalBossHand rightArm;
 
@@ -49,6 +51,9 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float warningDelay = 0.4f;
     [SerializeField] private float punchRecoveryDelay = 1f;
 
+    [Header("Difficulty:")]
+    [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
+
     private float anticipation = 0f;
 
     private bool alreadySlamming = false;
@@ -58,13 +63,14 @@ public class FinalBossEnemyAI : BossAI
 
     private Vector3 lastTargetPosition;
 
-    private BOSS_STATE defaultBossState;
+
+    #region MAIN LOOP
 
     private void Awake()
     {
         InitializeBasicComponents();
 
-        defaultBossState = bossState;
+        defaultState = state;
     }
 
     private void Start()
@@ -80,7 +86,7 @@ public class FinalBossEnemyAI : BossAI
             return;
         }
 
-        switch (bossState)
+        switch (state)
         {
             case BOSS_STATE.INTRO:
                 OnIntro();
@@ -109,6 +115,10 @@ public class FinalBossEnemyAI : BossAI
                 break;
         }
     }
+
+    #endregion
+
+    #region STATE BEHAVIOUR
 
     // Comportamiento en estado INTRO
     private void OnIntro()
@@ -166,6 +176,10 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
+    #endregion
+
+    #region STATE TRANSITION
+
     private void ToSlamming()
     {
         if (!alreadySlamming)
@@ -173,29 +187,33 @@ public class FinalBossEnemyAI : BossAI
             StartCoroutine(SlamProcess());
         }
         
-        bossState = BOSS_STATE.SLAMMING;
+        state = BOSS_STATE.SLAMMING;
     }
 
     private void ToRaining()
     {
         StartCoroutine(RainingProcess());
 
-        bossState = BOSS_STATE.RAINING;
+        state = BOSS_STATE.RAINING;
     }
 
     private void ToClapping()
     {
         StartCoroutine(ClappingProcess());
 
-        bossState = BOSS_STATE.CLAPPING;
+        state = BOSS_STATE.CLAPPING;
     }
 
     private void ToPunching()
     {
         StartCoroutine(PunchingProcess());
 
-        bossState = BOSS_STATE.PUNCHING;
+        state = BOSS_STATE.PUNCHING;
     }
+
+    #endregion
+
+    #region STATE CONDITION
 
     private IEnumerator SlamProcess()
     {
@@ -350,4 +368,6 @@ public class FinalBossEnemyAI : BossAI
     {
         
     }
+
+    #endregion
 }

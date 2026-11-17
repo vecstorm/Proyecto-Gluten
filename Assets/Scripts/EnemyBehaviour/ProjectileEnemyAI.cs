@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ProjectileEnemyAI : EnemyAI
+public class ProjectileEnemyAI : TroopAI
 {
     [Header("Target Detection:")]
     [SerializeField] private float personalBubbleRadius = 7f;

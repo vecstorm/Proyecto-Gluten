@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PatrolEnemyAI : EnemyAI
+public class PatrolEnemyAI : TroopAI
 {
     [Header("Movement:")]
     [SerializeField] private float speed = 2f;

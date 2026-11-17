@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using System.Linq;
 
-public class FlyingEnemyAI : EnemyAI
+public class FlyingEnemyAI : TroopAI
 {
     [Header("Target Detection:")]
     [SerializeField] private float areaRadius = 10f;

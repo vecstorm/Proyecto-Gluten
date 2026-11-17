@@ -6,8 +6,9 @@ public class MiniBossEnemyAI : BossAI
 {
     private enum BOSS_STATE { INTRO, IDLE, ATTACK, HEAVY_ATTACK, PREPARING_JUMP, JUMP_ATTACK };
 
-    [SerializeField] private BOSS_STATE bossState;
-    [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
+    [Header("States:")]
+    [SerializeField] private BOSS_STATE state;
+    [SerializeField] private BOSS_STATE defaultState;
 
     [Header("Intro / Idle:")]
     [SerializeField] private int contactDamage = 10;
@@ -56,6 +57,7 @@ public class MiniBossEnemyAI : BossAI
 
     [Header("Difficulty:")]
     [SerializeField] private int difficultyLevel = 0;
+    [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
     [SerializeField][Range(-1f, 0f)] private float delayMultiplier = -0.3f;
     [SerializeField][Range(-1f, 0f)] private float recoverDurationMultiplier = -0.4f;
     [SerializeField][Range(0f, 1f)] private float attackMovementDurationMultiplier = 0.2f;
@@ -63,7 +65,6 @@ public class MiniBossEnemyAI : BossAI
 
     private BOSS_STATE lastAttackState;
 
-    private BOSS_STATE defaultBossState;
 
     private int multiAttackCount = 0;
     private int multiJumpCount = 0;
@@ -93,7 +94,7 @@ public class MiniBossEnemyAI : BossAI
     {
         InitializeBasicComponents();
 
-        defaultBossState = bossState;
+        defaultState = state;
     }
 
     private void Start()
@@ -124,13 +125,13 @@ public class MiniBossEnemyAI : BossAI
     {
         if (!bossActive)
         {
-            bossState = defaultBossState;
+            state = defaultState;
             rb.linearVelocity = Vector3.zero;
             transform.position = new Vector3(spawnPosition.x, transform.position.y);
             return;
         }
 
-        switch (bossState)
+        switch (state)
         {
             case BOSS_STATE.INTRO:
                 OnIntro();
@@ -303,21 +304,21 @@ public class MiniBossEnemyAI : BossAI
     private void ToIdle()
     {
         ResetMultiActionCount();
-        bossState = BOSS_STATE.IDLE;
+        state = BOSS_STATE.IDLE;
     }
 
     // Comportamiento de transición a ATTACK
     private void ToAttack()
     {
         if (PlayerBehind() != invertedDirection) Flip();
-        bossState = BOSS_STATE.ATTACK;
-        lastAttackState = bossState;
+        state = BOSS_STATE.ATTACK;
+        lastAttackState = state;
     }
 
     // Comportamiento de transición a PREPARING_JUMP
     private void ToPreparingJump()
     {
-        bossState = BOSS_STATE.PREPARING_JUMP;
+        state = BOSS_STATE.PREPARING_JUMP;
     }
 
     // Comportamiento de transición a JUMP_ATTACK
@@ -328,8 +329,8 @@ public class MiniBossEnemyAI : BossAI
         jumpStartPosition = transform.position;
         jumpLandingPosition = new Vector3(targetTransform.position.x, transform.position.y, transform.position.z);
 
-        bossState = BOSS_STATE.JUMP_ATTACK;
-        lastAttackState = bossState;
+        state = BOSS_STATE.JUMP_ATTACK;
+        lastAttackState = state;
     }
 
     // Comportamiento de transición a ATTACK consecutivamente
@@ -369,8 +370,8 @@ public class MiniBossEnemyAI : BossAI
     private void ToHeavyAttack()
     {
         if (PlayerBehind() != invertedDirection) Flip();
-        bossState = BOSS_STATE.HEAVY_ATTACK;
-        lastAttackState = bossState;
+        state = BOSS_STATE.HEAVY_ATTACK;
+        lastAttackState = state;
     }
 
     #endregion
@@ -384,7 +385,7 @@ public class MiniBossEnemyAI : BossAI
         if (collision.CompareTag("Player"))
         {
             hitTargets.Clear();
-            CombatDamage damage = new CombatDamage(bossState != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, characterStats, false);
+            CombatDamage damage = new CombatDamage(state != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, characterStats, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
         }
     }
@@ -511,7 +512,7 @@ public class MiniBossEnemyAI : BossAI
         heavyAttackHitboxActive = false;
         alreadyHeavyAttacking = false;
 
-        bossState = BOSS_STATE.IDLE;
+        state = BOSS_STATE.IDLE;
     }
 
     // Tiempo de espera para pasar al estado JUMP_ATTACK
@@ -668,7 +669,7 @@ public class MiniBossEnemyAI : BossAI
         externalMovement = Vector3.zero;
         isDead = false;
         bossActive = false;
-        bossState = defaultBossState;
+        state = defaultState;
         characterStats.FullHeal();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);

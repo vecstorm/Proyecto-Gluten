@@ -2,7 +2,7 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 
-public class MeleeEnemyAI : EnemyAI
+public class MeleeEnemyAI : TroopAI
 {
     [Header("Movement:")]
     [SerializeField] protected float speed = 2f;
