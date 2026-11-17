@@ -19,6 +19,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private FinalBossHand leftArm;
     [SerializeField] private FinalBossHand rightArm;
     [SerializeField] private GameObject hookPoints;
+    [SerializeField] private GameObject neck;
     [SerializeField] private GameObject head;
     [SerializeField] private GameObject helmet;
 
@@ -140,6 +141,11 @@ public class FinalBossEnemyAI : BossAI
             case BOSS_STATE.PUNCHING:
                 OnPunching();
                 break;
+        }
+
+        if (TargetBehind(targetTransform.position))
+        {
+            FlipObject(neck);
         }
     }
 
@@ -455,6 +461,13 @@ public class FinalBossEnemyAI : BossAI
     private void ResetArmour()
     {
         currentArmourHealth = maxArmourHealth;
+    }
+
+    private void FlipObject(GameObject objectToFlip)
+    {
+        invertedDirection = !invertedDirection;
+
+        objectToFlip.transform.Rotate(0, 180, 0);
     }
 
     public override void ResetEnemy()
