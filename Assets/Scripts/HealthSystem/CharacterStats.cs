@@ -59,16 +59,15 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     [Header("Parry")]
 
     [Tooltip("Duración de la ventana durante la que el jugador puede realizar un parry")]
-    [SerializeField, Min(0f)] private float parryWindow = 0.15f;
+    [SerializeField, Min(0f)] private float parryWindow = 0.3f;
 
     [Tooltip("Tiempo que debe pasar antes de poder iniciar otro parry")]
-    [SerializeField, Min(0f)] private float parryCooldown = 0.5f;
+    [SerializeField, Min(0f)] private float parryCooldown = 1f;
 
     /// <summary>
     /// Indica si el jugador puede iniciar otro parry.
     /// </summary>
     public bool CanParry => parryCooldownTimer <= 0f;
-
 
     /// <summary>
     /// Indica si el jugador está realizando un parry.

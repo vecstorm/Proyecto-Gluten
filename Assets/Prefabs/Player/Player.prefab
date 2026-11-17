@@ -261,7 +261,9 @@ MonoBehaviour:
   parryColor: {r: 0, g: 1, b: 1, a: 1}
   parryHitPrefab: {fileID: 7992703544160865770, guid: 080997daaacf47242b22901b245bcaf1, type: 3}
   parryHitOffset: {x: 0.5, y: 1, z: 0}
-  parryHitDuration: 0.3
+  parryHitDuration: 0.5
+  damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  damageFlashInterval: 0.05
 --- !u!114 &4847488173561140254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,7 +284,7 @@ MonoBehaviour:
   pullSpeed: 20
   cooldown: 1
   maxHookTravelTime: 2
-  homingRadius: 6
+  homingRadius: 10
   collisionLayer:
     serializedVersion: 2
     m_Bits: 72
@@ -308,7 +310,7 @@ MonoBehaviour:
   basicAttackDamage: 1
   basicAttackDistance: 1
   basicAttackRadius: 1
-  basicAttackCooldown: 0.3
+  basicAttackCooldown: 0.5
   basicAttackDuration: 0.2
   attackIndicatorPrefab: {fileID: 7393363216913042194, guid: eb0d7e5226adf6c438a3410d4f3b878a, type: 3}
   projectilePrefab: {fileID: 398024231849982175, guid: 05457ca6e73de5c469da7f58f0e8e195, type: 3}
@@ -335,7 +337,7 @@ MonoBehaviour:
   staminaRegenRate: 15
   canTakeDamage: 1
   parryWindow: 0.3
-  parryCooldown: 0.5
+  parryCooldown: 1
   currentXp: 0
   knockbackForce: 12
 --- !u!114 &1393423254232799740

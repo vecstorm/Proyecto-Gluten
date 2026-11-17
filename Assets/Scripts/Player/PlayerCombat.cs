@@ -45,7 +45,7 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField, Min(0f)] private float basicAttackRadius = 1f;
 
     [Tooltip("Tiempo que debe pasar entre dos ataques básicos")]
-    [SerializeField, Min(0f)] private float basicAttackCooldown = 0.3f;
+    [SerializeField, Min(0f)] private float basicAttackCooldown = 0.5f;
 
     [Tooltip("Tiempo de duración de la detección del ataque")]
     [SerializeField, Min(0f)] private float basicAttackDuration = 0.2f;

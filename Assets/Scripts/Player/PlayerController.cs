@@ -133,7 +133,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector3 parryHitOffset = new Vector3(0.5f, 1f, 0f);
 
     [Tooltip("Tiempo que permanece visible el indicador")]
-    [SerializeField, Min(0f)] private float parryHitDuration = 0.3f;
+    [SerializeField, Min(0f)] private float parryHitDuration = 0.5f;
 
     /// <summary>
     /// Instancia de la representación visual del parry exitoso.
@@ -144,6 +144,29 @@ public class PlayerController : MonoBehaviour
     /// Temporizador de la representación visual del parry exitoso.
     /// </summary>
     private float parryHitTimer;
+
+    [Header("Damage Visual")]
+
+    [Tooltip("Color que adquiere el personaje al recibir daño")]
+    [SerializeField] private Color damageFlashColor = Color.red;
+
+    [Tooltip("Intervalo entre cambios de color")]
+    [SerializeField, Min(0.01f)] private float damageFlashInterval = 0.05f;
+
+    /// <summary>
+    /// Tiempo restante del parpadeo.
+    /// </summary>
+    private float damageFlashTimer;
+
+    /// <summary>
+    /// Tiempo restante hasta el siguiente cambio de color.
+    /// </summary>
+    private float damageFlashIntervalTimer;
+
+    /// <summary>
+    /// Indica si el personaje debe mostrar el color de daño.
+    /// </summary>
+    private bool damageFlashActive;
 
     #endregion
 
@@ -198,6 +221,7 @@ public class PlayerController : MonoBehaviour
         UpdateFacingDirection();
 
         UpdateParryHit();
+        UpdateDamageFlash();
     }
 
     private void FixedUpdate()
@@ -481,6 +505,8 @@ public class PlayerController : MonoBehaviour
 
                 playerMovement.StopMovement();
                 hurtTimer = hurtTimerDuration;
+                StartDamageFlash();
+
                 break;
         }
     }
@@ -824,6 +850,53 @@ public class PlayerController : MonoBehaviour
         {
             parryHitTimer = 0f;
             parryHitInstance.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Inicia el parpadeo visual cuando el jugador recibe daño.
+    /// </summary>
+    private void StartDamageFlash()
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+            return;
+
+        damageFlashTimer = hurtTimerDuration;
+        damageFlashIntervalTimer = 0f;
+
+        // Comenzamos mostrando el color de daño.
+        damageFlashActive = true;
+        SetSpriteColor(damageFlashColor);
+    }
+
+    /// <summary>
+    /// Actualiza el parpadeo visual mientras permanece activo.
+    /// </summary>
+    private void UpdateDamageFlash()
+    {
+        if (damageFlashTimer <= 0f)
+            return;
+
+        damageFlashTimer -= Time.deltaTime;
+        damageFlashIntervalTimer -= Time.deltaTime;
+
+        // Cambiamos entre el color original y el color de daño.
+        if (damageFlashIntervalTimer <= 0f)
+        {
+            damageFlashActive = !damageFlashActive;
+
+            SetSpriteColor(damageFlashActive ? damageFlashColor : originalSpriteColor);
+
+            damageFlashIntervalTimer = damageFlashInterval;
+        }
+
+        // Al finalizar, restauramos el color original.
+        if (damageFlashTimer <= 0f)
+        {
+            damageFlashTimer = 0f;
+            damageFlashActive = false;
+
+            RestoreSpriteColor();
         }
     }
 
