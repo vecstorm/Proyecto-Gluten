@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 public class FinalBossEnemyAI : BossAI
@@ -33,6 +35,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float projectileDelay = 0.4f;
     [SerializeField] private float projectileHorizontalArea = 15f;
     [SerializeField] private float projectileVerticalPosition = 10f;
+    [SerializeField] private float minProjectileDistance = 3f;
 
     [Header("Clap Attack:")]
     [SerializeField] private float clapFollowDelay = 5f;
@@ -236,9 +239,39 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(rainWaitDelay);
 
-        for (int i = 0; i < Random.Range(minProjectiles, maxProjectiles); i++)
+        List<float> usedPositions = new List<float>();
+
+        int projectileQuantity = Random.Range(minProjectiles, maxProjectiles);
+
+        for (int i = 0; i < projectileQuantity; i++)
         {
-            float horizontalPosition = Random.Range(bossArea.transform.position.x - projectileHorizontalArea, bossArea.transform.position.x + projectileHorizontalArea);
+            float horizontalPosition = 0;
+            bool validPosition = false;
+            int placingAttempts = 0;
+            
+            while (!validPosition && placingAttempts < 20)
+            {
+                placingAttempts++;
+
+                horizontalPosition = Random.Range(targetTransform.position.x - projectileHorizontalArea, targetTransform.position.x + projectileHorizontalArea);
+
+                validPosition = true;
+
+                foreach (float position in usedPositions)
+                {
+                    if (Mathf.Abs(horizontalPosition - position) < minProjectileDistance)
+                    {
+                        validPosition = false;
+                    }
+                }
+            }
+
+            if (!validPosition)
+            {
+                continue;
+            }
+
+            usedPositions.Add(horizontalPosition);
 
             GameObject newProjectile = Instantiate(projectilePrefab, new Vector3(horizontalPosition, transform.position.y + projectileVerticalPosition, 0), Quaternion.identity);
 

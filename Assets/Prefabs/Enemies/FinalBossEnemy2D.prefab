@@ -683,8 +683,9 @@ MonoBehaviour:
   rainDelay: 1
   rainWaitDelay: 1
   projectileDelay: 0.4
-  projectileHorizontalArea: 15
+  projectileHorizontalArea: 10
   projectileVerticalPosition: 10
+  minProjectileDistance: 2
   clapFollowDelay: 5
   handHorizontalDistance: 13
   punchWarning: {fileID: 561017133050389988, guid: f94e666ceeb544d43a12d2dad36a55ed, type: 3}
