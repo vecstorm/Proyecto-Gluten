@@ -27,6 +27,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public event Action OnDeath; // Se dispara al llegar a 0 de vida
     public event Action OnDamageTaken;
     public event Action OnStunApplied;
+    public event Action OnParrySuccess;
 
     public float CurrentHealth => currentHealth;
     public float CurrentStamina => currentStamina;
@@ -227,6 +228,9 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         // Consume inmediatamente la ventana para impedir que un mismo parry
         // neutralice varios ataques.
         EndParry();
+
+        // Notifica que el parry se ha realizado correctamente
+        OnParrySuccess?.Invoke();
 
         // Parry contra proyectiles:
         // intenta localizar un componente que implemente IReflectableProjectile

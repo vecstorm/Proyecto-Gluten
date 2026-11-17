@@ -99,14 +99,51 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
-    #region Orientation
+    #region Orientation and Sprite
 
     /// <summary>
     /// Dirección hacia la que mira el personaje. 1 = derecha, -1 = izquierda. 
     /// </summary>
     private int facingDirection = 1;
 
+    [Header("Sprite")]
+
+    [Tooltip("Transform del sprite del personaje")]
     [SerializeField] private Transform spriteTransform;
+
+    [Header("Parry Visual")]
+
+    [Tooltip("Color del personaje mientras realiza un parry")]
+    [SerializeField] private Color parryColor = Color.cyan;
+
+    /// <summary>
+    /// Renderer del sprite del personaje.
+    /// </summary>
+    private SpriteRenderer[] spriteRenderers;
+
+    /// <summary>
+    /// Color original del sprite del personaje.
+    /// </summary>
+    private Color originalSpriteColor;
+
+    [Tooltip("Prefab que aparece cuando se realiza un parry exitoso")]
+    [SerializeField] private GameObject parryHitPrefab;
+
+    [Tooltip("Posición del indicador respecto al jugador")]
+    [SerializeField] private Vector3 parryHitOffset = new Vector3(0.5f, 1f, 0f);
+
+    [Tooltip("Tiempo que permanece visible el indicador")]
+    [SerializeField, Min(0f)] private float parryHitDuration = 0.3f;
+
+    /// <summary>
+    /// Instancia de la representación visual del parry exitoso.
+    /// </summary>
+    private GameObject parryHitInstance;
+
+    /// <summary>
+    /// Temporizador de la representación visual del parry exitoso.
+    /// </summary>
+    private float parryHitTimer;
 
     #endregion
 
@@ -129,6 +166,24 @@ public class PlayerController : MonoBehaviour
 
         if (playerCombat == null)
             playerCombat = GetComponent<PlayerCombat>();
+
+        if (spriteTransform != null)
+        {
+            spriteRenderers = spriteTransform.GetComponentsInChildren<SpriteRenderer>(true);
+
+            if (spriteRenderers.Length > 0)
+                originalSpriteColor = spriteRenderers[0].color;
+        }
+
+        if (parryHitPrefab != null)
+        {
+            parryHitInstance = Instantiate(parryHitPrefab, transform);
+
+            parryHitInstance.transform.localPosition = parryHitOffset;
+            parryHitInstance.SetActive(false);
+        }
+
+        characterStats.OnParrySuccess += ShowParryHit;
     }
 
     private void Start()
@@ -141,6 +196,8 @@ public class PlayerController : MonoBehaviour
         playerInputs.ReadInputs();
 
         UpdateFacingDirection();
+
+        UpdateParryHit();
     }
 
     private void FixedUpdate()
@@ -179,6 +236,12 @@ public class PlayerController : MonoBehaviour
         }
 
         playerInputs.ConsumeJumpRelease();
+    }
+
+    private void OnDestroy()
+    {
+        if (characterStats != null)
+            characterStats.OnParrySuccess -= ShowParryHit;
     }
 
     #endregion
@@ -410,6 +473,8 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Parry:
 
                 characterStats.BeginParry();
+                SetSpriteColor(parryColor);
+
                 break;
 
             case PlayerState.Hurt:
@@ -442,6 +507,8 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Parry:
 
                 characterStats.EndParry();
+                RestoreSpriteColor();
+
                 break;
         }
     }
@@ -699,6 +766,65 @@ public class PlayerController : MonoBehaviour
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Aplica un color a todos los sprites del personaje.
+    /// </summary>
+    private void SetSpriteColor(Color color)
+    {
+        if (spriteRenderers == null)
+            return;
+
+        foreach (SpriteRenderer renderer in spriteRenderers)
+        {
+            if (renderer != null)
+                renderer.color = color;
+        }
+    }
+
+    /// <summary>
+    /// Restaura el color original de todos los sprites del personaje.
+    /// </summary>
+    private void RestoreSpriteColor()
+    {
+        if (spriteRenderers == null)
+            return;
+
+        foreach (SpriteRenderer renderer in spriteRenderers)
+        {
+            if (renderer != null)
+                renderer.color = originalSpriteColor;
+        }
+    }
+
+    /// <summary>
+    /// Muestra el indicador visual al realizar un parry exitoso.
+    /// </summary>
+    private void ShowParryHit()
+    {
+        if (parryHitInstance == null)
+            return;
+
+        parryHitTimer = parryHitDuration;
+        parryHitInstance.SetActive(true);
+    }
+
+    /// <summary>
+    /// Controla cuánto tiempo permanece visible el indicador.
+    /// </summary>
+    private void UpdateParryHit()
+    {
+        if (parryHitTimer <= 0f)
+            return;
+
+        parryHitTimer -= Time.deltaTime;
+
+        if (parryHitTimer <= 0f)
+        {
+            parryHitTimer = 0f;
+            parryHitInstance.SetActive(false);
+        }
     }
 
     #endregion
