@@ -78,8 +78,21 @@ public class MapManager : MonoBehaviour
 
     private void Start()
     {
+        // Buscamos al jugador de ESTA MISMA ESCENA DONDE ESTA(con cada escena lo pasa)
+        GameObject player = GameObject.FindWithTag("Player");
+
+        // Aunque el juagdor no este en la Escena ocultamos el mapa IGUALMENTE
+        if (player == null && Instance != null)
+            Instance.MapCanva.SetActive(false);
+
+        // El MapManager de las demás zonas solo avisan si el jugador esta en esa zona o no
         if (Instance != this)
+        {
+            if (player != null)
+                Instance.SetZone(Map_ID);
+
             return;
+        }
 
         // Buscamos automaticamente las imagenes del Canvas
         CollectImages();
@@ -90,6 +103,10 @@ public class MapManager : MonoBehaviour
 
         // Mostramos la imagen de la zona actual
         //SetZone(Map_ID);
+
+        // Si empezamos en una escena con jugador, desbloqueamos su zona
+        if (player != null)
+            SetZone(Map_ID);
     }
 
     // Buscamos las imagenes de las zonas que hay dentro del Canvas
@@ -102,7 +119,7 @@ public class MapManager : MonoBehaviour
     public void SetZone(int zone)
     {
         // El mapa esta siempre visible
-        MapCanva.SetActive(true);
+        MapCanva.SetActive(false);
 
         // Si todavia no tenemos las imagenes, las buscamos
         if (Map_Images == null)
@@ -132,14 +149,9 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    // El jugador cuando entra en la zona nueva se desbloqueamos su ID y aparece en el mapa
-    private void OnTriggerEnter2D(Collider2D other)
+    // OPCIONAL: Es de manera más simple para poder llamar a la función y solo poner su input
+    public void HabilityMap()
     {
-        if (!other.CompareTag("Player"))
-            return;
-
-        MapManager target = Instance != null ? Instance : this;
-
-        target.SetZone(Map_ID);
+        MapCanva.SetActive(!MapCanva.activeSelf);
     }
 }
