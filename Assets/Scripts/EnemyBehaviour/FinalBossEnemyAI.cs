@@ -19,6 +19,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private GameObject helmet;
 
     [Header("Intro / Idle:")]
+    [SerializeField] private int armourHealth = 30;
     [SerializeField] private int contactDamage = 10;
     [SerializeField] private float introTime = 1f;
 
