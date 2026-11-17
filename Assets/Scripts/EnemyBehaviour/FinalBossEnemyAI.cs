@@ -11,6 +11,10 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private BOSS_STATE defaultState;
 
+    [Header("Armour:")]
+    [SerializeField] private int maxArmourHealth = 30;
+    [SerializeField] private int currentArmourHealth;
+
     [Header("Pieces:")]
     [SerializeField] private FinalBossHand leftArm;
     [SerializeField] private FinalBossHand rightArm;
@@ -19,7 +23,6 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private GameObject helmet;
 
     [Header("Intro / Idle:")]
-    [SerializeField] private int armourHealth = 30;
     [SerializeField] private int contactDamage = 10;
     [SerializeField] private float introTime = 1f;
 
@@ -81,16 +84,19 @@ public class FinalBossEnemyAI : BossAI
         InitializeBasicComponents();
 
         defaultState = state;
+        currentArmourHealth = maxArmourHealth;
     }
 
     private void OnEnable()
     {
         characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageBlocked += DamageArmour;
     }
 
     private void OnDisable()
     {
         characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageBlocked -= DamageArmour;
     }
 
     private void Start()
@@ -148,11 +154,11 @@ public class FinalBossEnemyAI : BossAI
 
         if (timer <= 0)
         {
-            //ToSlamming();
+            ToSlamming();
             //ToClapping();
             //ToPunching();
             //ToRaining();
-            ToStunned();
+            //ToStunned();
         }
     }
 
@@ -162,6 +168,7 @@ public class FinalBossEnemyAI : BossAI
 
         if (timer <= 0)
         {
+            ResetArmour();
             DisarmBoss(false);
             ToPunching();
         }
@@ -216,6 +223,12 @@ public class FinalBossEnemyAI : BossAI
     private void ToStunned()
     {
         timer = stunnedTime;
+
+        rightArm.ReturnToOrigin();
+        leftArm.ReturnToOrigin();
+        rightArm.ResetRotation();
+        leftArm.ResetRotation();
+
         DisarmBoss(true);
         state = BOSS_STATE.STUNNED;
     }
@@ -279,7 +292,7 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(slamRecoveryDelay);
 
-        rightArm.transform.Rotate(new Vector3(0, 0, -90));
+        rightArm.ResetRotation();
         rightArm.ReturnToOrigin();
         alreadySlamming = false;
     }
@@ -407,6 +420,7 @@ public class FinalBossEnemyAI : BossAI
 
     private void DisarmBoss(bool value)
     {
+        characterStats.SetCanTakeDamage(value);
         head.SetActive(value);
         hookPoints.SetActive(value);
         helmet.SetActive(!value);
@@ -415,6 +429,32 @@ public class FinalBossEnemyAI : BossAI
     private bool BothArmsCollided()
     {
         return rightArm.ArmCollided && leftArm.ArmCollided;
+    }
+
+    private void DamageArmour(CombatDamage damage)
+    {
+        currentArmourHealth -= (int)damage.Amount;
+
+        if (currentArmourHealth <= 0)
+        {
+            currentArmourHealth = 0;
+
+            StopAllCoroutines();
+
+            isFollowing = false;
+            alreadySlamming = false;
+
+            ToStunned();
+        }
+
+        FlashColor(new Color(234 / 255f, 162 / 255f, 109 / 255f));
+
+        Debug.Log("Boss blocked damage | Remaining armour: " + currentArmourHealth);
+    }
+
+    private void ResetArmour()
+    {
+        currentArmourHealth = maxArmourHealth;
     }
 
     public override void ResetEnemy()

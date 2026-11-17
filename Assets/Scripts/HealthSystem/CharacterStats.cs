@@ -26,7 +26,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public event Action<float, float> OnStaminaChanged;  // (Estamina Actual, Estamina Máxima)
     public event Action OnDeath; // Se dispara al llegar a 0 de vida
     public event Action OnDamageTaken;
-    public event Action OnDamageBlocked;
+    public event Action<CombatDamage> OnDamageBlocked;
     public event Action OnStunApplied;
 
     public float CurrentHealth => currentHealth;
@@ -134,7 +134,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
         if (!canTakeDamage)
         {
-            OnDamageBlocked?.Invoke();
+            OnDamageBlocked?.Invoke(damage);
             return false;
         }
 

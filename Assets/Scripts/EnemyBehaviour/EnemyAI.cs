@@ -52,6 +52,11 @@ public abstract class EnemyAI : MonoBehaviour
         StartCoroutine(FlashSequence());
     }
 
+    protected void FlashColor(Color flashColor)
+    {
+        StartCoroutine(FlashSequence(flashColor));
+    }
+
     private IEnumerator FlashSequence()
     {
         colorFlashing = true;
@@ -61,6 +66,27 @@ public abstract class EnemyAI : MonoBehaviour
         foreach (SpriteRenderer renderer in renderers)
         {
             renderer.color = Color.white;
+        }
+
+        yield return new WaitForSeconds(flashTimer);
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            renderer.color = rendererColor;
+        }
+
+        colorFlashing = false;
+    }
+
+    private IEnumerator FlashSequence(Color flashColor)
+    {
+        colorFlashing = true;
+
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            renderer.color = flashColor;
         }
 
         yield return new WaitForSeconds(flashTimer);

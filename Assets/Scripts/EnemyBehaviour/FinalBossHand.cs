@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -12,6 +13,9 @@ public class FinalBossHand : MonoBehaviour
 
     private bool armCollided = false;
     private bool returning = false;
+    private bool colorFlashing = false;
+
+    private Vector3 spawnRotation;
 
     private float returningSpeed = 20f;
 
@@ -20,6 +24,8 @@ public class FinalBossHand : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        spawnRotation = transform.rotation.eulerAngles;
     }
 
     private void FixedUpdate()
@@ -40,6 +46,11 @@ public class FinalBossHand : MonoBehaviour
         armCollided = false;
         returning = true;
         isBusy = false;
+    }
+
+    public void ResetRotation()
+    {
+        transform.rotation = Quaternion.Euler(spawnRotation);
     }
 
     public void MoveToPosition(Vector3 targetPosition, float speed)
