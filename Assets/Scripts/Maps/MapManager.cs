@@ -31,9 +31,9 @@ public class MapManager : MonoBehaviour
                 Destroy(MapCanva);
             }
 
-            Instance.SetZone(Map_ID);
+            //Instance.SetZone(Map_ID);
 
-            Destroy(gameObject);
+            //Destroy(gameObject);
 
             return;
         }
@@ -78,11 +78,18 @@ public class MapManager : MonoBehaviour
 
     private void Start()
     {
+        if (Instance != this)
+            return;
+
         // Buscamos automaticamente las imagenes del Canvas
         CollectImages();
 
+        // AL iniciar todas las imagenes estan inactivas
+        foreach (GameObject image in Map_Images)
+            if (image != null) image.SetActive(false);
+
         // Mostramos la imagen de la zona actual
-        SetZone(Map_ID);
+        //SetZone(Map_ID);
     }
 
     // Buscamos las imagenes de las zonas que hay dentro del Canvas
@@ -123,5 +130,16 @@ public class MapManager : MonoBehaviour
         {
             Debug.LogWarning($"No hay imagen para la zona {zone}", this);
         }
+    }
+
+    // El jugador cuando entra en la zona nueva se desbloqueamos su ID y aparece en el mapa
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!other.CompareTag("Player"))
+            return;
+
+        MapManager target = Instance != null ? Instance : this;
+
+        target.SetZone(Map_ID);
     }
 }
