@@ -11,13 +11,19 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private BOSS_STATE defaultState;
 
-    [Header("Arms:")]
+    [Header("Pieces:")]
     [SerializeField] private FinalBossHand leftArm;
     [SerializeField] private FinalBossHand rightArm;
+    [SerializeField] private GameObject hookPoints;
+    [SerializeField] private GameObject head;
+    [SerializeField] private GameObject helmet;
 
     [Header("Intro / Idle:")]
     [SerializeField] private int contactDamage = 10;
     [SerializeField] private float introTime = 1f;
+
+    [Header("Stunned:")]
+    [SerializeField] private float stunnedTime = 4f;
 
     [Header("Slam Attack:")]
     [SerializeField] private float handFollowingSpeed = 15f;
@@ -45,6 +51,7 @@ public class FinalBossEnemyAI : BossAI
 
     [Header("Punch Attack:")]
     [SerializeField] private GameObject punchWarning;
+    [SerializeField] private int maxConsecutivePunches = 4;
     [SerializeField] private float punchingSpeed = 30f;
     [SerializeField] private float punchDelay = 1f;
     [SerializeField] private float punchHandBeneathDistance = 10f;
@@ -59,6 +66,8 @@ public class FinalBossEnemyAI : BossAI
     private bool alreadySlamming = false;
     private bool isFollowing;
 
+    private int consecutivePunches = 0;
+
     private float timer = 1f;
 
     private Vector3 lastTargetPosition;
@@ -71,6 +80,16 @@ public class FinalBossEnemyAI : BossAI
         InitializeBasicComponents();
 
         defaultState = state;
+    }
+
+    private void OnEnable()
+    {
+        characterStats.OnDamageTaken += FlashColor;
+    }
+
+    private void OnDisable()
+    {
+        characterStats.OnDamageTaken -= FlashColor;
     }
 
     private void Start()
@@ -96,6 +115,7 @@ public class FinalBossEnemyAI : BossAI
                 break;
 
             case BOSS_STATE.STUNNED:
+                OnStunned();
                 break;
 
             case BOSS_STATE.SLAMMING:
@@ -130,7 +150,19 @@ public class FinalBossEnemyAI : BossAI
             //ToSlamming();
             //ToClapping();
             //ToPunching();
-            ToRaining();
+            //ToRaining();
+            ToStunned();
+        }
+    }
+
+    private void OnStunned()
+    {
+        timer -= Time.fixedDeltaTime;
+
+        if (timer <= 0)
+        {
+            DisarmBoss(false);
+            ToPunching();
         }
     }
 
@@ -179,6 +211,13 @@ public class FinalBossEnemyAI : BossAI
     #endregion
 
     #region STATE TRANSITION
+
+    private void ToStunned()
+    {
+        timer = stunnedTime;
+        DisarmBoss(true);
+        state = BOSS_STATE.STUNNED;
+    }
 
     private void ToSlamming()
     {
@@ -331,7 +370,7 @@ public class FinalBossEnemyAI : BossAI
 
         Vector3 targetSlamDirection = (lastTargetPosition - leftArm.transform.position).normalized;
 
-        RaycastHit2D hit = Physics2D.Raycast(lastTargetPosition, Vector3.down, 8f, groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(lastTargetPosition, Vector3.down, 20f, groundLayer);
 
         GameObject warning = null;
 
@@ -356,7 +395,20 @@ public class FinalBossEnemyAI : BossAI
         yield return new WaitForSeconds(punchRecoveryDelay);
 
         leftArm.ReturnToOrigin();
-        //ToPunching();
+
+        consecutivePunches++;
+
+        if (consecutivePunches <= maxConsecutivePunches)
+        {
+            ToPunching();
+        }
+    }
+
+    private void DisarmBoss(bool value)
+    {
+        head.SetActive(value);
+        hookPoints.SetActive(value);
+        helmet.SetActive(!value);
     }
 
     private bool BothArmsCollided()

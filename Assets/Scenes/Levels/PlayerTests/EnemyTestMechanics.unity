@@ -12857,9 +12857,25 @@ PrefabInstance:
       propertyPath: areaDoors
       value: 
       objectReference: {fileID: 243530719}
+    - target: {fileID: 3144842458161312605, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3410738848797180868, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
       propertyPath: m_Name
       value: FinalBossEnemy2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 4739460743048480254, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8413115449574880751, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8982489452869239272, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9211188838349081700, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
       propertyPath: m_LocalPosition.x
