@@ -104,6 +104,7 @@ public class FinalBossEnemyAI : BossAI
 
     private float timer = 1f;
 
+    private Vector3 spawnChestPosition;
     private Vector3 lastTargetPosition;
     private Vector3 chosenCornerPosition;
 
@@ -136,6 +137,7 @@ public class FinalBossEnemyAI : BossAI
     {
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+        spawnChestPosition = chest.transform.position;
     }
 
     private void FixedUpdate()
@@ -724,7 +726,7 @@ public class FinalBossEnemyAI : BossAI
 
         gameObject.SetActive(true);
 
-        timer = 0;
+        timer = 1f;
 
         targetTransform = null;
 
@@ -734,6 +736,8 @@ public class FinalBossEnemyAI : BossAI
         alreadyRaining = false;
         alreadyShooting = false;
 
+        StopAllCoroutines();
+
         ResetColor();
         localMovement = Vector3.zero;
         externalMovement = Vector3.zero;
@@ -741,12 +745,19 @@ public class FinalBossEnemyAI : BossAI
         bossActive = false;
         state = defaultState;
         characterStats.FullHeal();
+
+        chest.transform.position = spawnChestPosition;
+
         ResetArmour();
+        DisarmBoss(false);
+        rightArm.SetColliderActive(true);
+        leftArm.SetColliderActive(true);
         leftArm.ResetHand();
         rightArm.ResetHand();
+
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
-        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
+        invertedDirection = head.transform.rotation == Quaternion.Euler(0, 180, 0);
     }
 
     #endregion
