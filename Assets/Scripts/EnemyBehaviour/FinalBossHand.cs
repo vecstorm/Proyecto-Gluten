@@ -66,6 +66,12 @@ public class FinalBossHand : MonoBehaviour
         transform.rotation = Quaternion.Euler(spawnRotation);
     }
 
+    public void ResetHand()
+    {
+        ReturnToOrigin();
+        ResetRotation();
+    }
+
     public void MoveToPosition(Vector3 targetPosition, float speed)
     {
         isBusy = true;

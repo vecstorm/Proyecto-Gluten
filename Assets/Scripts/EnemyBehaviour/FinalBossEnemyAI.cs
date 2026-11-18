@@ -253,7 +253,10 @@ public class FinalBossEnemyAI : BossAI
         if (isFollowing)
         {
             secondaryBossHand.MoveToPosition(chosenCornerPosition, handFollowingSpeed);
+            return;
         }
+
+        BodyMovement();
     }
 
     private void OnPunching()
@@ -280,11 +283,9 @@ public class FinalBossEnemyAI : BossAI
 
         ResetArmsOffset();
 
-        rightArm.ReturnToOrigin();
-        rightArm.ResetRotation();
+        rightArm.ResetHand();
         rightArm.SetColliderActive(false);
-        leftArm.ReturnToOrigin();
-        leftArm.ResetRotation();
+        leftArm.ResetHand();
         leftArm.SetColliderActive(false);
 
         DisarmBoss(true);
@@ -359,8 +360,7 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(slamRecoveryDelay);
 
-        primaryBossHand.ResetRotation();
-        primaryBossHand.ReturnToOrigin();
+        primaryBossHand.ResetHand();
         alreadySlamming = false;
     }
 
@@ -381,10 +381,8 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(rainRecoveryDelay);
 
-        leftArm.ResetRotation();
-        leftArm.ReturnToOrigin();
-        rightArm.ResetRotation();
-        rightArm.ReturnToOrigin();
+        leftArm.ResetHand();
+        rightArm.ResetHand();
     }
 
     private IEnumerator ShootingProcess()
@@ -397,16 +395,14 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(shootingPreparationDelay);
 
-        isFollowing = false;
-
         StartCoroutine(ProjectileGeneration(targetOnLeft ? -Vector3.right : Vector3.right));
 
         yield return new WaitUntil(() => lastProjectileShot);
 
+        isFollowing = false;
         lastProjectileShot = false;
 
-        secondaryBossHand.ResetRotation();
-        secondaryBossHand.ReturnToOrigin();
+        secondaryBossHand.ResetHand();
     }
 
     private IEnumerator ProjectileGeneration(Vector3 projectileDirection)
