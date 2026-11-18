@@ -89,6 +89,7 @@ public class FinalBossEnemyAI : BossAI
     private bool isFollowing;
 
     private int consecutivePunches = 0;
+    private bool lastProjectileShot = false;
 
     private float timer = 1f;
 
@@ -180,9 +181,9 @@ public class FinalBossEnemyAI : BossAI
         if (timer <= 0)
         {
             //ToSlamming();
-            //ToShooting();
+            ToShooting();
             //ToPunching();
-            ToRaining();
+            //ToRaining();
             //ToStunned();
         }
     }
@@ -370,6 +371,20 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(shootingPreparationDelay);
 
+        isFollowing = false;
+
+        StartCoroutine(ProjectileGeneration());
+
+        yield return new WaitUntil(() => lastProjectileShot);
+
+        lastProjectileShot = false;
+
+        secondaryBossHand.ResetRotation();
+        secondaryBossHand.ReturnToOrigin();
+    }
+
+    private IEnumerator ProjectileGeneration()
+    {
         int projectileQuantity = Random.Range(minShots, maxShots);
 
         for (int i = 0; i < projectileQuantity; i++)
@@ -379,18 +394,18 @@ public class FinalBossEnemyAI : BossAI
             newProjectile.transform.localScale = new Vector3(2, 2, 2);
 
             yield return new WaitForSeconds(shotsDelay);
-        }
 
-        isFollowing = false;
+            lastProjectileShot = i == projectileQuantity - 1;
+        }
     }
 
-    private IEnumerator DebrisGeneration(int minProjectiles, int maxProjectiles, float minProjectileDistance)
+    private IEnumerator DebrisGeneration(int minDebris, int maxDebris, float minDebrisDistance)
     {
         List<float> usedPositions = new List<float>();
 
-        int projectileQuantity = Random.Range(minProjectiles, maxProjectiles);
+        int debrisQuantity = Random.Range(minDebris, maxDebris);
 
-        for (int i = 0; i < projectileQuantity; i++)
+        for (int i = 0; i < debrisQuantity; i++)
         {
             float horizontalPosition = 0;
             bool validPosition = false;
@@ -406,7 +421,7 @@ public class FinalBossEnemyAI : BossAI
 
                 foreach (float position in usedPositions)
                 {
-                    if (Mathf.Abs(horizontalPosition - position) < minProjectileDistance)
+                    if (Mathf.Abs(horizontalPosition - position) < minDebrisDistance)
                     {
                         validPosition = false;
                     }
