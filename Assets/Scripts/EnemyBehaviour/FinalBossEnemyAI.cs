@@ -245,7 +245,10 @@ public class FinalBossEnemyAI : BossAI
         {
             rightArm.MoveToPosition(new Vector3(rightArm.transform.position.x, transform.position.y + 2f, 0), handFollowingSpeed);
             leftArm.MoveToPosition(new Vector3(leftArm.transform.position.x, transform.position.y + 2f, 0), handFollowingSpeed);
+            return;
         }
+
+        BodyMovement();
     }
 
     private void OnShooting()
@@ -373,13 +376,13 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(rainDelay);
 
-        isFollowing = false;
-
         yield return new WaitForSeconds(rainWaitDelay);
 
         StartCoroutine(DebrisGeneration(minDebris, maxDebris, minDebrisDistance));
 
         yield return new WaitForSeconds(rainRecoveryDelay);
+
+        isFollowing = false;
 
         leftArm.ResetHand();
         rightArm.ResetHand();
