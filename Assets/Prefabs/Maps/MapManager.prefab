@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6997573770480672164}
-  - component: {fileID: 3446721244318671379}
+  - component: {fileID: -2474970511871199109}
   m_Layer: 0
   m_Name: MapManager
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3446721244318671379
+--- !u!114 &-2474970511871199109
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,6 +43,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c8c9a0e405bc3641bfd6cc0174c8f4a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MapController
+  m_EditorClassIdentifier: Assembly-CSharp::MapManager
   Map_ID: 0
   MapCanva: {fileID: 1057524298079258563, guid: 817167def7bd8ac45b6d4041b06d57d1, type: 3}
