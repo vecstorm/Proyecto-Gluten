@@ -90,6 +90,9 @@ public class FinalBossEnemyAI : BossAI
     private float anticipation = 0f;
 
     private bool alreadySlamming = false;
+    private bool alreadyRaining = false;
+    private bool alreadyShooting = false;
+    private bool alreadyPunching = false;
     private bool isFollowing;
 
     private int consecutivePunches = 0;
@@ -211,6 +214,7 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
+    // Comportamiento en estado STUNNED
     private void OnStunned()
     {
         timer -= Time.fixedDeltaTime;
@@ -225,6 +229,7 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
+    // Comportamiento en estado SLAMMING
     private void OnSlamming()
     {
         if (isFollowing)
@@ -239,6 +244,7 @@ public class FinalBossEnemyAI : BossAI
         BodyMovement();
     }
 
+    // Comportamiento en estado RAINING
     private void OnRaining()
     {
         if (isFollowing)
@@ -251,6 +257,7 @@ public class FinalBossEnemyAI : BossAI
         BodyMovement();
     }
 
+    // Comportamiento en estado SHOOTING
     private void OnShooting()
     {
         if (isFollowing)
@@ -262,6 +269,7 @@ public class FinalBossEnemyAI : BossAI
         BodyMovement();
     }
 
+    // Comportamiento en estado PUNCHING
     private void OnPunching()
     {
         if (isFollowing)
@@ -280,6 +288,7 @@ public class FinalBossEnemyAI : BossAI
 
     #region STATE TRANSITION
 
+    // Comportamiento de transición a STUNNED
     private void ToStunned()
     {
         timer = stunnedTime;
@@ -295,10 +304,13 @@ public class FinalBossEnemyAI : BossAI
         state = BOSS_STATE.STUNNED;
     }
 
+    // Comportamiento de transición a SLAMMING
     private void ToSlamming()
     {
         if (!alreadySlamming)
         {
+            alreadySlamming = true;
+
             primaryBossHand = ClosestHandToTarget(targetTransform.position);
 
             StartCoroutine(SlamProcess());
@@ -307,29 +319,47 @@ public class FinalBossEnemyAI : BossAI
         state = BOSS_STATE.SLAMMING;
     }
 
+    // Comportamiento de transición a RAINING
     private void ToRaining()
     {
-        StartCoroutine(RainingProcess());
+        if (!alreadyRaining)
+        {
+            alreadyRaining = true;
 
+            StartCoroutine(RainingProcess());
+        }
+        
         state = BOSS_STATE.RAINING;
     }
 
+    // Comportamiento de transición a SHOOTING
     private void ToShooting()
     {
-        chosenCornerPosition = FarthestArenaCornerToTarget(targetTransform.position);
-        secondaryBossHand = FarthestHandToTarget(targetTransform.position);
+        if (!alreadyShooting)
+        {
+            alreadyShooting = true;
 
-        StartCoroutine(ShootingProcess());
+            chosenCornerPosition = FarthestArenaCornerToTarget(targetTransform.position);
+            secondaryBossHand = FarthestHandToTarget(targetTransform.position);
 
+            StartCoroutine(ShootingProcess());
+        }
+        
         state = BOSS_STATE.SHOOTING;
     }
 
+    // Comportamiento de transición a PUNCHING
     private void ToPunching()
     {
-        primaryBossHand = ClosestHandToTarget(targetTransform.position);
+        if (!alreadyPunching)
+        {
+            alreadyPunching = true;
 
-        StartCoroutine(PunchingProcess());
+            primaryBossHand = ClosestHandToTarget(targetTransform.position);
 
+            StartCoroutine(PunchingProcess());
+        }
+        
         state = BOSS_STATE.PUNCHING;
     }
 
@@ -386,6 +416,8 @@ public class FinalBossEnemyAI : BossAI
 
         leftArm.ResetHand();
         rightArm.ResetHand();
+
+        alreadyRaining = false;
     }
 
     private IEnumerator ShootingProcess()
@@ -406,6 +438,8 @@ public class FinalBossEnemyAI : BossAI
         lastProjectileShot = false;
 
         secondaryBossHand.ResetHand();
+
+        alreadyShooting = false;
     }
 
     private IEnumerator ProjectileGeneration(Vector3 projectileDirection)
@@ -506,6 +540,8 @@ public class FinalBossEnemyAI : BossAI
 
         consecutivePunches++;
 
+        alreadyPunching = false;
+
         if (consecutivePunches <= maxConsecutivePunches)
         {
             ToPunching();
@@ -571,6 +607,9 @@ public class FinalBossEnemyAI : BossAI
 
             isFollowing = false;
             alreadySlamming = false;
+            alreadyPunching = false;
+            alreadyRaining = false;
+            alreadyShooting = false;
 
             ToStunned();
         }
