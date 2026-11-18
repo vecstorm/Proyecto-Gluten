@@ -716,7 +716,37 @@ public class FinalBossEnemyAI : BossAI
 
     public override void ResetEnemy()
     {
+        if (isDead) return;
         
+        Debug.Log("FINAL BOSS RESETED");
+
+        bossArea.DisableDoors();
+
+        gameObject.SetActive(true);
+
+        timer = 0;
+
+        targetTransform = null;
+
+        isFollowing = false;
+        alreadySlamming = false;
+        alreadyPunching = false;
+        alreadyRaining = false;
+        alreadyShooting = false;
+
+        ResetColor();
+        localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
+        isDead = false;
+        bossActive = false;
+        state = defaultState;
+        characterStats.FullHeal();
+        ResetArmour();
+        leftArm.ResetHand();
+        rightArm.ResetHand();
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
     }
 
     #endregion
