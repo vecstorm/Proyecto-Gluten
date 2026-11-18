@@ -10,6 +10,10 @@ public class FinalBossEnemyAI : BossAI
     [Header("States:")]
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private BOSS_STATE defaultState;
+    [SerializeField] private bool slamAfterIntro = false;
+    [SerializeField] private bool rainAfterIntro = false;
+    [SerializeField] private bool shootAfterIntro = false;
+    [SerializeField] private bool punchAfterIntro = false;
 
     [Header("Armour:")]
     [SerializeField] private int maxArmourHealth = 30;
@@ -181,11 +185,29 @@ public class FinalBossEnemyAI : BossAI
 
         if (timer <= 0)
         {
-            //ToSlamming();
-            ToShooting();
-            //ToPunching();
-            //ToRaining();
-            //ToStunned();
+            if (slamAfterIntro)
+            {
+                ToSlamming();
+                return;
+            }
+
+            if (rainAfterIntro)
+            {
+                ToRaining();
+                return;
+            }
+
+            if (shootAfterIntro)
+            {
+                ToShooting();
+                return;
+            }
+
+            if (punchAfterIntro)
+            {
+                ToPunching();
+                return;
+            }
         }
     }
 
