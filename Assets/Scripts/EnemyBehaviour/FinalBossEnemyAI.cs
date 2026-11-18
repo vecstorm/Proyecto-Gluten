@@ -19,6 +19,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private FinalBossHand leftArm;
     [SerializeField] private FinalBossHand rightArm;
     [SerializeField] private GameObject hookPoints;
+    [SerializeField] private GameObject chest;
     [SerializeField] private GameObject neck;
     [SerializeField] private GameObject head;
     [SerializeField] private GameObject helmet;
@@ -146,7 +147,7 @@ public class FinalBossEnemyAI : BossAI
                 break;
         }
 
-        if (TargetBehind(targetTransform.position))
+        if (TargetBehind(targetTransform.position, chest.transform.position))
         {
             FlipObject(neck);
         }
@@ -195,6 +196,8 @@ public class FinalBossEnemyAI : BossAI
 
             lastTargetPosition = targetTransform.position;
         }
+
+        BodyMovement();
     }
 
     private void OnRaining()
@@ -225,6 +228,8 @@ public class FinalBossEnemyAI : BossAI
 
             lastTargetPosition = targetTransform.position;
         }
+
+        BodyMovement();
     }
 
     #endregion
@@ -442,6 +447,13 @@ public class FinalBossEnemyAI : BossAI
     private bool BothArmsCollided()
     {
         return rightArm.ArmCollided && leftArm.ArmCollided;
+    }
+
+    private void BodyMovement()
+    {
+        Vector3 targetPosition = new Vector3(targetTransform.position.x, chest.transform.position.y, chest.transform.position.z);
+
+        chest.transform.position = Vector3.MoveTowards(chest.transform.position, targetPosition, movementSpeed * Time.fixedDeltaTime);
     }
 
     private void DamageArmour(CombatDamage damage)

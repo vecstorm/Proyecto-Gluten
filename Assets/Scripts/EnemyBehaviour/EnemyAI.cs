@@ -127,6 +127,14 @@ public abstract class EnemyAI : MonoBehaviour
         return (deltaX < 0) != invertedDirection;
     }
 
+    // Devuelve si el jugador esta detras del enemigo o no
+    protected bool TargetBehind(Vector3 targetPosition, Vector3 positionToCompare)
+    {
+        float deltaX = targetPosition.x - positionToCompare.x;
+
+        return (deltaX < 0) != invertedDirection;
+    }
+
     public void SetTargetTransform(Transform newTargetTransform)
     {
         targetTransform = newTargetTransform;

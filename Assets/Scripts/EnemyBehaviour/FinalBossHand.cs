@@ -34,7 +34,7 @@ public class FinalBossHand : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (returning && !isBusy)
+        if (!isBusy)
         {
             rb.MovePosition(Vector3.MoveTowards(transform.position, originPoint.position, returningSpeed * Time.fixedDeltaTime));
 
