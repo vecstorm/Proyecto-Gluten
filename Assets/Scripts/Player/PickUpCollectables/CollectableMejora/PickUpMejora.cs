@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class HealthUpgradePickup : MonoBehaviour
+public class PickUpMejora : MonoBehaviour
 {
 
 

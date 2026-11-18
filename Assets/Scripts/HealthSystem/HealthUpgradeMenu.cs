@@ -20,6 +20,7 @@ public class HealthUpgradeMenu : MonoBehaviour
 	[SerializeField] private PlayerCombat playerCombat;
     [SerializeField] private CharacterStats characterStats;
 
+
     /*    [Header("Heart Sprites")]
         [SerializeField] private Sprite fullHeart;
         [SerializeField] private Sprite halfHeart;
@@ -68,11 +69,17 @@ public class HealthUpgradeMenu : MonoBehaviour
 
 	private void RefreshUpgradeButtons()
 	{
-		// Aquí comprobaremos si hay tokens
-		// y mostraremos u ocultaremos los botones.
+		bool hasTokens = characterStats.HealthUpgradeTokens > 0;
+
+		if (healthUpgradeButton != null)
+			healthUpgradeButton.gameObject.SetActive(hasTokens);
+
+		if (attackUpgradeButton != null)
+			attackUpgradeButton.gameObject.SetActive(hasTokens);
 	}
 
-	public void UpgradeHealth()
+
+    public void UpgradeHealth()
 	{
 		if (!characterStats.UseHealthUpgradeToken())
 			return;
@@ -84,7 +91,9 @@ public class HealthUpgradeMenu : MonoBehaviour
 		healthContainer,
 		false
 		);
-	}
+        RefreshUpgradeButtons();
+        healthUpgradeButton.transform.SetAsLastSibling();
+    }
 
 	public void UpgradeAttack()
 	{
@@ -98,13 +107,17 @@ public class HealthUpgradeMenu : MonoBehaviour
 			attackContainer,
 			false
 		);
-	}
+        RefreshUpgradeButtons();
+        attackUpgradeButton.transform.SetAsLastSibling();
+    }
 
 	private void CreateUpgradeButtons()
 	{
-		Debug.Log("Fichas disponibles: " + characterStats.HealthUpgradeTokens);
+        Debug.Log("Objeto consultado: " + characterStats.gameObject.name);
+        Debug.Log("ID: " + characterStats.GetInstanceID()
+            + " | Fichas: " + characterStats.HealthUpgradeTokens);
 
-		if (characterStats.HealthUpgradeTokens <= 0)
+        if (characterStats.HealthUpgradeTokens <= 0)
 			return;
 
 
@@ -122,5 +135,9 @@ public class HealthUpgradeMenu : MonoBehaviour
 
 		healthUpgradeButton.onClick.AddListener(UpgradeHealth);
 		attackUpgradeButton.onClick.AddListener(UpgradeAttack);
-	}
+
+        Debug.Log("Menú consulta: " + characterStats.gameObject.name +
+          " | ID: " + characterStats.GetInstanceID() +
+          " | Total: " + characterStats.HealthUpgradeTokens);
+    }
 }

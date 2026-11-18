@@ -121,6 +121,9 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public void AddHealthUpgradeToken()
     {
         healthUpgradeTokens++;
+        Debug.Log("Ficha añadida a: " + gameObject.name +
+          " | ID: " + GetInstanceID() +
+          " | Total: " + healthUpgradeTokens);
 		Debug.Log("Ficha añadida. Total: " + healthUpgradeTokens);
 	}
 

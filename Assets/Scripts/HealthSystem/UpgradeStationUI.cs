@@ -7,6 +7,8 @@ public class UpgradeStationUI : MonoBehaviour
 
     [SerializeField] public GameObject healUpgradePanel;
     [SerializeField] public GameObject upgradePanel;
+    [SerializeField] private HealthUpgradeMenu healthUpgradeMenu;
+    [SerializeField] private CharacterStats characterStats;
 
     private void Start()
     {
@@ -70,6 +72,7 @@ public class UpgradeStationUI : MonoBehaviour
     public void OpenUpgradePanel()
     {
         upgradePanel.SetActive(true);
+        healthUpgradeMenu.Initialize(characterStats.MaxHealth);
         healUpgradePanel.SetActive(false);
     }
 
