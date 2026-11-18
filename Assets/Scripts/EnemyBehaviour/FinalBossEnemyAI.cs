@@ -45,6 +45,9 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float slamDelay = 0.6f;
     [SerializeField] private float slammingSpeed = 25f;
     [SerializeField] private float slamRecoveryDelay = 1.5f;
+    [SerializeField] private int minSlamProjectiles = 2;
+    [SerializeField] private int maxSlamProjectiles = 4;
+    [SerializeField] private float minSlamProjectileDistance = 5f;
 
     [Header("Raining Attack:")]
     [SerializeField] private GameObject projectilePrefab;
@@ -313,6 +316,8 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitUntil(() => rightArm.ArmCollided);
 
+        StartCoroutine(ProjectileGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
+
         yield return new WaitForSeconds(slamRecoveryDelay);
 
         rightArm.ResetRotation();
@@ -333,6 +338,11 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(rainWaitDelay);
 
+        StartCoroutine(ProjectileGeneration(minProjectiles, maxProjectiles, minProjectileDistance));
+    }
+
+    private IEnumerator ProjectileGeneration(int minProjectiles, int maxProjectiles, float minProjectileDistance)
+    {
         List<float> usedPositions = new List<float>();
 
         int projectileQuantity = Random.Range(minProjectiles, maxProjectiles);
@@ -342,7 +352,7 @@ public class FinalBossEnemyAI : BossAI
             float horizontalPosition = 0;
             bool validPosition = false;
             int placingAttempts = 0;
-            
+
             while (!validPosition && placingAttempts < 20)
             {
                 placingAttempts++;
