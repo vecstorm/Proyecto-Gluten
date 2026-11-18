@@ -2,5 +2,8 @@ using UnityEngine;
 
 public class MapZoneImage : MonoBehaviour
 {
-    [SerializeField] public int ZoneID;
+    [SerializeField] private int zoneID;
+
+    // ID de la zona que representa esta imagen
+    public int ZoneID => zoneID;
 }

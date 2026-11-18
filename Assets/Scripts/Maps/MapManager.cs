@@ -1,163 +1,135 @@
-
 using UnityEngine;
-using UnityEngine.UI;
 using System.Linq;
-using System.Collections.Generic;
 
 public class MapManager : MonoBehaviour
-{ 
-    // ID que identifica esta zona del mapa
-    [SerializeField] private int Map_ID;
-
-    // Canvas del mapa
+{
+    [Header("Configuración MapCanva")]
     [SerializeField] private GameObject MapCanva;
 
-    private MapZoneImage[] Map_ZoneImages;
+    [Header("Pon el X de imagenes del mapa que habran 0-X")]
+    [SerializeField] private bool[] unlockedZones;
 
-    // Esto guarda todas las zonas que haya (Evitando duplicados)
-    private HashSet<int> unlockedZones = new HashSet<int>();
+    private MapZoneImage[] mapZoneImages;
 
-    // Unica instancia del MapManager en todo el juego
+    // Creamos una instancia para el MapManger nuestro
     public static MapManager Instance;
 
     private void Awake()
     {
-        // Si ya hay un MapManager activo, este se destruye pero le pasa su ID
+        // Si ya existe un MapManager antes entonces lo que hara es destruir el duplicado
         if (Instance != null && Instance != this)
         {
-            // El Canvas de esta escena sobra, el de la zona anterior sigue vivo
             if (MapCanva != null && MapCanva != Instance.MapCanva && MapCanva.scene.IsValid())
             {
                 Destroy(MapCanva);
             }
-
-            // Avisamos al manager persistente solo si hay jugador en esta escena
-            bool hasPlayer = GameObject.FindWithTag("Player") != null;
-
-            Debug.Log($"Mapa del Manager duplicado - zona {Map_ID} || jugador en escena: {hasPlayer}");
-
-            if (hasPlayer)
-                Instance.SetZone(Map_ID);
-            else
-                Instance.MapCanva.SetActive(false);
-
             Destroy(gameObject);
-
             return;
         }
 
-        if (MapCanva == null)
-        {
-            Debug.LogError("MapCanva no asignado en MapManager", this);
-            return;
-        }
-
+        // Si es el primer MapManager entonces se convierte en la instancia oficial
         Instance = this;
 
-        // Mantenemos el MapManager entre las escenas
+        // El MapManager NO SE DESTRUYE al cambiar de escena
         DontDestroyOnLoad(gameObject);
 
-        // Si el canvas es asignado un prefab y no una instancia, lo creamos
-        if (!MapCanva.scene.IsValid())
+        // Configuramos y protegemos el MapCanva para que tampoco se destruya
+        if (MapCanva != null)
         {
-            MapCanva = Instantiate(MapCanva);
-        }
+            if (!MapCanva.scene.IsValid())
+            {
+                MapCanva = Instantiate(MapCanva);
+            }
 
-        // Sera una raiz principal para poder mantenerlo entre las escenas
-        if (MapCanva.transform.parent != null)
-        {
-            MapCanva.transform.SetParent(null, false);
-        }
+            if (MapCanva.transform.parent != null)
+            {
+                MapCanva.transform.SetParent(null, false);
+            }
 
-        // Para que no destruya el canva
-        DontDestroyOnLoad(MapCanva);
+            // Hacemos que el mapa no se destruya entre escenas
+            DontDestroyOnLoad(MapCanva);
 
-        // Si el Canvas tiene escala 0 no se ve, lo arreglamos
-        RectTransform rect = MapCanva.GetComponent<RectTransform>();
-
-        if (rect != null && rect.localScale == Vector3.zero)
-        {
-            rect.localScale = Vector3.one;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        // Si se destruye el MapManager que estaba activo, el siguiente vuelve a ser el unico
-        if (Instance == this)
-        {
-            Instance = null;
+            RectTransform rect = MapCanva.GetComponent<RectTransform>();
+            if (rect != null && rect.localScale == Vector3.zero)
+            {
+                rect.localScale = Vector3.one;
+            }
         }
     }
 
     private void Start()
     {
-        // Buscamos al jugador de ESTA MISMA ESCENA DONDE ESTA(con cada escena lo pasa)
-        GameObject player = GameObject.FindWithTag("Player");
-
-        // Aunque el jugador no este en la Escena ocultamos el mapa IGUALMENTE
-        // COMENTAR ESTO PARA LA FUNCIÓN SI SE UTILIZA, SINO DEJALO ASI
-        //if (player == null && Instance != null)
-            Instance.MapCanva.SetActive(false);
-
-        // Buscamos automaticamente las imagenes del Canvas
         CollectImages();
+        UpdateMapVisuals();
 
-        // AL iniciar todas las imagenes estan inactivas
-        foreach (MapZoneImage zoneImage in Map_ZoneImages)
-            if (zoneImage != null) zoneImage.gameObject.SetActive(false);
-
-        // Mostramos la imagen de la zona actual
-        //SetZone(Map_ID);
-
-        // Si empezamos en una escena con jugador, desbloqueamos su zona
-        if (player != null)
-            SetZone(Map_ID);
+        // Nos aseguramos de que el mapa empiece cerrado al arrancar el juego
+        if (MapCanva != null)
+        {
+            MapCanva.SetActive(false);
+        }
     }
 
-    // Buscamos las imagenes del mapa que hay dentro del Canvas por su ID
+    // Buscamos todas las imágenes de mapa en el Canvas
     private void CollectImages()
     {
-        Map_ZoneImages = MapCanva.GetComponentsInChildren<MapZoneImage>(true);
+        if (MapCanva != null)
+        {
+            mapZoneImages = MapCanva.GetComponentsInChildren<MapZoneImage>(true);
+        }
     }
 
-    // Mostramos en el mapa la zona indicada, dejando las desbloqueadas
-    public void SetZone(int zone)
+    // Este es un metodo que recibe la ID de la escena actual y marca su booleano como true
+    public void UnlockZone(int zoneID)
     {
-        // El mapa estará invisible, en caso de la función de "HabilityMap" COMENTAR ESTO
-        //MapCanva.SetActive(false);
+        // Verificamos que el ID esté dentro del tamaño del array booleano
+        if (unlockedZones != null && zoneID >= 0 && zoneID < unlockedZones.Length)
+        {
+            unlockedZones[zoneID] = true; // Se queda en true de forma permanente
+            Debug.Log($"Zona {zoneID} desbloqueada en el array de booleanos.");
+        }
+        else
+        {
+            Debug.LogWarning($"El ID de zona {zoneID} está fuera del rango del array booleano.");
+        }
 
-        // Si todavia no tenemos las imagenes, las buscamos
-        if (Map_ZoneImages == null)
+        // Actualizamos los gráficos del mapa inmediatamente
+        UpdateMapVisuals();
+    }
+
+    // Recorre todas las imágenes del mapa y enciende las que tengan su booleano en TRUE
+    private void UpdateMapVisuals()
+    {
+        if (mapZoneImages == null)
         {
             CollectImages();
         }
 
-        // Si la zona no estaba desbloqueada, la desbloqueamos
-        // HashSet ya ignora los duplicados
-        unlockedZones.Add(zone);
+        if (mapZoneImages == null) return;
 
-        Debug.Log($"Mapa SetZone({zone}) guardado, las zonas desbloqueadas: {string.Join(", ", unlockedZones)}");
-
-        // Mostramos las imagenes de las zonas desbloqueadas y ocultamos las demas
-        foreach (MapZoneImage zoneImage in Map_ZoneImages)
+        foreach (var zoneImage in mapZoneImages)
         {
             if (zoneImage != null)
             {
-                zoneImage.gameObject.SetActive(unlockedZones.Contains(zoneImage.ZoneID));
+                // Si el ID de la imagen coincide con un índice en true del array, se activa; si no, se oculta
+                if (zoneImage.ZoneID >= 0 && zoneImage.ZoneID < unlockedZones.Length)
+                {
+                    bool isUnlocked = unlockedZones[zoneImage.ZoneID];
+                    zoneImage.gameObject.SetActive(isUnlocked);
+                }
+                else
+                {
+                    zoneImage.gameObject.SetActive(false);
+                }
             }
-        }
-
-        // Avisamos si esa zona no tiene imagen en el mapa
-        if (!Map_ZoneImages.Any(zoneImage => zoneImage != null && zoneImage.ZoneID == zone))
-        {
-            Debug.LogWarning($"No hay imagen para la zona {zone}", this);
         }
     }
 
-    // OPCIONAL: Es de manera más simple para poder llamar a la función y solo poner su input
+    // OPCIONAL: Esta función sirve para abrir o cerrar el mapa
     public void HabilityMap()
     {
-        MapCanva.SetActive(!MapCanva.activeSelf);
+        if (MapCanva != null)
+        {
+            MapCanva.SetActive(!MapCanva.activeSelf);
+        }
     }
 }
