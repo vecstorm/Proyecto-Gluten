@@ -667,6 +667,8 @@ MonoBehaviour:
   helmet: {fileID: 8413115449574880751}
   movementSpeed: 3
   minDistanceToWall: 10
+  backHandOffset: 1.5
+  frontHandOffset: 0.5
   contactDamage: 10
   introTime: 2
   stunnedTime: 6
@@ -855,6 +857,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinalBossHand
   originPoint: {fileID: 617980429199104126}
+  returningSpeed: 20
 --- !u!70 &389605795144714910
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1288,6 +1291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinalBossHand
   originPoint: {fileID: 8003239089483993016}
+  returningSpeed: 20
 --- !u!70 &3069411904712472253
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

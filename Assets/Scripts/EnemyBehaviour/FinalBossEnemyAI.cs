@@ -27,6 +27,8 @@ public class FinalBossEnemyAI : BossAI
     [Header("Movement:")]
     [SerializeField] private float movementSpeed = 7f;
     [SerializeField] private float minDistanceToWall = 8f;
+    [SerializeField] private float backHandOffset = 2f;
+    [SerializeField] private float frontHandOffset = 0.5f;
 
     [Header("Intro / Idle:")]
     [SerializeField] private int contactDamage = 10;
@@ -240,6 +242,8 @@ public class FinalBossEnemyAI : BossAI
     private void ToStunned()
     {
         timer = stunnedTime;
+
+        ResetArmsOffset();
 
         rightArm.ReturnToOrigin();
         rightArm.ResetRotation();
@@ -459,9 +463,29 @@ public class FinalBossEnemyAI : BossAI
         RaycastHit2D hit = Physics2D.Raycast(chest.transform.position, movementDirection, minDistanceToWall, groundLayer);
         Debug.DrawRay(chest.transform.position, movementDirection * minDistanceToWall, Color.red);
 
-        if (hit.collider == null)
+        float targetDistance = targetTransform.position.x - chest.transform.position.x;
+
+        if (hit.collider != null)
         {
-            chest.transform.position = Vector3.MoveTowards(chest.transform.position, targetPosition, movementSpeed * Time.fixedDeltaTime);
+            ResetArmsOffset();
+            return;
+        }
+
+        chest.transform.position = Vector3.MoveTowards(chest.transform.position, targetPosition, movementSpeed * Time.fixedDeltaTime);
+
+        if (Mathf.Abs(targetDistance) < 0.5f)
+        {
+            ResetArmsOffset();
+        }
+        else if (targetDistance > 0f)
+        {
+            leftArm.SetMovementOffset(-backHandOffset);
+            rightArm.SetMovementOffset(frontHandOffset);
+        }
+        else if (targetDistance < 0f)
+        {
+            leftArm.SetMovementOffset(-frontHandOffset);
+            rightArm.SetMovementOffset(backHandOffset);
         }
     }
 
@@ -484,6 +508,12 @@ public class FinalBossEnemyAI : BossAI
         FlashColor(new Color(234 / 255f, 162 / 255f, 109 / 255f));
 
         Debug.Log("Boss blocked damage | Remaining armour: " + currentArmourHealth);
+    }
+
+    private void ResetArmsOffset()
+    {
+        leftArm.SetMovementOffset(0f);
+        rightArm.SetMovementOffset(0f);
     }
 
     private void ResetArmour()

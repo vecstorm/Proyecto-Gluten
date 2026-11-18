@@ -7,6 +7,11 @@ using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 public class FinalBossHand : MonoBehaviour
 {
     [SerializeField] private Transform originPoint;
+    [SerializeField] private float returningSpeed = 20f;
+    [SerializeField] private float offsetSpeed = 3f;
+
+    private float movementOffset;
+    private float incomingOffset;
 
     private bool isBusy = false;
 
@@ -20,7 +25,6 @@ public class FinalBossHand : MonoBehaviour
 
     private Vector3 spawnRotation;
 
-    private float returningSpeed = 20f;
 
     public bool ArmCollided => armCollided;
 
@@ -37,7 +41,11 @@ public class FinalBossHand : MonoBehaviour
     {
         if (!isBusy)
         {
-            rb.MovePosition(Vector3.MoveTowards(transform.position, originPoint.position, returningSpeed * Time.fixedDeltaTime));
+            movementOffset = Mathf.Lerp(movementOffset, incomingOffset, offsetSpeed * Time.fixedDeltaTime);
+
+            Vector3 targetPosition = originPoint.position + Vector3.right * movementOffset;
+
+            rb.MovePosition(Vector3.MoveTowards(transform.position, targetPosition, returningSpeed * Time.fixedDeltaTime));
 
             if (Vector3.Distance(transform.position, originPoint.position) <= 0.01f)
             {
@@ -86,6 +94,11 @@ public class FinalBossHand : MonoBehaviour
     public void SetColliderActive(bool value)
     {
         damageCollider.enabled = value;
+    }
+
+    public void SetMovementOffset(float offset)
+    {
+        incomingOffset = offset;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
