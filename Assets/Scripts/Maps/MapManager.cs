@@ -96,7 +96,8 @@ public class MapManager : MonoBehaviour
         GameObject player = GameObject.FindWithTag("Player");
 
         // Aunque el jugador no este en la Escena ocultamos el mapa IGUALMENTE
-        if (player == null && Instance != null)
+        // COMENTAR ESTO PARA LA FUNCIÓN SI SE UTILIZA, SINO DEJALO ASI
+        //if (player == null && Instance != null)
             Instance.MapCanva.SetActive(false);
 
         // Buscamos automaticamente las imagenes del Canvas
@@ -124,7 +125,7 @@ public class MapManager : MonoBehaviour
     public void SetZone(int zone)
     {
         // El mapa estará invisible, en caso de la función de "HabilityMap" COMENTAR ESTO
-        MapCanva.SetActive(false);
+        //MapCanva.SetActive(false);
 
         // Si todavia no tenemos las imagenes, las buscamos
         if (Map_ZoneImages == null)
@@ -155,8 +156,8 @@ public class MapManager : MonoBehaviour
     }
 
     // OPCIONAL: Es de manera más simple para poder llamar a la función y solo poner su input
-    //public void HabilityMap()
-    //{
-    //    MapCanva.SetActive(!MapCanva.activeSelf);
-    //}
+    public void HabilityMap()
+    {
+        MapCanva.SetActive(!MapCanva.activeSelf);
+    }
 }

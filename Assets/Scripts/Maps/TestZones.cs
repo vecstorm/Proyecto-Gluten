@@ -20,5 +20,8 @@ public class TestZones : MonoBehaviour
         // Tecla 3 -> Pasillo_pg
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
             SceneManager.LoadScene("Pasillo_pg");
+
+        if (Keyboard.current.mKey.wasPressedThisFrame && MapManager.Instance != null)
+            MapManager.Instance.HabilityMap();
     }
 }
