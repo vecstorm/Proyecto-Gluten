@@ -59,6 +59,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float debrisHorizontalArea = 15f;
     [SerializeField] private float debrisVerticalPosition = 10f;
     [SerializeField] private float minDebrisDistance = 3f;
+    [SerializeField] private float rainRecoveryDelay = 2f;
 
     [Header("Shooting Attack:")]
     [SerializeField] private GameObject projectilePrefab;
@@ -179,9 +180,9 @@ public class FinalBossEnemyAI : BossAI
         if (timer <= 0)
         {
             //ToSlamming();
-            ToShooting();
+            //ToShooting();
             //ToPunching();
-            //ToRaining();
+            ToRaining();
             //ToStunned();
         }
     }
@@ -352,6 +353,13 @@ public class FinalBossEnemyAI : BossAI
         yield return new WaitForSeconds(rainWaitDelay);
 
         StartCoroutine(DebrisGeneration(minDebris, maxDebris, minDebrisDistance));
+
+        yield return new WaitForSeconds(rainRecoveryDelay);
+
+        leftArm.ResetRotation();
+        leftArm.ReturnToOrigin();
+        rightArm.ResetRotation();
+        rightArm.ReturnToOrigin();
     }
 
     private IEnumerator ShootingProcess()
