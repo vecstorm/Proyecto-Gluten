@@ -94,6 +94,7 @@ public class FinalBossEnemyAI : BossAI
     private float timer = 1f;
 
     private Vector3 lastTargetPosition;
+    private Vector3 chosenCornerPosition;
 
     private FinalBossHand primaryBossHand;
     private FinalBossHand secondaryBossHand;
@@ -229,7 +230,7 @@ public class FinalBossEnemyAI : BossAI
     {
         if (isFollowing)
         {
-            secondaryBossHand.MoveToPosition(rightArenaCorner.position, handFollowingSpeed);
+            secondaryBossHand.MoveToPosition(chosenCornerPosition, handFollowingSpeed);
         }
     }
 
@@ -289,6 +290,7 @@ public class FinalBossEnemyAI : BossAI
 
     private void ToShooting()
     {
+        chosenCornerPosition = FarthestArenaCornerToTarget(targetTransform.position);
         secondaryBossHand = FarthestHandToTarget(targetTransform.position);
 
         StartCoroutine(ShootingProcess());
@@ -367,13 +369,15 @@ public class FinalBossEnemyAI : BossAI
     {
         isFollowing = true;
 
-        secondaryBossHand.transform.Rotate(new Vector3(0, 0, 90));
+        bool targetOnLeft = (targetTransform.position.x - secondaryBossHand.transform.position.x) < 0;
+
+        secondaryBossHand.transform.Rotate(new Vector3(0, 0, targetOnLeft ? -90 : 90));
 
         yield return new WaitForSeconds(shootingPreparationDelay);
 
         isFollowing = false;
 
-        StartCoroutine(ProjectileGeneration());
+        StartCoroutine(ProjectileGeneration(targetOnLeft ? -Vector3.right : Vector3.right));
 
         yield return new WaitUntil(() => lastProjectileShot);
 
@@ -383,14 +387,14 @@ public class FinalBossEnemyAI : BossAI
         secondaryBossHand.ReturnToOrigin();
     }
 
-    private IEnumerator ProjectileGeneration()
+    private IEnumerator ProjectileGeneration(Vector3 projectileDirection)
     {
         int projectileQuantity = Random.Range(minShots, maxShots);
 
         for (int i = 0; i < projectileQuantity; i++)
         {
             GameObject newProjectile = Instantiate(projectilePrefab, secondaryBossHand.transform.position, Quaternion.identity);
-            newProjectile.GetComponent<EnemyProjectileController>().SetLinearDirection(projectileSpeed, Vector3.left);
+            newProjectile.GetComponent<EnemyProjectileController>().SetLinearDirection(projectileSpeed, projectileDirection);
             newProjectile.transform.localScale = new Vector3(2, 2, 2);
 
             yield return new WaitForSeconds(shotsDelay);
@@ -587,6 +591,14 @@ public class FinalBossEnemyAI : BossAI
         float rightArmDistance = (rightArm.transform.position - targetPosition).sqrMagnitude;
 
         return leftArmDistance >= rightArmDistance ? leftArm : rightArm;
+    }
+
+    private Vector3 FarthestArenaCornerToTarget(Vector3 targetPosition)
+    {
+        float leftCornerDistance = (leftArenaCorner.transform.position - targetPosition).sqrMagnitude;
+        float rightCornerDistance = (rightArenaCorner.transform.position - targetPosition).sqrMagnitude;
+
+        return leftCornerDistance >= rightCornerDistance ? leftArenaCorner.position : rightArenaCorner.position;
     }
 
     public override void ResetEnemy()
