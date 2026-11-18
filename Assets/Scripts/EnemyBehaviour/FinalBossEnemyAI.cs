@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class FinalBossEnemyAI : BossAI
 {
-    private enum BOSS_STATE { INTRO, IDLE, STUNNED, SLAMMING, RAINING, PREPARING_CLAP, CLAPPING, PUNCHING };
+    private enum BOSS_STATE { INTRO, IDLE, STUNNED, SLAMMING, RAINING, SHOOTING, PUNCHING };
 
     [Header("States:")]
     [SerializeField] private BOSS_STATE state;
@@ -60,9 +60,8 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float projectileVerticalPosition = 10f;
     [SerializeField] private float minProjectileDistance = 3f;
 
-    [Header("Clap Attack:")]
-    [SerializeField] private float clapFollowDelay = 5f;
-    [SerializeField] private float handHorizontalDistance = 10f;
+    [Header("Shooting Attack:")]
+    [SerializeField] private float shotsDelay = 1f;
 
     [Header("Punch Attack:")]
     [SerializeField] private GameObject punchWarning;
@@ -145,8 +144,8 @@ public class FinalBossEnemyAI : BossAI
                 OnRaining();
                 break;
 
-            case BOSS_STATE.CLAPPING:
-                OnClapping();
+            case BOSS_STATE.SHOOTING:
+                OnShooting();
                 break;
 
             case BOSS_STATE.PUNCHING:
@@ -171,8 +170,8 @@ public class FinalBossEnemyAI : BossAI
 
         if (timer <= 0)
         {
-            ToSlamming();
-            //ToClapping();
+            //ToSlamming();
+            ToShooting();
             //ToPunching();
             //ToRaining();
             //ToStunned();
@@ -216,13 +215,9 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
-    private void OnClapping()
+    private void OnShooting()
     {
-        if (isFollowing)
-        {
-            rightArm.MoveToPosition(new Vector3(transform.position.x + handHorizontalDistance, rightArm.transform.position.y, 0), handFollowingSpeed);
-            leftArm.MoveToPosition(new Vector3(transform.position.x - handHorizontalDistance, leftArm.transform.position.y, 0), handFollowingSpeed);
-        }
+
     }
 
     private void OnPunching()
@@ -279,11 +274,11 @@ public class FinalBossEnemyAI : BossAI
         state = BOSS_STATE.RAINING;
     }
 
-    private void ToClapping()
+    private void ToShooting()
     {
-        StartCoroutine(ClappingProcess());
+        StartCoroutine(ShootingProcess());
 
-        state = BOSS_STATE.CLAPPING;
+        state = BOSS_STATE.SHOOTING;
     }
 
     private void ToPunching()
@@ -346,6 +341,11 @@ public class FinalBossEnemyAI : BossAI
         StartCoroutine(ProjectileGeneration(minProjectiles, maxProjectiles, minProjectileDistance));
     }
 
+    private IEnumerator ShootingProcess()
+    {
+        yield return new WaitForSeconds(0);
+    }
+
     private IEnumerator ProjectileGeneration(int minProjectiles, int maxProjectiles, float minProjectileDistance)
     {
         List<float> usedPositions = new List<float>();
@@ -386,28 +386,6 @@ public class FinalBossEnemyAI : BossAI
 
             yield return new WaitForSeconds(projectileDelay);
         }
-    }
-
-    private IEnumerator ClappingProcess()
-    {
-        isFollowing = true;
-
-        rightArm.transform.Rotate(new Vector3(0, 0, 180));
-        leftArm.transform.Rotate(new Vector3(0, 0, 180));
-
-        yield return new WaitForSeconds(slamFollowDelay);
-
-        isFollowing = false;
-
-        //rightArm.MoveTillCollision((leftArm.transform.position - rightArm.transform.position).normalized, slammingSpeed);
-        //leftArm.MoveTillCollision((rightArm.transform.position - leftArm.transform.position).normalized, slammingSpeed);
-
-        yield return new WaitForSeconds(0);
-
-        rightArm.transform.Rotate(new Vector3(0, 0, -180));
-        leftArm.transform.Rotate(new Vector3(0, 0, -180));
-        rightArm.ReturnToOrigin();
-        leftArm.ReturnToOrigin();
     }
 
     private IEnumerator PunchingProcess()
@@ -466,11 +444,6 @@ public class FinalBossEnemyAI : BossAI
         head.SetActive(value);
         hookPoints.SetActive(value);
         helmet.SetActive(!value);
-    }
-
-    private bool BothArmsCollided()
-    {
-        return rightArm.ArmCollided && leftArm.ArmCollided;
     }
 
     private void BodyMovement()
