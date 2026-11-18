@@ -12,10 +12,10 @@ public class MapManager : MonoBehaviour
     // Canvas del mapa
     [SerializeField] private GameObject MapCanva;
 
-    private GameObject[] Map_Images;
+    private MapZoneImage[] Map_ZoneImages;
 
-    // Esto guarda todas las zonas que haya
-    private List<int> unlockedZones = new List<int>();
+    // Esto guarda todas las zonas que haya (Evitando duplicados)
+    private HashSet<int> unlockedZones = new HashSet<int>();
 
     // Unica instancia del MapManager en todo el juego
     public static MapManager Instance;
@@ -81,7 +81,7 @@ public class MapManager : MonoBehaviour
         // Buscamos al jugador de ESTA MISMA ESCENA DONDE ESTA(con cada escena lo pasa)
         GameObject player = GameObject.FindWithTag("Player");
 
-        // Aunque el juagdor no este en la Escena ocultamos el mapa IGUALMENTE
+        // Aunque el jugador no este en la Escena ocultamos el mapa IGUALMENTE
         if (player == null && Instance != null)
             Instance.MapCanva.SetActive(false);
 
@@ -98,8 +98,8 @@ public class MapManager : MonoBehaviour
         CollectImages();
 
         // AL iniciar todas las imagenes estan inactivas
-        foreach (GameObject image in Map_Images)
-            if (image != null) image.SetActive(false);
+        foreach (MapZoneImage zoneImage in Map_ZoneImages)
+            if (zoneImage != null) zoneImage.gameObject.SetActive(false);
 
         // Mostramos la imagen de la zona actual
         //SetZone(Map_ID);
@@ -109,49 +109,47 @@ public class MapManager : MonoBehaviour
             SetZone(Map_ID);
     }
 
-    // Buscamos las imagenes de las zonas que hay dentro del Canvas
+    // Buscamos las imagenes del mapa que hay dentro del Canvas por su ID
     private void CollectImages()
     {
-        Map_Images = MapCanva.GetComponentsInChildren<Image>(true).Select(img => img.gameObject).Where(obj => obj != MapCanva).ToArray();
+        Map_ZoneImages = MapCanva.GetComponentsInChildren<MapZoneImage>(true);
     }
 
     // Mostramos en el mapa la zona indicada, dejando las desbloqueadas
     public void SetZone(int zone)
     {
-        // El mapa esta siempre visible
+        // El mapa estará invisible, en caso de la función de "HabilityMap" COMENTAR ESTO
         MapCanva.SetActive(false);
 
         // Si todavia no tenemos las imagenes, las buscamos
-        if (Map_Images == null)
+        if (Map_ZoneImages == null)
         {
             CollectImages();
         }
 
         // Si la zona no estaba desbloqueada, la desbloqueamos
-        if (!unlockedZones.Contains(zone))
-        {
-            unlockedZones.Add(zone);
-        }
+        // HashSet ya ignora los duplicados
+        unlockedZones.Add(zone);
 
         // Mostramos las imagenes de las zonas desbloqueadas y ocultamos las demas
-        foreach (GameObject image in Map_Images)
+        foreach (MapZoneImage zoneImage in Map_ZoneImages)
         {
-            if (image != null)
+            if (zoneImage != null)
             {
-                image.SetActive(unlockedZones.Any(id => image.name == "Zona" + id));
+                zoneImage.gameObject.SetActive(unlockedZones.Contains(zoneImage.ZoneID));
             }
         }
 
         // Avisamos si esa zona no tiene imagen en el mapa
-        if (!Map_Images.Any(image => image != null && image.name == "Zona" + zone))
+        if (!Map_ZoneImages.Any(zoneImage => zoneImage != null && zoneImage.ZoneID == zone))
         {
             Debug.LogWarning($"No hay imagen para la zona {zone}", this);
         }
     }
 
     // OPCIONAL: Es de manera más simple para poder llamar a la función y solo poner su input
-    public void HabilityMap()
-    {
-        MapCanva.SetActive(!MapCanva.activeSelf);
-    }
+    //public void HabilityMap()
+    //{
+    //    MapCanva.SetActive(!MapCanva.activeSelf);
+    //}
 }

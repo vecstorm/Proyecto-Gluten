@@ -115,6 +115,7 @@ GameObject:
   - component: {fileID: 8005204763051048788}
   - component: {fileID: 8730834368600634078}
   - component: {fileID: 223595116657563450}
+  - component: {fileID: 5267369288177374871}
   m_Layer: 5
   m_Name: Zona3
   m_TagString: Untagged
@@ -179,6 +180,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5267369288177374871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3870968163938013936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 395644a9d219d3c488abf2e6d6861e34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapZoneImage
+  zoneID: 3
 --- !u!1 &5957764447267977624
 GameObject:
   m_ObjectHideFlags: 0
@@ -190,6 +204,7 @@ GameObject:
   - component: {fileID: 1079497146469886243}
   - component: {fileID: 5527737907390992225}
   - component: {fileID: 4182668000519413681}
+  - component: {fileID: 8909216257749806601}
   m_Layer: 5
   m_Name: Zona2
   m_TagString: Untagged
@@ -254,6 +269,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8909216257749806601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5957764447267977624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 395644a9d219d3c488abf2e6d6861e34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapZoneImage
+  zoneID: 2
 --- !u!1 &8787699705191859945
 GameObject:
   m_ObjectHideFlags: 0
@@ -265,6 +293,7 @@ GameObject:
   - component: {fileID: 326541662124244782}
   - component: {fileID: 547693313681158526}
   - component: {fileID: 8881487959042252023}
+  - component: {fileID: 5647630390901705136}
   m_Layer: 5
   m_Name: Zona1
   m_TagString: Untagged
@@ -329,3 +358,16 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5647630390901705136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8787699705191859945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 395644a9d219d3c488abf2e6d6861e34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapZoneImage
+  zoneID: 1
