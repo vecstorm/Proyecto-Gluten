@@ -31,10 +31,24 @@ public class MapManager : MonoBehaviour
                 Destroy(MapCanva);
             }
 
-            //Instance.SetZone(Map_ID);
+            // Avisamos al manager persistente solo si hay jugador en esta escena
+            bool hasPlayer = GameObject.FindWithTag("Player") != null;
 
-            //Destroy(gameObject);
+            Debug.Log($"Mapa del Manager duplicado - zona {Map_ID} || jugador en escena: {hasPlayer}");
 
+            if (hasPlayer)
+                Instance.SetZone(Map_ID);
+            else
+                Instance.MapCanva.SetActive(false);
+
+            Destroy(gameObject);
+
+            return;
+        }
+
+        if (MapCanva == null)
+        {
+            Debug.LogError("MapCanva no asignado en MapManager", this);
             return;
         }
 
@@ -85,15 +99,6 @@ public class MapManager : MonoBehaviour
         if (player == null && Instance != null)
             Instance.MapCanva.SetActive(false);
 
-        // El MapManager de las demás zonas solo avisan si el jugador esta en esa zona o no
-        if (Instance != this)
-        {
-            if (player != null)
-                Instance.SetZone(Map_ID);
-
-            return;
-        }
-
         // Buscamos automaticamente las imagenes del Canvas
         CollectImages();
 
@@ -130,6 +135,8 @@ public class MapManager : MonoBehaviour
         // Si la zona no estaba desbloqueada, la desbloqueamos
         // HashSet ya ignora los duplicados
         unlockedZones.Add(zone);
+
+        Debug.Log($"Mapa SetZone({zone}) guardado, las zonas desbloqueadas: {string.Join(", ", unlockedZones)}");
 
         // Mostramos las imagenes de las zonas desbloqueadas y ocultamos las demas
         foreach (MapZoneImage zoneImage in Map_ZoneImages)
