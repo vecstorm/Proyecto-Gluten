@@ -6,8 +6,8 @@ public class MapManager : MonoBehaviour
     [Header("Configuración MapCanva")]
     [SerializeField] private GameObject MapCanva;
 
-    [Header("Pon el X de imagenes del mapa que habran 0-X")]
-    [SerializeField] private bool[] unlockedZones;
+    // Array de escenas, lo creamos para poner el ID más alto  de las imagenes
+    private bool[] unlockedZones;
 
     private MapZoneImage[] mapZoneImages;
 
@@ -55,6 +55,10 @@ public class MapManager : MonoBehaviour
                 rect.localScale = Vector3.one;
             }
         }
+
+        // Creamos el array segun las imagenes que haya
+        CollectImages();
+        CreateZoneArray();
     }
 
     private void Start()
@@ -78,25 +82,46 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    // Este es un metodo que recibe la ID de la escena actual y marca su booleano como true
+    private void CreateZoneArray()
+    {
+        // Guardaremos el ID más alto de las escenas
+        int maxID = 0;
+
+        // Comprobamos la lista de las imagenes no esten vacias
+        if (mapZoneImages != null)
+        {
+            // Recorremos todas las imágenes del mapa
+            foreach (var img in mapZoneImages)
+            {
+                // Comprobamos que la imagen exista y que su ID sea mayor al que tenemos guardado
+                if (img != null && img.ZoneID > maxID)
+                    maxID = img.ZoneID;
+            }
+        }
+
+        // Creamos un array de booleanos según el ID más alto de las zonas
+        unlockedZones = new bool[maxID + 1];
+    }
+
+    // Metodo que recibira el ID de la escena actual y marca su booleano como true
     public void UnlockZone(int zoneID)
     {
         // Verificamos que el ID esté dentro del tamaño del array booleano
         if (unlockedZones != null && zoneID >= 0 && zoneID < unlockedZones.Length)
         {
             unlockedZones[zoneID] = true; // Se queda en true de forma permanente
-            Debug.Log($"Zona {zoneID} desbloqueada en el array de booleanos.");
+            Debug.Log($"Zona {zoneID} desbloqueada en el array de booleanos");
         }
         else
         {
-            Debug.LogWarning($"El ID de zona {zoneID} está fuera del rango del array booleano.");
+            Debug.LogWarning($"El ID de zona {zoneID} está fuera del rango del array booleano");
         }
 
-        // Actualizamos los gráficos del mapa inmediatamente
+        // Actualizamos el mapa
         UpdateMapVisuals();
     }
 
-    // Recorre todas las imágenes del mapa y enciende las que tengan su booleano en TRUE
+    // Función que recorre todas las imagenes del mapa y enciende las que estan en true
     private void UpdateMapVisuals()
     {
         if (mapZoneImages == null)
@@ -105,6 +130,9 @@ public class MapManager : MonoBehaviour
         }
 
         if (mapZoneImages == null) return;
+
+        // Si el array de la escena no existe, no se muestra nada
+        if (unlockedZones == null) return;
 
         foreach (var zoneImage in mapZoneImages)
         {
