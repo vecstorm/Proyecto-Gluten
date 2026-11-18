@@ -50,7 +50,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float minSlamProjectileDistance = 5f;
 
     [Header("Raining Attack:")]
-    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private GameObject fallingProjectilePrefab;
     [SerializeField] private int minProjectiles = 15;
     [SerializeField] private int maxProjectiles = 20;
     [SerializeField] private float rainDelay = 1f;
@@ -61,6 +61,13 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float minProjectileDistance = 3f;
 
     [Header("Shooting Attack:")]
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private Transform leftArenaCorner;
+    [SerializeField] private Transform rightArenaCorner;
+    [SerializeField] private float shootingPreparationDelay = 2f;
+    [SerializeField] private float projectileSpeed = 7f;
+    [SerializeField] private int minShots = 5;
+    [SerializeField] private int maxShots = 8;
     [SerializeField] private float shotsDelay = 1f;
 
     [Header("Punch Attack:")]
@@ -86,7 +93,8 @@ public class FinalBossEnemyAI : BossAI
 
     private Vector3 lastTargetPosition;
 
-    private FinalBossHand activeBossHand;
+    private FinalBossHand primaryBossHand;
+    private FinalBossHand secondaryBossHand;
 
     #region MAIN LOOP
 
@@ -198,7 +206,7 @@ public class FinalBossEnemyAI : BossAI
         {
             Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + (slamHandBeneathDistance + anticipation), targetTransform.position.z);
 
-            activeBossHand.MoveToPosition(targetFollowPosition, handFollowingSpeed);
+            primaryBossHand.MoveToPosition(targetFollowPosition, handFollowingSpeed);
 
             lastTargetPosition = targetTransform.position;
         }
@@ -217,7 +225,10 @@ public class FinalBossEnemyAI : BossAI
 
     private void OnShooting()
     {
-
+        if (isFollowing)
+        {
+            secondaryBossHand.MoveToPosition(rightArenaCorner.position, handFollowingSpeed);
+        }
     }
 
     private void OnPunching()
@@ -226,7 +237,7 @@ public class FinalBossEnemyAI : BossAI
         {
             Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + punchHandBeneathDistance, targetTransform.position.z);
 
-            activeBossHand.MoveToPosition(targetFollowPosition, slammingSpeed);
+            primaryBossHand.MoveToPosition(targetFollowPosition, slammingSpeed);
 
             lastTargetPosition = targetTransform.position;
         }
@@ -259,7 +270,7 @@ public class FinalBossEnemyAI : BossAI
     {
         if (!alreadySlamming)
         {
-            activeBossHand = ClosestHandToTarget(targetTransform.position);
+            primaryBossHand = ClosestHandToTarget(targetTransform.position);
 
             StartCoroutine(SlamProcess());
         }
@@ -276,6 +287,8 @@ public class FinalBossEnemyAI : BossAI
 
     private void ToShooting()
     {
+        secondaryBossHand = FarthestHandToTarget(targetTransform.position);
+
         StartCoroutine(ShootingProcess());
 
         state = BOSS_STATE.SHOOTING;
@@ -283,7 +296,7 @@ public class FinalBossEnemyAI : BossAI
 
     private void ToPunching()
     {
-        activeBossHand = ClosestHandToTarget(targetTransform.position);
+        primaryBossHand = ClosestHandToTarget(targetTransform.position);
 
         StartCoroutine(PunchingProcess());
 
@@ -298,11 +311,11 @@ public class FinalBossEnemyAI : BossAI
     {
         isFollowing = true;
 
-        activeBossHand.transform.Rotate(new Vector3(0, 0, 90));
+        primaryBossHand.transform.Rotate(new Vector3(0, 0, 90));
 
         yield return new WaitForSeconds(slamFollowDelay);
 
-        Vector3 targetSlamDirection = (lastTargetPosition - activeBossHand.transform.position).normalized;
+        Vector3 targetSlamDirection = (lastTargetPosition - primaryBossHand.transform.position).normalized;
 
         anticipation = anticipationDistance;
 
@@ -312,16 +325,16 @@ public class FinalBossEnemyAI : BossAI
 
         isFollowing = false;
 
-        activeBossHand.MoveTillCollision(targetSlamDirection, slammingSpeed);
+        primaryBossHand.MoveTillCollision(targetSlamDirection, slammingSpeed);
 
-        yield return new WaitUntil(() => activeBossHand.ArmCollided);
+        yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
         StartCoroutine(ProjectileGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
 
         yield return new WaitForSeconds(slamRecoveryDelay);
 
-        activeBossHand.ResetRotation();
-        activeBossHand.ReturnToOrigin();
+        primaryBossHand.ResetRotation();
+        primaryBossHand.ReturnToOrigin();
         alreadySlamming = false;
     }
 
@@ -343,7 +356,24 @@ public class FinalBossEnemyAI : BossAI
 
     private IEnumerator ShootingProcess()
     {
-        yield return new WaitForSeconds(0);
+        isFollowing = true;
+
+        secondaryBossHand.transform.Rotate(new Vector3(0, 0, 90));
+
+        yield return new WaitForSeconds(shootingPreparationDelay);
+
+        int projectileQuantity = Random.Range(minShots, maxShots);
+
+        for (int i = 0; i < projectileQuantity; i++)
+        {
+            GameObject newProjectile = Instantiate(projectilePrefab, secondaryBossHand.transform.position, Quaternion.identity);
+            newProjectile.GetComponent<EnemyProjectileController>().SetLinearDirection(projectileSpeed, Vector3.left);
+            newProjectile.transform.localScale = new Vector3(2, 2, 2);
+
+            yield return new WaitForSeconds(shotsDelay);
+        }
+
+        isFollowing = false;
     }
 
     private IEnumerator ProjectileGeneration(int minProjectiles, int maxProjectiles, float minProjectileDistance)
@@ -382,7 +412,7 @@ public class FinalBossEnemyAI : BossAI
 
             usedPositions.Add(horizontalPosition);
 
-            GameObject newProjectile = Instantiate(projectilePrefab, new Vector3(horizontalPosition, transform.position.y + projectileVerticalPosition, 0), Quaternion.identity);
+            GameObject newProjectile = Instantiate(fallingProjectilePrefab, new Vector3(horizontalPosition, transform.position.y + projectileVerticalPosition, 0), Quaternion.identity);
 
             yield return new WaitForSeconds(projectileDelay);
         }
@@ -392,13 +422,13 @@ public class FinalBossEnemyAI : BossAI
     {
         isFollowing = true;
 
-        activeBossHand.transform.Rotate(new Vector3(0, 0, 180));
+        primaryBossHand.transform.Rotate(new Vector3(0, 0, 180));
 
         yield return new WaitForSeconds(punchDelay);
 
         isFollowing = false;
 
-        Vector3 targetSlamDirection = (lastTargetPosition - activeBossHand.transform.position).normalized;
+        Vector3 targetSlamDirection = (lastTargetPosition - primaryBossHand.transform.position).normalized;
 
         RaycastHit2D hit = Physics2D.Raycast(lastTargetPosition, Vector3.down, 20f, groundLayer);
 
@@ -416,15 +446,15 @@ public class FinalBossEnemyAI : BossAI
             Destroy(warning);
         }
 
-        activeBossHand.transform.Rotate(new Vector3(0, 0, -180));
+        primaryBossHand.transform.Rotate(new Vector3(0, 0, -180));
 
-        activeBossHand.MoveTillCollision(targetSlamDirection, punchingSpeed);
+        primaryBossHand.MoveTillCollision(targetSlamDirection, punchingSpeed);
 
-        yield return new WaitUntil(() => activeBossHand.ArmCollided);
+        yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
         yield return new WaitForSeconds(punchRecoveryDelay);
 
-        activeBossHand.ReturnToOrigin();
+        primaryBossHand.ReturnToOrigin();
 
         consecutivePunches++;
 
@@ -526,6 +556,14 @@ public class FinalBossEnemyAI : BossAI
         float rightArmDistance = (rightArm.transform.position - targetPosition).sqrMagnitude;
 
         return leftArmDistance <= rightArmDistance ? leftArm : rightArm;
+    }
+
+    private FinalBossHand FarthestHandToTarget(Vector3 targetPosition)
+    {
+        float leftArmDistance = (leftArm.transform.position - targetPosition).sqrMagnitude;
+        float rightArmDistance = (rightArm.transform.position - targetPosition).sqrMagnitude;
+
+        return leftArmDistance >= rightArmDistance ? leftArm : rightArm;
     }
 
     public override void ResetEnemy()

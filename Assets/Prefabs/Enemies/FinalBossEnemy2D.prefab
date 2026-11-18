@@ -679,7 +679,10 @@ MonoBehaviour:
   slamDelay: 0.1
   slammingSpeed: 25
   slamRecoveryDelay: 1.5
-  projectilePrefab: {fileID: 706270362039097128, guid: 920b819e09a29c146a0afb6674a0b4e3, type: 3}
+  minSlamProjectiles: 2
+  maxSlamProjectiles: 4
+  minSlamProjectileDistance: 5
+  fallingProjectilePrefab: {fileID: 706270362039097128, guid: 920b819e09a29c146a0afb6674a0b4e3, type: 3}
   minProjectiles: 15
   maxProjectiles: 20
   rainDelay: 1
@@ -688,8 +691,14 @@ MonoBehaviour:
   projectileHorizontalArea: 10
   projectileVerticalPosition: 10
   minProjectileDistance: 2
-  clapFollowDelay: 5
-  handHorizontalDistance: 13
+  projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
+  leftArenaCorner: {fileID: 0}
+  rightArenaCorner: {fileID: 0}
+  shootingPreparationDelay: 2
+  projectileSpeed: 7
+  minShots: 6
+  maxShots: 10
+  shotsDelay: 1
   punchWarning: {fileID: 561017133050389988, guid: f94e666ceeb544d43a12d2dad36a55ed, type: 3}
   maxConsecutivePunches: 4
   punchingSpeed: 30
@@ -858,6 +867,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FinalBossHand
   originPoint: {fileID: 617980429199104126}
   returningSpeed: 20
+  offsetSpeed: 3
 --- !u!70 &389605795144714910
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1292,6 +1302,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FinalBossHand
   originPoint: {fileID: 8003239089483993016}
   returningSpeed: 20
+  offsetSpeed: 3
 --- !u!70 &3069411904712472253
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

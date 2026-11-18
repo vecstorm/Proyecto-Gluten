@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class EnemyProjectileController : MonoBehaviour
 {
     [SerializeField] private int contactDamage = 10;
@@ -12,7 +13,7 @@ public class EnemyProjectileController : MonoBehaviour
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
-    private void Start()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
     }
@@ -40,6 +41,17 @@ public class EnemyProjectileController : MonoBehaviour
         this.speed = speed;
 
         direction = (targetPosition - transform.position).normalized;
+    }
+
+    public void SetLinearDirection(float speed, Vector3 targetDirection)
+    {
+        if (rb != null)
+        {
+            rb.gravityScale = 0;
+        }
+        
+        this.speed = speed;
+        direction = targetDirection;
     }
 
     public void SetSpeed(float speed)

@@ -4091,6 +4091,11 @@ Transform:
   - {fileID: 369673789}
   m_Father: {fileID: 1274483825}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &597699279 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 726269964260680575, guid: a7875da0a88492343be38690f277047a, type: 3}
+  m_PrefabInstance: {fileID: 93651646}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &603519866
 GameObject:
   m_ObjectHideFlags: 0
@@ -6646,6 +6651,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1274483825}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1154903981 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3626797735139929073, guid: a7875da0a88492343be38690f277047a, type: 3}
+  m_PrefabInstance: {fileID: 93651646}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1167999327
 GameObject:
   m_ObjectHideFlags: 0
@@ -12857,6 +12867,14 @@ PrefabInstance:
       propertyPath: areaDoors
       value: 
       objectReference: {fileID: 243530719}
+    - target: {fileID: 1679222458944668521, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
+      propertyPath: leftArenaCorner
+      value: 
+      objectReference: {fileID: 1154903981}
+    - target: {fileID: 1679222458944668521, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
+      propertyPath: rightArenaCorner
+      value: 
+      objectReference: {fileID: 597699279}
     - target: {fileID: 3144842458161312605, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
       propertyPath: m_IsActive
       value: 1
