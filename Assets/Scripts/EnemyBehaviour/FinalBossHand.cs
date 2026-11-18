@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 
 [RequireComponent (typeof(Rigidbody2D))]
 public class FinalBossHand : MonoBehaviour
@@ -91,7 +92,12 @@ public class FinalBossHand : MonoBehaviour
     {
         if (collision.transform.CompareTag("Ground"))
         {
-            armCollided = true;
+            ContactPoint2D contact = collision.GetContact(0);
+
+            if (Mathf.Abs(contact.normal.y) > 0.5f)
+            {
+                armCollided = true;
+            }
         }
     }
 }

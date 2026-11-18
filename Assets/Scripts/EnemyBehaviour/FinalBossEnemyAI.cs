@@ -25,7 +25,8 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private GameObject helmet;
 
     [Header("Movement:")]
-    [SerializeField] private float movementSpeed = 7;
+    [SerializeField] private float movementSpeed = 7f;
+    [SerializeField] private float minDistanceToWall = 8f;
 
     [Header("Intro / Idle:")]
     [SerializeField] private int contactDamage = 10;
@@ -453,7 +454,15 @@ public class FinalBossEnemyAI : BossAI
     {
         Vector3 targetPosition = new Vector3(targetTransform.position.x, chest.transform.position.y, chest.transform.position.z);
 
-        chest.transform.position = Vector3.MoveTowards(chest.transform.position, targetPosition, movementSpeed * Time.fixedDeltaTime);
+        Vector3 movementDirection = (targetPosition - chest.transform.position).normalized;
+
+        RaycastHit2D hit = Physics2D.Raycast(chest.transform.position, movementDirection, minDistanceToWall, groundLayer);
+        Debug.DrawRay(chest.transform.position, movementDirection * minDistanceToWall, Color.red);
+
+        if (hit.collider == null)
+        {
+            chest.transform.position = Vector3.MoveTowards(chest.transform.position, targetPosition, movementSpeed * Time.fixedDeltaTime);
+        }
     }
 
     private void DamageArmour(CombatDamage damage)

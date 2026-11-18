@@ -665,7 +665,8 @@ MonoBehaviour:
   neck: {fileID: 6274195536169190015}
   head: {fileID: 4767935140243559126}
   helmet: {fileID: 8413115449574880751}
-  movementSpeed: 7
+  movementSpeed: 3
+  minDistanceToWall: 10
   contactDamage: 10
   introTime: 2
   stunnedTime: 6
