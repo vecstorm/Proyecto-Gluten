@@ -10,6 +10,7 @@ public class FinalBossEnemyAI : BossAI
     [Header("States:")]
     [SerializeField] private BOSS_STATE state;
     [SerializeField] private BOSS_STATE defaultState;
+    [SerializeField] private BOSS_STATE lastAttackState;
     [SerializeField] private bool slamAfterIntro = false;
     [SerializeField] private bool rainAfterIntro = false;
     [SerializeField] private bool shootAfterIntro = false;
@@ -39,6 +40,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float introTime = 1f;
 
     [Header("Stunned:")]
+    [SerializeField] private int timesStunned = 0;
     [SerializeField] private float stunnedTime = 4f;
 
     [Header("Slam Attack:")]
@@ -94,8 +96,10 @@ public class FinalBossEnemyAI : BossAI
     private bool alreadyShooting = false;
     private bool alreadyPunching = false;
     private bool isFollowing;
+    private bool movementEnabled = true;
 
     private int consecutivePunches = 0;
+
     private bool lastProjectileShot = false;
 
     private float timer = 1f;
@@ -225,7 +229,9 @@ public class FinalBossEnemyAI : BossAI
             DisarmBoss(false);
             rightArm.SetColliderActive(true);
             leftArm.SetColliderActive(true);
-            ToPunching();
+            //ToPunching();
+            //ToSlamming();
+            ToRaining();
         }
     }
 
@@ -234,7 +240,7 @@ public class FinalBossEnemyAI : BossAI
     {
         if (isFollowing)
         {
-            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + (slamHandBeneathDistance + anticipation), targetTransform.position.z);
+            Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, transform.position.y + (slamHandBeneathDistance + anticipation), targetTransform.position.z);
 
             primaryBossHand.MoveToPosition(targetFollowPosition, handFollowingSpeed);
 
@@ -291,6 +297,8 @@ public class FinalBossEnemyAI : BossAI
     // Comportamiento de transición a STUNNED
     private void ToStunned()
     {
+        timesStunned++;
+
         timer = stunnedTime;
 
         ResetArmsOffset();
@@ -314,9 +322,10 @@ public class FinalBossEnemyAI : BossAI
             primaryBossHand = ClosestHandToTarget(targetTransform.position);
 
             StartCoroutine(SlamProcess());
+
+            state = BOSS_STATE.SLAMMING;
+            lastAttackState = state;
         }
-        
-        state = BOSS_STATE.SLAMMING;
     }
 
     // Comportamiento de transición a RAINING
@@ -327,9 +336,10 @@ public class FinalBossEnemyAI : BossAI
             alreadyRaining = true;
 
             StartCoroutine(RainingProcess());
+
+            state = BOSS_STATE.RAINING;
+            lastAttackState = state;
         }
-        
-        state = BOSS_STATE.RAINING;
     }
 
     // Comportamiento de transición a SHOOTING
@@ -343,9 +353,10 @@ public class FinalBossEnemyAI : BossAI
             secondaryBossHand = FarthestHandToTarget(targetTransform.position);
 
             StartCoroutine(ShootingProcess());
+
+            state = BOSS_STATE.SHOOTING;
+            lastAttackState = state;
         }
-        
-        state = BOSS_STATE.SHOOTING;
     }
 
     // Comportamiento de transición a PUNCHING
@@ -358,15 +369,17 @@ public class FinalBossEnemyAI : BossAI
             primaryBossHand = ClosestHandToTarget(targetTransform.position);
 
             StartCoroutine(PunchingProcess());
+
+            state = BOSS_STATE.PUNCHING;
+            lastAttackState = state;
         }
-        
-        state = BOSS_STATE.PUNCHING;
     }
 
     #endregion
 
     #region STATE CONDITION
 
+    // Seqüencia de ataque slam del enemigo
     private IEnumerator SlamProcess()
     {
         isFollowing = true;
@@ -389,17 +402,28 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
-        StartCoroutine(DebrisGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
-
+        if (timesStunned >= 1)
+        {
+            StartCoroutine(DebrisGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
+        }
+        
         yield return new WaitForSeconds(slamRecoveryDelay);
 
         primaryBossHand.ResetHand();
         alreadySlamming = false;
+
+        ProbabilityToAct(100f, ToPunching);
     }
 
+    // Seqüencia de ataque raining del enemigo
     private IEnumerator RainingProcess()
     {
+        movementEnabled = false;
+
+        yield return new WaitUntil(() => BothArmsOnPosition());
+
         isFollowing = true;
+        movementEnabled = true;
 
         rightArm.transform.Rotate(new Vector3(0, 0, 200f));
         leftArm.transform.Rotate(new Vector3(0, 0, -200f));
@@ -418,13 +442,16 @@ public class FinalBossEnemyAI : BossAI
         rightArm.ResetHand();
 
         alreadyRaining = false;
+
+        ProbabilityToAct(60f, ToShooting, ToPunching);
     }
 
+    // Seqüencia de ataque shooting del enemigo
     private IEnumerator ShootingProcess()
     {
         isFollowing = true;
 
-        bool targetOnLeft = (targetTransform.position.x - secondaryBossHand.transform.position.x) < 0;
+        bool targetOnLeft = (targetTransform.position.x - chosenCornerPosition.x) < 0;
 
         secondaryBossHand.transform.Rotate(new Vector3(0, 0, targetOnLeft ? -90 : 90));
 
@@ -440,8 +467,11 @@ public class FinalBossEnemyAI : BossAI
         secondaryBossHand.ResetHand();
 
         alreadyShooting = false;
+
+        ProbabilityToAct(100, ToSlamming);
     }
 
+    // Genera un numero de proyectiles que se mueven en una direccion especifica
     private IEnumerator ProjectileGeneration(Vector3 projectileDirection)
     {
         int projectileQuantity = Random.Range(minShots, maxShots);
@@ -458,6 +488,7 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
+    // Genera un numero de escombros que caen del techo con cierto delay
     private IEnumerator DebrisGeneration(int minDebris, int maxDebris, float minDebrisDistance)
     {
         List<float> usedPositions = new List<float>();
@@ -500,6 +531,7 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
+    // Seqüencia de ataque punching del enemigo
     private IEnumerator PunchingProcess()
     {
         isFollowing = true;
@@ -549,6 +581,15 @@ public class FinalBossEnemyAI : BossAI
         else
         {
             consecutivePunches = 0;
+
+            if (lastAttackState == BOSS_STATE.RAINING)
+            {
+                ToShooting();
+            }
+            else
+            {
+                ProbabilityToAct(70f, ToRaining, ToSlamming);
+            }
         }
     }
 
@@ -577,21 +618,28 @@ public class FinalBossEnemyAI : BossAI
             return;
         }
 
-        chest.transform.position = Vector3.MoveTowards(chest.transform.position, targetPosition, movementSpeed * Time.fixedDeltaTime);
+        if (movementEnabled)
+        {
+            chest.transform.position = Vector3.MoveTowards(chest.transform.position, targetPosition, movementSpeed * Time.fixedDeltaTime);
 
-        if (Mathf.Abs(targetDistance) < 0.5f)
+            if (Mathf.Abs(targetDistance) < 0.5f)
+            {
+                ResetArmsOffset();
+            }
+            else if (targetDistance > 0f)
+            {
+                leftArm.SetMovementOffset(-backHandOffset);
+                rightArm.SetMovementOffset(frontHandOffset);
+            }
+            else if (targetDistance < 0f)
+            {
+                leftArm.SetMovementOffset(-frontHandOffset);
+                rightArm.SetMovementOffset(backHandOffset);
+            }
+        }
+        else
         {
             ResetArmsOffset();
-        }
-        else if (targetDistance > 0f)
-        {
-            leftArm.SetMovementOffset(-backHandOffset);
-            rightArm.SetMovementOffset(frontHandOffset);
-        }
-        else if (targetDistance < 0f)
-        {
-            leftArm.SetMovementOffset(-frontHandOffset);
-            rightArm.SetMovementOffset(backHandOffset);
         }
     }
 
@@ -659,6 +707,11 @@ public class FinalBossEnemyAI : BossAI
         float rightCornerDistance = (rightArenaCorner.transform.position - targetPosition).sqrMagnitude;
 
         return leftCornerDistance >= rightCornerDistance ? leftArenaCorner.position : rightArenaCorner.position;
+    }
+
+    private bool BothArmsOnPosition()
+    {
+        return leftArm.OnOrigin && rightArm.OnOrigin;
     }
 
     public override void ResetEnemy()

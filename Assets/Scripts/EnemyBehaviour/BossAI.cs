@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public abstract class BossAI : EnemyAI
 {
@@ -33,6 +34,21 @@ public abstract class BossAI : EnemyAI
     public void BossActive(bool value)
     {
         bossActive = value;
+    }
+
+    // Ejecuta una funcion depend
+    protected void ProbabilityToAct(float probability, Action behaviour, Action alternateBehaviour = null)
+    {
+        if (UnityEngine.Random.Range(0f, 100f) <= probability)
+        {
+            behaviour();
+        }
+        else
+        {
+            if (alternateBehaviour == null) return;
+
+            alternateBehaviour();
+        }
     }
 
     public bool IsDead()

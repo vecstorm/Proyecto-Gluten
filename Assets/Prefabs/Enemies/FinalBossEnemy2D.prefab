@@ -656,6 +656,7 @@ MonoBehaviour:
     m_Bits: 8
   state: 0
   defaultState: 0
+  lastAttackState: 0
   slamAfterIntro: 0
   rainAfterIntro: 0
   shootAfterIntro: 0
@@ -675,9 +676,10 @@ MonoBehaviour:
   frontHandOffset: 0.5
   contactDamage: 10
   introTime: 2
+  timesStunned: 0
   stunnedTime: 6
   handFollowingSpeed: 15
-  slamHandBeneathDistance: 7
+  slamHandBeneathDistance: 3
   slamFollowDelay: 3
   anticipationDistance: 2
   slamDelay: 0.1

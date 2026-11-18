@@ -572,21 +572,6 @@ public class MiniBossEnemyAI : BossAI
         return deltaX < 0;
     }
 
-    // Ejecuta una funcion depend
-    private void ProbabilityToAct(float probability, Action behaviour, Action alternateBehaviour = null)
-    {
-        if (UnityEngine.Random.Range(0f, 100f) <= probability)
-        {
-            behaviour();
-        }
-        else
-        {
-            if (alternateBehaviour == null) return;
-
-            alternateBehaviour();
-        }
-    }
-
     // Reinicia a 0 los contadores de ataques consecutivos
     private void ResetMultiActionCount()
     {

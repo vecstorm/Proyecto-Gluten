@@ -18,7 +18,7 @@ public class FinalBossHand : MonoBehaviour
     private Rigidbody2D rb;
 
     private bool armCollided = false;
-    private bool returning = false;
+    private bool onOrigin = false;
     private bool colorFlashing = false;
 
     private CapsuleCollider2D damageCollider;
@@ -27,6 +27,8 @@ public class FinalBossHand : MonoBehaviour
 
 
     public bool ArmCollided => armCollided;
+
+    public bool OnOrigin => onOrigin;
 
     private void Start()
     {
@@ -49,7 +51,7 @@ public class FinalBossHand : MonoBehaviour
 
             if (Vector3.Distance(transform.position, originPoint.position) <= 0.01f)
             {
-                returning = false;
+                onOrigin = true;
             }
         }
     }
@@ -57,7 +59,7 @@ public class FinalBossHand : MonoBehaviour
     public void ReturnToOrigin()
     {
         armCollided = false;
-        returning = true;
+        onOrigin = false;
         isBusy = false;
     }
 
