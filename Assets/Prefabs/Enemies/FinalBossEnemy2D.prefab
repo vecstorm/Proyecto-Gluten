@@ -682,15 +682,15 @@ MonoBehaviour:
   minSlamProjectiles: 2
   maxSlamProjectiles: 4
   minSlamProjectileDistance: 5
-  fallingProjectilePrefab: {fileID: 706270362039097128, guid: 920b819e09a29c146a0afb6674a0b4e3, type: 3}
-  minProjectiles: 15
-  maxProjectiles: 20
+  fallingDebrisPrefab: {fileID: 706270362039097128, guid: 920b819e09a29c146a0afb6674a0b4e3, type: 3}
+  minDebris: 15
+  maxDebris: 20
   rainDelay: 1
   rainWaitDelay: 1
-  projectileDelay: 0.4
-  projectileHorizontalArea: 10
-  projectileVerticalPosition: 10
-  minProjectileDistance: 2
+  debrisDelay: 0.4
+  debrisHorizontalArea: 15
+  debrisVerticalPosition: 10
+  minDebrisDistance: 3
   projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
   leftArenaCorner: {fileID: 0}
   rightArenaCorner: {fileID: 0}

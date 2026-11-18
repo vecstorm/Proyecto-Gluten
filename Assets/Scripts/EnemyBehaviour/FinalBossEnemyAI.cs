@@ -50,15 +50,15 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float minSlamProjectileDistance = 5f;
 
     [Header("Raining Attack:")]
-    [SerializeField] private GameObject fallingProjectilePrefab;
-    [SerializeField] private int minProjectiles = 15;
-    [SerializeField] private int maxProjectiles = 20;
+    [SerializeField] private GameObject fallingDebrisPrefab;
+    [SerializeField] private int minDebris = 15;
+    [SerializeField] private int maxDebris = 20;
     [SerializeField] private float rainDelay = 1f;
     [SerializeField] private float rainWaitDelay = 1f;
-    [SerializeField] private float projectileDelay = 0.4f;
-    [SerializeField] private float projectileHorizontalArea = 15f;
-    [SerializeField] private float projectileVerticalPosition = 10f;
-    [SerializeField] private float minProjectileDistance = 3f;
+    [SerializeField] private float debrisDelay = 0.4f;
+    [SerializeField] private float debrisHorizontalArea = 15f;
+    [SerializeField] private float debrisVerticalPosition = 10f;
+    [SerializeField] private float minDebrisDistance = 3f;
 
     [Header("Shooting Attack:")]
     [SerializeField] private GameObject projectilePrefab;
@@ -329,7 +329,7 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
-        StartCoroutine(ProjectileGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
+        StartCoroutine(DebrisGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
 
         yield return new WaitForSeconds(slamRecoveryDelay);
 
@@ -351,7 +351,7 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(rainWaitDelay);
 
-        StartCoroutine(ProjectileGeneration(minProjectiles, maxProjectiles, minProjectileDistance));
+        StartCoroutine(DebrisGeneration(minDebris, maxDebris, minDebrisDistance));
     }
 
     private IEnumerator ShootingProcess()
@@ -376,7 +376,7 @@ public class FinalBossEnemyAI : BossAI
         isFollowing = false;
     }
 
-    private IEnumerator ProjectileGeneration(int minProjectiles, int maxProjectiles, float minProjectileDistance)
+    private IEnumerator DebrisGeneration(int minProjectiles, int maxProjectiles, float minProjectileDistance)
     {
         List<float> usedPositions = new List<float>();
 
@@ -392,7 +392,7 @@ public class FinalBossEnemyAI : BossAI
             {
                 placingAttempts++;
 
-                horizontalPosition = Random.Range(targetTransform.position.x - projectileHorizontalArea, targetTransform.position.x + projectileHorizontalArea);
+                horizontalPosition = Random.Range(targetTransform.position.x - debrisHorizontalArea, targetTransform.position.x + debrisHorizontalArea);
 
                 validPosition = true;
 
@@ -412,9 +412,9 @@ public class FinalBossEnemyAI : BossAI
 
             usedPositions.Add(horizontalPosition);
 
-            GameObject newProjectile = Instantiate(fallingProjectilePrefab, new Vector3(horizontalPosition, transform.position.y + projectileVerticalPosition, 0), Quaternion.identity);
+            GameObject newProjectile = Instantiate(fallingDebrisPrefab, new Vector3(horizontalPosition, transform.position.y + debrisVerticalPosition, 0), Quaternion.identity);
 
-            yield return new WaitForSeconds(projectileDelay);
+            yield return new WaitForSeconds(debrisDelay);
         }
     }
 
