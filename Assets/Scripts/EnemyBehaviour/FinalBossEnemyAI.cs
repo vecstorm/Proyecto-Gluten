@@ -87,6 +87,7 @@ public class FinalBossEnemyAI : BossAI
 
     private Vector3 lastTargetPosition;
 
+    private FinalBossHand activeBossHand;
 
     #region MAIN LOOP
 
@@ -198,7 +199,7 @@ public class FinalBossEnemyAI : BossAI
         {
             Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + (slamHandBeneathDistance + anticipation), targetTransform.position.z);
 
-            rightArm.MoveToPosition(targetFollowPosition, handFollowingSpeed);
+            activeBossHand.MoveToPosition(targetFollowPosition, handFollowingSpeed);
 
             lastTargetPosition = targetTransform.position;
         }
@@ -230,7 +231,7 @@ public class FinalBossEnemyAI : BossAI
         {
             Vector3 targetFollowPosition = new Vector3(targetTransform.position.x, targetTransform.position.y + punchHandBeneathDistance, targetTransform.position.z);
 
-            leftArm.MoveToPosition(targetFollowPosition, slammingSpeed);
+            activeBossHand.MoveToPosition(targetFollowPosition, slammingSpeed);
 
             lastTargetPosition = targetTransform.position;
         }
@@ -263,6 +264,8 @@ public class FinalBossEnemyAI : BossAI
     {
         if (!alreadySlamming)
         {
+            activeBossHand = ClosestHandToTarget(targetTransform.position);
+
             StartCoroutine(SlamProcess());
         }
         
@@ -285,6 +288,8 @@ public class FinalBossEnemyAI : BossAI
 
     private void ToPunching()
     {
+        activeBossHand = ClosestHandToTarget(targetTransform.position);
+
         StartCoroutine(PunchingProcess());
 
         state = BOSS_STATE.PUNCHING;
@@ -298,11 +303,11 @@ public class FinalBossEnemyAI : BossAI
     {
         isFollowing = true;
 
-        rightArm.transform.Rotate(new Vector3(0, 0, 90));
+        activeBossHand.transform.Rotate(new Vector3(0, 0, 90));
 
         yield return new WaitForSeconds(slamFollowDelay);
 
-        Vector3 targetSlamDirection = (lastTargetPosition - rightArm.transform.position).normalized;
+        Vector3 targetSlamDirection = (lastTargetPosition - activeBossHand.transform.position).normalized;
 
         anticipation = anticipationDistance;
 
@@ -312,16 +317,16 @@ public class FinalBossEnemyAI : BossAI
 
         isFollowing = false;
 
-        rightArm.MoveTillCollision(targetSlamDirection, slammingSpeed);
+        activeBossHand.MoveTillCollision(targetSlamDirection, slammingSpeed);
 
-        yield return new WaitUntil(() => rightArm.ArmCollided);
+        yield return new WaitUntil(() => activeBossHand.ArmCollided);
 
         StartCoroutine(ProjectileGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
 
         yield return new WaitForSeconds(slamRecoveryDelay);
 
-        rightArm.ResetRotation();
-        rightArm.ReturnToOrigin();
+        activeBossHand.ResetRotation();
+        activeBossHand.ReturnToOrigin();
         alreadySlamming = false;
     }
 
@@ -409,13 +414,13 @@ public class FinalBossEnemyAI : BossAI
     {
         isFollowing = true;
 
-        leftArm.transform.Rotate(new Vector3(0, 0, 180));
+        activeBossHand.transform.Rotate(new Vector3(0, 0, 180));
 
         yield return new WaitForSeconds(punchDelay);
 
         isFollowing = false;
 
-        Vector3 targetSlamDirection = (lastTargetPosition - leftArm.transform.position).normalized;
+        Vector3 targetSlamDirection = (lastTargetPosition - activeBossHand.transform.position).normalized;
 
         RaycastHit2D hit = Physics2D.Raycast(lastTargetPosition, Vector3.down, 20f, groundLayer);
 
@@ -433,21 +438,25 @@ public class FinalBossEnemyAI : BossAI
             Destroy(warning);
         }
 
-        leftArm.transform.Rotate(new Vector3(0, 0, -180));
+        activeBossHand.transform.Rotate(new Vector3(0, 0, -180));
 
-        leftArm.MoveTillCollision(targetSlamDirection, punchingSpeed);
+        activeBossHand.MoveTillCollision(targetSlamDirection, punchingSpeed);
 
-        yield return new WaitUntil(() => leftArm.ArmCollided);
+        yield return new WaitUntil(() => activeBossHand.ArmCollided);
 
         yield return new WaitForSeconds(punchRecoveryDelay);
 
-        leftArm.ReturnToOrigin();
+        activeBossHand.ReturnToOrigin();
 
         consecutivePunches++;
 
         if (consecutivePunches <= maxConsecutivePunches)
         {
             ToPunching();
+        }
+        else
+        {
+            consecutivePunches = 0;
         }
     }
 
@@ -536,6 +545,14 @@ public class FinalBossEnemyAI : BossAI
         invertedDirection = !invertedDirection;
 
         objectToFlip.transform.Rotate(0, 180, 0);
+    }
+
+    private FinalBossHand ClosestHandToTarget(Vector3 targetPosition)
+    {
+        float leftArmDistance = (leftArm.transform.position - targetPosition).sqrMagnitude;
+        float rightArmDistance = (rightArm.transform.position - targetPosition).sqrMagnitude;
+
+        return leftArmDistance <= rightArmDistance ? leftArm : rightArm;
     }
 
     public override void ResetEnemy()
