@@ -90,6 +90,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float punchDelay = 1f;
     [SerializeField] private float punchHandBeneathDistance = 10f;
     [SerializeField] private float warningDelay = 0.4f;
+    [SerializeField] private float hitboxLifetime = 0.1f;
     [SerializeField] private float punchRecoveryDelay = 1f;
 
     [Header("Difficulty:")]
@@ -117,6 +118,8 @@ public class FinalBossEnemyAI : BossAI
 
     private FinalBossHand primaryBossHand;
     private FinalBossHand secondaryBossHand;
+
+    private List<GameObject> spawneables = new List<GameObject>();
 
     #region MAIN LOOP
 
@@ -496,6 +499,7 @@ public class FinalBossEnemyAI : BossAI
         {
             GameObject newProjectile = Instantiate(projectilePrefab, secondaryBossHand.transform.position, Quaternion.identity);
             newProjectile.transform.localScale = new Vector3(2, 2, 2);
+            spawneables.Add(newProjectile);
 
             EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
             projectileController.SetLinearDirection(projectileSpeed, projectileDirection);
@@ -545,6 +549,7 @@ public class FinalBossEnemyAI : BossAI
             usedPositions.Add(horizontalPosition);
 
             GameObject newProjectile = Instantiate(fallingDebrisPrefab, new Vector3(horizontalPosition, transform.position.y + debrisVerticalPosition, 0), Quaternion.identity);
+            spawneables.Add(newProjectile);
 
             EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
             projectileController.SetContactDamage(debrisDamage);
@@ -574,6 +579,7 @@ public class FinalBossEnemyAI : BossAI
         if (hit.collider != null)
         {
             warning = Instantiate(punchWarning, hit.point, Quaternion.identity);
+            spawneables.Add(warning);
             hitbox = warning.GetComponent<HitboxWithWarning>();
         }
 
@@ -590,13 +596,16 @@ public class FinalBossEnemyAI : BossAI
             hitbox.SetContactDamage(punchDamage);
             hitbox.SetHitboxActive(true);
         }
-        
-        yield return new WaitForSeconds(punchRecoveryDelay);
+
+        yield return new WaitForSeconds(hitboxLifetime);
 
         if (warning != null)
         {
+            spawneables.Remove(warning);
             Destroy(warning);
         }
+
+        yield return new WaitForSeconds(punchRecoveryDelay);
 
         primaryBossHand.ReturnToOrigin();
 
@@ -775,6 +784,19 @@ public class FinalBossEnemyAI : BossAI
         bossArea.DisableDoors();
     }
 
+    private void DestroySpawneables()
+    {
+        foreach (GameObject spawneable in spawneables)
+        {
+            if (spawneable != null)
+            {
+                Destroy(spawneable);
+            }
+        }
+
+        spawneables.Clear();
+    }
+
     public override void ResetEnemy()
     {
         if (isDead) return;
@@ -787,8 +809,6 @@ public class FinalBossEnemyAI : BossAI
 
         timer = 1f;
 
-        targetTransform = null;
-
         isFollowing = false;
         alreadySlamming = false;
         alreadyPunching = false;
@@ -796,13 +816,16 @@ public class FinalBossEnemyAI : BossAI
         alreadyShooting = false;
 
         StopAllCoroutines();
+        DestroySpawneables();
+
+        state = defaultState;
+        targetTransform = null;
 
         ResetColor();
         localMovement = Vector3.zero;
         externalMovement = Vector3.zero;
         isDead = false;
         bossActive = false;
-        state = defaultState;
         characterStats.FullHeal();
 
         chest.transform.position = spawnChestPosition;
