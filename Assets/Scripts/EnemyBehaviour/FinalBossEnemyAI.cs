@@ -106,6 +106,7 @@ public class FinalBossEnemyAI : BossAI
     private float timer = 1f;
 
     private Vector3 spawnChestPosition;
+    private Vector3 spawnNeckRotation;
     private Vector3 lastTargetPosition;
     private Vector3 chosenCornerPosition;
 
@@ -140,7 +141,9 @@ public class FinalBossEnemyAI : BossAI
     {
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+
         spawnChestPosition = chest.transform.position;
+        spawnNeckRotation = neck.transform.rotation.eulerAngles;
     }
 
     private void FixedUpdate()
@@ -757,6 +760,7 @@ public class FinalBossEnemyAI : BossAI
         characterStats.FullHeal();
 
         chest.transform.position = spawnChestPosition;
+        neck.transform.rotation = Quaternion.Euler(spawnNeckRotation);
 
         ResetArmour();
         DisarmBoss(false);
@@ -767,7 +771,7 @@ public class FinalBossEnemyAI : BossAI
 
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
-        invertedDirection = head.transform.rotation == Quaternion.Euler(0, 180, 0);
+        invertedDirection = neck.transform.rotation == Quaternion.Euler(0, 180, 0);
     }
 
     #endregion
