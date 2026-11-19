@@ -12,7 +12,9 @@ public class RespawnPointScript : MonoBehaviour
     private CharacterStats characterStats;
 
     // Posicion donde reaparecera el jugador
-    private Vector2 respawnPointPlayer;
+    public Vector2 respawnPointPlayer;
+
+    //private Vector2 lastSafePosition;
 
     private void Awake()
     {
@@ -62,24 +64,16 @@ public class RespawnPointScript : MonoBehaviour
             rb.angularVelocity = 0f;
         }
 
-        Vector2 finalRespawnPosition;
-
-        // Comprobamos si el jugador ha cruzado el checkpoint
-        if (CheckpointZone2D.hasSafePoint)
-        {
-            finalRespawnPosition = CheckpointZone2D.lastSafePosition;
-        }
-        else
-        {
-            // Si no hay checkpoint, usamos el respawn
-            finalRespawnPosition = respawnPointPlayer;
-        }
-
         // Movemos al jugador a la posición elegida, conservando su Z actual
-        transform.position = new Vector3(finalRespawnPosition.x, finalRespawnPosition.y, transform.position.z);
+        transform.position = new Vector3(respawnPointPlayer.x, respawnPointPlayer.y, transform.position.z);
 
         // Recuperamos toda la vida
         characterStats.FullHeal();
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RespawnAllEnemies();
+        }
 
         Debug.Log("The player respawn worked, woohoo!!!!");
     }
@@ -102,6 +96,7 @@ public class RespawnPointScript : MonoBehaviour
         }
         else
         {
+            Debug.Log("No checkpoint found, using respawn point instead.");
             // Si no hay checkpoint, usamos el respawn
             finalRespawnPosition = respawnPointPlayer;
         }
