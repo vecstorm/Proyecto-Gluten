@@ -61,11 +61,13 @@ public class FinalBossHand : MonoBehaviour
         }
     }
 
+    // Da valor al boss dueño del brazo
     public void SetOwnerBoss(FinalBossEnemyAI boss)
     {
         ownerBoss = boss;
     }
 
+    // Logica de retorno al punto de origen del brazo
     public void ReturnToOrigin()
     {
         armCollided = false;
@@ -73,34 +75,40 @@ public class FinalBossHand : MonoBehaviour
         isBusy = false;
     }
 
+    // Resetea la rotacion del brazo
     public void ResetRotation()
     {
         transform.rotation = Quaternion.Euler(spawnRotation);
     }
 
+    // Logica de reseteo del brazo
     public void ResetHand()
     {
         ReturnToOrigin();
         ResetRotation();
     }
 
+    // Da valor al safe time del brazo
     public void SetSafeTime(float safeTime)
     {
         this.safeTime = safeTime;
     }
 
+    // Mueve el brazo hacia una posicion especifica
     public void MoveToPosition(Vector3 targetPosition, float speed)
     {
         SetArmBusy();
         rb.MovePosition(Vector3.MoveTowards(transform.position, targetPosition, speed * Time.fixedDeltaTime));
     }
 
+    // Mueve el brazo en una direccion especifica
     public void MoveToDirection(Vector3 targetDirection, float speed)
     {
         SetArmBusy();
         rb.linearVelocity = targetDirection * speed;
     }
 
+    // Mueve el brazo hasta que haya colisionado con algo
     public void MoveTillCollision(Vector3 targetDirection, float speed)
     {
         if (armCollided)
@@ -114,22 +122,26 @@ public class FinalBossHand : MonoBehaviour
         rb.linearVelocity = targetDirection * speed;
     }
 
+    // Logica de que el brazo esté ocupado
     private void SetArmBusy()
     {
         isBusy = true;
         timer = safeTime;
     }
 
+    // Activa o desactiva el collider del brazo
     public void SetColliderActive(bool value)
     {
         damageCollider.enabled = value;
     }
 
+    // Da valor al offset de movimiento del brazo
     public void SetMovementOffset(float offset)
     {
         incomingOffset = offset;
     }
 
+    // Si colisiona con el player, llama a la funcion que lo daña desde el script del jefe final
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.transform.CompareTag("Player"))
@@ -141,6 +153,7 @@ public class FinalBossHand : MonoBehaviour
         }
     }
 
+    // Detecta si el brazo ha colisionado contra algo
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.transform.CompareTag("Ground") && isBusy)
