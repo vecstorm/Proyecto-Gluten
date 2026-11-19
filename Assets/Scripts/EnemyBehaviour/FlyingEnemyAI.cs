@@ -73,7 +73,6 @@ public class FlyingEnemyAI : TroopAI
     private void Awake()
     {
         InitializeBasicComponents();
-        DecideMovementPoint();
     }
 
     private void Start()
@@ -189,6 +188,10 @@ public class FlyingEnemyAI : TroopAI
     #endregion
 
     #region STATE BEHAVIOUR
+
+    // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
+
+    // Comportamiento en estado PATROL
     private void OnPatrol()
     {
         if (TargetDetectedOnArea(areaRadius)) 
@@ -209,6 +212,7 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado CHASING
     private void OnChasing()
     {
         if (!TargetDetectedOnArea(areaRadius))
@@ -237,6 +241,7 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado ATTACK
     private void OnAttack()
     {
         if (!TargetDetectedOnArea(areaRadius)) 
@@ -274,20 +279,13 @@ public class FlyingEnemyAI : TroopAI
             localMovement = (transform.position - targetTransform.position).normalized * (speed / 2f);
         }
 
-        /*if (Vector3.Distance(transform.position, targetTransform.position) <= transitableAreaRadius)
-        {
-            if (PlayerAbove())
-            {
-                localMovement += Vector3.up * 0.5f;
-            }
-        }*/
-
         if (TargetBehind(targetTransform.position))
         {
             Flip();
         }
     }
 
+    // Comportamiento en estado RAMMING
     private void OnRamming()
     {
         if (!colorFlashing)
@@ -314,6 +312,7 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado SEARCHING
     private void OnSearching()
     {
         if (TargetDetectedOnArea(areaRadius)) 
@@ -349,6 +348,7 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado RETREAT
     private void OnRetreat()
     {
         if (TargetDetectedOnArea(areaRadius)) 
@@ -372,58 +372,55 @@ public class FlyingEnemyAI : TroopAI
 
     #region STATE TRANSITION
 
+    // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
 
-    private IEnumerator WaitToMove()
-    {
-        decidingDirection = true;
-
-        yield return new WaitForSeconds(Random.Range(minMovementDelay, maxMovementDelay));
-
-        DecideMovementPoint();
-        decidingDirection = false;
-    }
-
+    // Comportamiento de transición a PATROL
     private void ToPatrol()
     {
         ResetTimer();
 
         nodes.Clear();
 
-        //rb.linearVelocity = Vector3.zero;
         localMovement = Vector3.zero;
         state = ENEMY_STATE.PATROL;
     }
 
+    // Comportamiento de transición a CHASING
     private void ToChasing()
     {
         ResetTimer();
         state = ENEMY_STATE.CHASING;
     }
 
+    // Comportamiento de transición a ATTACK
     private void ToAttack()
     {
         ResetTimer();
         state = ENEMY_STATE.ATTACK;
     }
 
+    // Comportamiento de transición a RAMMING
     private void ToRamming()
     {
         ResetTimer();
         state = ENEMY_STATE.RAMMING;
     }
 
+    // Comportamiento de transición a SEARCHING
     private void ToSearching()
     {
         ResetTimer();
         state = ENEMY_STATE.SEARCHING;
     }
 
+    // Comportamiento de transición a RETREAT
     private void ToRetreat()
     {
         ResetTimer();
         state = ENEMY_STATE.RETREAT;
     }
 
+    // Comportamiento de transición a DEAD
     private void ToDead()
     {
         isDead = true;
@@ -435,23 +432,7 @@ public class FlyingEnemyAI : TroopAI
 
     #region STATE CONDITION
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collisionTags.Contains(collision.tag))
-        {
-            // Limpia los objetivos del ataque anterior
-            hitTargets.Clear();
-
-            CombatDamage damage = new CombatDamage(state == ENEMY_STATE.RAMMING ? rammingDamage : contactDamage, characterStats, false);
-            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
-
-            if (state == ENEMY_STATE.RAMMING && isRamming)
-            {
-                characterStats.Death();
-                isRamming = false;
-            }
-        }
-    }
+    // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
     // Devuelve si ha detectado al objetivo dentro de un area determinada
     private bool TargetDetectedOnArea(float radius)
@@ -472,62 +453,7 @@ public class FlyingEnemyAI : TroopAI
         return false;
     }
 
-    private void DecideMovementPoint()
-    {
-        Vector3 candidatePoint = Vector3.zero;
-
-        bool validPoint = false;
-
-        while (!validPoint)
-        {
-            candidatePoint = transform.position + (Vector3)Random.insideUnitCircle * transitableAreaRadius;
-            Collider2D areaCheck = Physics2D.OverlapCircle(candidatePoint, personalBubbleRadius);
-
-            if (areaCheck == null)
-            {
-                validPoint = true;
-            }
-        }
-
-        movementPoint = candidatePoint;
-    }
-
-    private bool PlayerAbove()
-    {
-        float deltaY = targetTransform.position.y - transform.position.y;
-
-        return deltaY > 0;
-    }
-
-    private void ResetTimer()
-    {
-        timer = 0;
-    }
-
-    public override void ResetEnemy()
-    {
-        if (!canRespawn) return;
-
-        gameObject.SetActive(true);
-
-        ResetColor();
-        transform.position = spawnPosition;
-        transform.rotation = Quaternion.Euler(spawnRotation);
-        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
-        state = defaultState;
-        isDead = false;
-
-        currentPath?.Clear();
-        currentPathIndex = 0;
-        nodes.Clear();
-
-        rb.linearVelocity = Vector3.zero;
-        localMovement = Vector3.zero;
-        externalMovement = Vector3.zero;
-        characterStats.FullHeal();
-        ResetTimer();
-    }
-
+    // Comprueba si tiene la vida necesaria para cambiar a estado RAMMING
     private void CheckHealthLeft()
     {
         if (characterStats.CurrentHealth <= healthToRam)
@@ -536,6 +462,39 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    // Devuelve si ha detectado una pared en frente
+    private bool DetectedWall()
+    {
+        Debug.DrawRay(wallCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(wallCheck.position, Vector3.down, 1f, wallLayer);
+    }
+
+    #endregion
+
+    #region UTILITIES
+
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
+    // Si colisiona con el player le inflinge daño, y si esta en estado ramming, tambien muere
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collisionTags.Contains(collision.tag))
+        {
+            // Limpia los objetivos del ataque anterior
+            hitTargets.Clear();
+
+            CombatDamage damage = new CombatDamage(state == ENEMY_STATE.RAMMING ? rammingDamage : contactDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
+
+            if (state == ENEMY_STATE.RAMMING && isRamming)
+            {
+                characterStats.Death();
+                isRamming = false;
+            }
+        }
+    }
+
+    // Genera nodos de navegacion en un espacio determinado alrededor del player
     private void GenerateNodes()
     {
         nodes.Clear();
@@ -559,6 +518,7 @@ public class FlyingEnemyAI : TroopAI
         lastGridCenter = transform.position;
     }
 
+    // Relaciona los nodos de navegacion que estan suficientemente cerca entre si
     private void ConnectNodes()
     {
         foreach (NavigationNode node in nodes)
@@ -585,6 +545,7 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    // Actualiza la cuadricula de nodos de navegacion cuando se ha desplazado lo suficiente en relacion al ultimo nodo
     private void UpdateNodeGrid()
     {
         if (Vector2.Distance(transform.position, lastGridCenter) > nodeSpacing)
@@ -593,6 +554,7 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    // Recorre la cuadricula y almacena el conjunto de nodos que hacen el camino mas corto al objetivo
     private List<NavigationNode> FindPath(NavigationNode startNode, NavigationNode targetNode)
     {
         List<NavigationNode> openSet = new List<NavigationNode>();
@@ -646,6 +608,7 @@ public class FlyingEnemyAI : TroopAI
         return null;
     }
 
+    // Cambia el orden del camino para que vaya del punto mas lejano del objetivo al mas cercano
     private List<NavigationNode> RetracePath(NavigationNode startNode, NavigationNode endNode)
     {
         List<NavigationNode> path = new List<NavigationNode>();
@@ -660,6 +623,7 @@ public class FlyingEnemyAI : TroopAI
         return path;
     }
 
+    // Devuelve el nodo mas cercano a la posicion
     private NavigationNode GetClosestNode(Vector3 position)
     {
         NavigationNode closestNode = null;
@@ -679,6 +643,7 @@ public class FlyingEnemyAI : TroopAI
         return closestNode;
     }
 
+    // Mueve al enemigo a traves del camino de nodos que se genere entre dos posiciones
     private void MoveThroughPathBetween(Vector3 startPosition, Vector3 targetPosition)
     {
         if (nodes.Count == 0) return;
@@ -723,10 +688,35 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
-    private bool DetectedWall()
+    // Resetea el temporizador general
+    private void ResetTimer()
     {
-        Debug.DrawRay(wallCheck.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(wallCheck.position, Vector3.down, 1f, wallLayer);
+        timer = 0;
+    }
+
+    // Logica de reseteo del enemigo
+    public override void ResetEnemy()
+    {
+        if (!canRespawn) return;
+
+        gameObject.SetActive(true);
+
+        ResetColor();
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
+        state = defaultState;
+        isDead = false;
+
+        currentPath?.Clear();
+        currentPathIndex = 0;
+        nodes.Clear();
+
+        rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
+        characterStats.FullHeal();
+        ResetTimer();
     }
 
     #endregion

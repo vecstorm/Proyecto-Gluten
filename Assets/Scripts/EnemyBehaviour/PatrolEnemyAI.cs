@@ -73,7 +73,6 @@ public class PatrolEnemyAI : TroopAI
     // Comportamiento en estado PATROL
     private void OnPatrol()
     {
-        //rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
         localMovement = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
         if (!DetectedEdge())
@@ -87,12 +86,6 @@ public class PatrolEnemyAI : TroopAI
     #region STATE TRANSITION
 
     // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
-
-    // Comportamiento de transición a PATROL
-    private void ToPatrol()
-    {
-        state = ENEMY_STATE.PATROL;
-    }
 
     // Comportamiento de transición a DEAD
     protected void ToDead()
@@ -108,6 +101,20 @@ public class PatrolEnemyAI : TroopAI
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
+    // Devuelve si esta detectando suelo delante suyo
+    private bool DetectedEdge()
+    {
+        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
+    }
+
+    #endregion
+
+    #region UTILITIES
+
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
+    // Si colisiona con el player, le inflinge daño
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -118,13 +125,6 @@ public class PatrolEnemyAI : TroopAI
             CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
         }
-    }
-
-    // Devuelve si esta detectando suelo delante suyo
-    private bool DetectedEdge()
-    {
-        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
     }
 
     // Gira al enemigo si colisiona con un elemento del escenario
@@ -148,6 +148,7 @@ public class PatrolEnemyAI : TroopAI
         }
     }
 
+    // Logica de reseteo del enemigo
     public override void ResetEnemy()
     {
         if (!canRespawn) return;

@@ -165,7 +165,6 @@ public class MeleeEnemyAI : TroopAI
             ToPatrol();
         }
         
-        //rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
         localMovement = new Vector3(0, rb.linearVelocity.y, 0);
     }
 
@@ -186,7 +185,6 @@ public class MeleeEnemyAI : TroopAI
             return;
         }
 
-        //rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
         localMovement = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
         if (!DetectedEdge())
@@ -195,6 +193,7 @@ public class MeleeEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado PREPARING_CHASE
     private void OnPreparingChase()
     {
         timer -= Time.fixedDeltaTime;
@@ -230,12 +229,10 @@ public class MeleeEnemyAI : TroopAI
         
         if (TargetBehind(targetTransform.position)) Flip();
 
-        //rb.linearVelocity = new Vector3(GetTargetDirection().x * (speed * 2f), rb.linearVelocity.y);
         localMovement = new Vector3(GetTargetDirection().x * (speed * 2f), rb.linearVelocity.y);
 
         if (!DetectedEdge())
         {
-            //rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
             localMovement = new Vector3(0, rb.linearVelocity.y, 0);
         }
     }
@@ -269,6 +266,7 @@ public class MeleeEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado STUNNED
     private void OnStunned()
     {
         timer -= Time.fixedDeltaTime;
@@ -313,7 +311,6 @@ public class MeleeEnemyAI : TroopAI
             }
         }
 
-        //rb.linearVelocity = Vector3.zero;
         localMovement = Vector3.zero;
 
         if (hitboxCreated)
@@ -334,10 +331,10 @@ public class MeleeEnemyAI : TroopAI
 
     // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
 
+    // Comportamiento de transición a IDLE
     private void ToIdle()
     {
         timer = Random.Range(minPatrolDelay, maxPatrolDelay);
-        //rb.linearVelocity = Vector3.zero;
         localMovement = Vector3.zero;
         detection.EnableVision();
 
@@ -354,6 +351,7 @@ public class MeleeEnemyAI : TroopAI
         state = ENEMY_STATE.PATROL;
     }
 
+    // Comportamiento de transición a PREPARING_CHASE
     private void ToPreparingChase()
     {
         timer = Random.Range(minChaseDelay, maxChaseDelay);
@@ -377,6 +375,7 @@ public class MeleeEnemyAI : TroopAI
         state = ENEMY_STATE.SEARCHING;
     }
 
+    // Comportamiento de transición a STUNNED
     private void ToStunned()
     {
         timer = stunnedTimerDuration;
@@ -407,18 +406,6 @@ public class MeleeEnemyAI : TroopAI
     #region STATE CONDITION
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            // Limpia los objetivos del ataque anterior
-            hitTargets.Clear();
-
-            CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
-            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
-        }
-    }
 
     // Bucle de ataque del enemigo
     private IEnumerator AttackProcess()
@@ -483,6 +470,25 @@ public class MeleeEnemyAI : TroopAI
         return detection.DetectedTarget();
     }
 
+    // Devuelve si el objetivo esta en rango de ataque
+    private bool OnAttackRange(Vector3 targetPos)
+    {
+        return Vector3.Distance(targetPos, transform.position) <= attackDetectionRange;
+    }
+
+    // Devuelve si esta detectando suelo delante suyo
+    private bool DetectedEdge()
+    {
+        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
+    }
+
+    #endregion
+
+    #region UTILITIES
+
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
     // Devuelve la direccion hacia el objetivo
     private Vector3 GetTargetDirection()
     {
@@ -496,17 +502,17 @@ public class MeleeEnemyAI : TroopAI
         return targetDirection.normalized;
     }
 
-    // Devuelve si el objetivo esta en rango de ataque
-    private bool OnAttackRange(Vector3 targetPos)
+    // Si colisiona con el player, le inflinge daño
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        return Vector3.Distance(targetPos, transform.position) <= attackDetectionRange;
-    }
+        if (collision.CompareTag("Player"))
+        {
+            // Limpia los objetivos del ataque anterior
+            hitTargets.Clear();
 
-    // Devuelve si esta detectando suelo delante suyo
-    private bool DetectedEdge()
-    {
-        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
+            CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
+        }
     }
 
     // Gira al enemigo si colisiona con un elemento del escenario
@@ -530,6 +536,7 @@ public class MeleeEnemyAI : TroopAI
         }
     }
 
+    // Logica de reseteo del enemigo
     public override void ResetEnemy()
     {
         if (!canRespawn) return;

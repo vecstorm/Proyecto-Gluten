@@ -118,6 +118,9 @@ public class ProjectileEnemyAI : TroopAI
 
     #region STATE BEHAVIOUR
 
+    // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
+
+    // Comportamiento en estado PATROL
     private void OnPatrol()
     {
         if (TargetDetectedOnArea(areaRadius))
@@ -175,6 +178,7 @@ public class ProjectileEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado CHASING
     private void OnChasing()
     {
         if (!TargetDetectedOnArea(areaRadius))
@@ -201,6 +205,7 @@ public class ProjectileEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado ATTACK
     private void OnAttack()
     {
         if (!TargetDetectedOnArea(attackAreaRadius))
@@ -251,6 +256,7 @@ public class ProjectileEnemyAI : TroopAI
         }
     }
 
+    // Comportamiento en estado SEARCHING
     private void OnSearching()
     {
         if (TargetDetectedOnArea(areaRadius))
@@ -278,6 +284,9 @@ public class ProjectileEnemyAI : TroopAI
 
     #region STATE TRANSITION
 
+    // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
+
+    // Comportamiento de transición a PATROL
     private void ToPatrol()
     {
         Debug.Log("Changed to PATROL");
@@ -291,6 +300,7 @@ public class ProjectileEnemyAI : TroopAI
         state = ENEMY_STATE.PATROL;
     }
 
+    // Comportamiento de transición a CHASING
     private void ToChasing()
     {
         Debug.Log("Changed to CHASING");
@@ -304,6 +314,7 @@ public class ProjectileEnemyAI : TroopAI
         state = ENEMY_STATE.CHASING;
     }
 
+    // Comportamiento de transición a ATTACK
     private void ToAttack()
     {
         Debug.Log("Changed to ATTACK");
@@ -315,6 +326,7 @@ public class ProjectileEnemyAI : TroopAI
         state = ENEMY_STATE.ATTACK;
     }
 
+    // Comportamiento de transición a SEARCHING
     private void ToSearching()
     {
         Debug.Log("Changed to SEARCHING");
@@ -326,6 +338,7 @@ public class ProjectileEnemyAI : TroopAI
         state = ENEMY_STATE.SEARCHING;
     }
 
+    // Comportamiento de transición a DEAD
     protected void ToDead()
     {
         isDead = true;
@@ -337,30 +350,7 @@ public class ProjectileEnemyAI : TroopAI
 
     #region STATE CONDITION
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            // Limpia los objetivos del ataque anterior
-            hitTargets.Clear();
-
-            CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
-            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
-        }
-    }
-
-    // Devuelve la direccion hacia el objetivo
-    private Vector3 GetTargetDirection()
-    {
-        Vector3 targetDirection = Vector3.zero;
-
-        if (targetTransform != null)
-        {
-            targetDirection = targetTransform.position - transform.position;
-        }
-
-        return targetDirection.normalized;
-    }
+    // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
     // Devuelve si ha detectado al objetivo dentro de un area determinada
     private bool TargetDetectedOnArea(float radius)
@@ -388,6 +378,39 @@ public class ProjectileEnemyAI : TroopAI
         return Physics2D.Raycast(edgeCheck, Vector3.down, 1f, groundLayer);
     }
 
+    #endregion
+
+    #region UTILITIES
+
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
+    // Si colisiona con el player, le inflinge daño
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            // Limpia los objetivos del ataque anterior
+            hitTargets.Clear();
+
+            CombatDamage damage = new CombatDamage(contactDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
+        }
+    }
+
+    // Devuelve la direccion hacia el objetivo
+    private Vector3 GetTargetDirection()
+    {
+        Vector3 targetDirection = Vector3.zero;
+
+        if (targetTransform != null)
+        {
+            targetDirection = targetTransform.position - transform.position;
+        }
+
+        return targetDirection.normalized;
+    }
+
+    // Logica de reseteo del enemigo
     public override void ResetEnemy()
     {
         if (!canRespawn) return;
