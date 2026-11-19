@@ -17,6 +17,7 @@ public class ProjectileEnemyAI : TroopAI
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
     [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private int projectileDamage = 10;
     [SerializeField] private float projectileSpeed = 6;
     [SerializeField] private int ampedProjectileCount = 4;
     [SerializeField] private float attackCooldown = 1.5f;
@@ -194,7 +195,10 @@ public class ProjectileEnemyAI : TroopAI
             projectileCount++;
 
             GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-            newProjectile.GetComponent<EnemyProjectileController>().SetMovement(projectileSpeed, targetTransform.position);
+
+            EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
+            projectileController.SetMovement(projectileSpeed, targetTransform.position);
+            projectileController.SetContactDamage(projectileDamage);
 
             if (projectileCount >= ampedProjectileCount)
             {

@@ -261,7 +261,10 @@ public class FlyingEnemyAI : TroopAI
         {
             Debug.Log("Projectile shot!");
             GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-            newProjectile.GetComponent<EnemyProjectileController>().SetMovement(projectileSpeed, targetTransform.position);
+
+            EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
+            projectileController.SetMovement(projectileSpeed, targetTransform.position);
+            projectileController.SetContactDamage(projectileDamage);
 
             attackTimer = attackCooldown;
         }
