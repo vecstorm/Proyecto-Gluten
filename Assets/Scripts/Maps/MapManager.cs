@@ -94,8 +94,8 @@ public class MapManager : MonoBehaviour
             foreach (var img in mapZoneImages)
             {
                 // Comprobamos que la imagen exista y que su ID sea mayor al que tenemos guardado
-                if (img != null && img.ZoneID > maxID)
-                    maxID = img.ZoneID;
+                if (img != null && img.ImageID > maxID)
+                    maxID = img.ImageID;
             }
         }
 
@@ -139,9 +139,9 @@ public class MapManager : MonoBehaviour
             if (zoneImage != null)
             {
                 // Si el ID de la imagen coincide con un índice en true del array, se activa; si no, se oculta
-                if (zoneImage.ZoneID >= 0 && zoneImage.ZoneID < unlockedZones.Length)
+                if (zoneImage.ImageID >= 0 && zoneImage.ImageID < unlockedZones.Length)
                 {
-                    bool isUnlocked = unlockedZones[zoneImage.ZoneID];
+                    bool isUnlocked = unlockedZones[zoneImage.ImageID];
                     zoneImage.gameObject.SetActive(isUnlocked);
                 }
                 else
