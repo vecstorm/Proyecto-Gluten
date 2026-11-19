@@ -32,6 +32,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public event Action OnDamageTaken;
     public event Action<CombatDamage> OnDamageBlocked;
     public event Action OnStunApplied;
+    public event Action OnParrySuccess;
 
     public float CurrentHealth => currentHealth;
     public float CurrentStamina => currentStamina;
@@ -66,16 +67,15 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     [Header("Parry")]
 
     [Tooltip("Duraci�n de la ventana durante la que el jugador puede realizar un parry")]
-    [SerializeField, Min(0f)] private float parryWindow = 0.15f;
+    [SerializeField, Min(0f)] private float parryWindow = 0.3f;
 
     [Tooltip("Tiempo que debe pasar antes de poder iniciar otro parry")]
-    [SerializeField, Min(0f)] private float parryCooldown = 0.5f;
+    [SerializeField, Min(0f)] private float parryCooldown = 1f;
 
     /// <summary>
     /// Indica si el jugador puede iniciar otro parry.
     /// </summary>
     public bool CanParry => parryCooldownTimer <= 0f;
-
 
     /// <summary>
     /// Indica si el jugador est� realizando un parry.
@@ -311,6 +311,9 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         // Consume inmediatamente la ventana para impedir que un mismo parry
         // neutralice varios ataques.
         EndParry();
+
+        // Notifica que el parry se ha realizado correctamente
+        OnParrySuccess?.Invoke();
 
         // Parry contra proyectiles:
         // intenta localizar un componente que implemente IReflectableProjectile

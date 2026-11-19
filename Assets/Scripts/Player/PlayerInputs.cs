@@ -319,7 +319,7 @@ public class PlayerInputs : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// Consume el suelte del botón de salto.
     /// </summary>
     public void ConsumeJumpRelease()
     {
