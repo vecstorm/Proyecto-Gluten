@@ -119,7 +119,7 @@ public class FinalBossHand : MonoBehaviour
     {
         if (collision.transform.CompareTag("Player"))
         {
-            if (ownerBoss != null)
+            if (ownerBoss != null && isBusy)
             {
                 ownerBoss.ArmHitPlayer(transform, collision);
             }
