@@ -379,16 +379,6 @@ public class MiniBossEnemyAI : BossAI
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            hitTargets.Clear();
-            CombatDamage damage = new CombatDamage(state != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, characterStats, false);
-            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
-        }
-    }
-
     // Espera un tiempo definido para decidir que accion realizar
     private IEnumerator WaitToAct()
     {
@@ -571,6 +561,23 @@ public class MiniBossEnemyAI : BossAI
         return deltaX < 0;
     }
 
+    #endregion
+
+    #region UTILITIES
+
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
+    // Si colisiona con el player, le inflinge daño
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            hitTargets.Clear();
+            CombatDamage damage = new CombatDamage(state != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
+        }
+    }
+
     // Reinicia a 0 los contadores de ataques consecutivos
     private void ResetMultiActionCount()
     {
@@ -584,13 +591,7 @@ public class MiniBossEnemyAI : BossAI
         return baseStat + (difficultyLevel * statMultiplier);
     }
 
-    private void ToDead()
-    {
-        isDead = true;
-        gameObject.SetActive(false);
-        bossArea.DisableDoors();
-    }
-
+    // Comprueba la vida que le queda al enemigo y, si llega a x cantidad, inicia el proceso de añadir dificultad
     private void CheckHealthLeft()
     {
         if (!HealthCheck()) return;
@@ -608,6 +609,7 @@ public class MiniBossEnemyAI : BossAI
         ToConsecutiveJump();
     }
 
+    // Devuelve la vida restante del enemigo
     private bool HealthCheck()
     {
         float currenthealth = characterStats.CurrentHealth;
@@ -622,6 +624,15 @@ public class MiniBossEnemyAI : BossAI
         return Mathf.Abs(healthRemaining) < 0.01f;
     }
 
+    // Inicia el proceso de muerte del enemigo
+    private void ToDead()
+    {
+        isDead = true;
+        gameObject.SetActive(false);
+        bossArea.DisableDoors();
+    }
+
+    // Logica de reseteo del enemigo
     public override void ResetEnemy()
     {
         if (isDead) return;
