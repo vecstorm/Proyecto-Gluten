@@ -172,6 +172,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyProjectileController
   contactDamage: 10
   speed: 6
+  contactTags:
+  - Player
+  - Ground
+  usesGravity: 0
 --- !u!114 &6466342410616007357
 MonoBehaviour:
   m_ObjectHideFlags: 0

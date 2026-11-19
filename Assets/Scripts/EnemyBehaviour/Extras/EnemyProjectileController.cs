@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -6,6 +7,8 @@ public class EnemyProjectileController : MonoBehaviour
 {
     [SerializeField] private int contactDamage = 10;
     [SerializeField] private float speed = 6f;
+    [SerializeField] private string[] contactTags;
+    [SerializeField] private bool usesGravity = false;
 
     private Rigidbody2D rb;
     private Vector3 targetPosition;
@@ -18,8 +21,10 @@ public class EnemyProjectileController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
+        if (usesGravity) return;
+
         rb.linearVelocity = direction * speed;
     }
 
@@ -33,7 +38,10 @@ public class EnemyProjectileController : MonoBehaviour
             CombatManager.MakeDamage(transform, collision, hitTargets, damage, CombatTeam.Enemy);
         }
 
-        Destroy(gameObject);
+        if (contactTags.Contains(collision.tag))
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void SetMovement(float speed, Vector3 targetPosition)

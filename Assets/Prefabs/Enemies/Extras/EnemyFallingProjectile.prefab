@@ -12,7 +12,9 @@ GameObject:
   - component: {fileID: 1814569347818058351}
   - component: {fileID: 358598966476212219}
   - component: {fileID: 4740047917071472811}
+  - component: {fileID: 7215741031782473839}
   - component: {fileID: 3507194721900780085}
+  - component: {fileID: -4600445538770650642}
   m_Layer: 0
   m_Name: EnemyFallingProjectile
   m_TagString: Untagged
@@ -157,6 +159,24 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &7215741031782473839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706270362039097128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4286cfafd66fb0b44b70894ea66590e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyProjectileController
+  contactDamage: 10
+  speed: 0
+  contactTags:
+  - Player
+  - Ground
+  usesGravity: 1
 --- !u!114 &3507194721900780085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,3 +189,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe8f9fd26be66a94b9b5425295cb4709, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DestroyOnCollision
+--- !u!114 &-4600445538770650642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706270362039097128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e6155528fde5824fbe47de4bacec35d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AutoDestroy
+  lifeTime: 20
+  disableAutoDestruction: 0

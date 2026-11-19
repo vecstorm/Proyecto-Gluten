@@ -111,12 +111,13 @@ public class FinalBossHand : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.transform.CompareTag("Ground"))
+        if (collision.transform.CompareTag("Ground") && isBusy)
         {
             ContactPoint2D contact = collision.GetContact(0);
 
             if (Mathf.Abs(contact.normal.y) > 0.5f)
             {
+                Debug.Log("Arm: " + gameObject.name + " has collided with: " + collision.gameObject.name);
                 armCollided = true;
             }
         }
