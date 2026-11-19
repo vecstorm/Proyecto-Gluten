@@ -45,6 +45,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float stunnedTime = 4f;
 
     [Header("Slam Attack:")]
+    [SerializeField] private int slamDamage = 20;
     [SerializeField] private float handFollowingSpeed = 15f;
     [SerializeField] private float slamHandBeneathDistance = 7f;
     [SerializeField] private float slamFollowDelay = 3f;
@@ -79,6 +80,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private float shotsDelay = 1f;
 
     [Header("Punch Attack:")]
+    [SerializeField] private int punchDamage = 10;
     [SerializeField] private GameObject punchWarning;
     [SerializeField] private int maxConsecutivePunches = 4;
     [SerializeField] private float punchingSpeed = 30f;
@@ -727,8 +729,25 @@ public class FinalBossEnemyAI : BossAI
 
     public void ArmHitPlayer(Transform armTransform, Collider2D collision)
     {
+        int damageQuantity = 0;
+
+        switch (state)
+        {
+            case BOSS_STATE.SLAMMING:
+                damageQuantity = slamDamage;
+                break;
+
+            case BOSS_STATE.PUNCHING:
+                damageQuantity = punchDamage;
+                break;
+
+            default:
+                damageQuantity = contactDamage;
+                break;
+        }
+
         hitTargets.Clear();
-        CombatDamage damage = new CombatDamage(10, characterStats, armTransform.position, false);
+        CombatDamage damage = new CombatDamage(damageQuantity, characterStats, armTransform.position, false);
         CombatManager.MakeDamage(armTransform, collision, hitTargets, damage, characterStats.Team);
     }
     
