@@ -71,4 +71,9 @@ public class EnemyProjectileController : MonoBehaviour
     {
         this.targetPosition = targetPosition;
     }
+
+    public void SetContactDamage(int contactDamage)
+    {
+        this.contactDamage = contactDamage;
+    }
 }

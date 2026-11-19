@@ -60,6 +60,7 @@ public class FinalBossEnemyAI : BossAI
 
     [Header("Raining Attack:")]
     [SerializeField] private GameObject fallingDebrisPrefab;
+    [SerializeField] private int debrisDamage = 10;
     [SerializeField] private int minDebris = 15;
     [SerializeField] private int maxDebris = 20;
     [SerializeField] private float rainDelay = 1f;
@@ -72,6 +73,7 @@ public class FinalBossEnemyAI : BossAI
 
     [Header("Shooting Attack:")]
     [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private int projectileDamage = 10;
     [SerializeField] private Transform leftArenaCorner;
     [SerializeField] private Transform rightArenaCorner;
     [SerializeField] private float shootingPreparationDelay = 2f;
@@ -493,8 +495,11 @@ public class FinalBossEnemyAI : BossAI
         for (int i = 0; i < projectileQuantity; i++)
         {
             GameObject newProjectile = Instantiate(projectilePrefab, secondaryBossHand.transform.position, Quaternion.identity);
-            newProjectile.GetComponent<EnemyProjectileController>().SetLinearDirection(projectileSpeed, projectileDirection);
             newProjectile.transform.localScale = new Vector3(2, 2, 2);
+
+            EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
+            projectileController.SetLinearDirection(projectileSpeed, projectileDirection);
+            projectileController.SetContactDamage(projectileDamage);
 
             yield return new WaitForSeconds(shotsDelay);
 
@@ -541,6 +546,9 @@ public class FinalBossEnemyAI : BossAI
 
             GameObject newProjectile = Instantiate(fallingDebrisPrefab, new Vector3(horizontalPosition, transform.position.y + debrisVerticalPosition, 0), Quaternion.identity);
 
+            EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
+            projectileController.SetContactDamage(debrisDamage);
+
             yield return new WaitForSeconds(debrisDelay);
         }
     }
@@ -561,18 +569,15 @@ public class FinalBossEnemyAI : BossAI
         RaycastHit2D hit = Physics2D.Raycast(lastTargetPosition, Vector3.down, 20f, groundLayer);
 
         GameObject warning = null;
+        HitboxWithWarning hitbox = null;
 
         if (hit.collider != null)
         {
             warning = Instantiate(punchWarning, hit.point, Quaternion.identity);
+            hitbox = warning.GetComponent<HitboxWithWarning>();
         }
 
         yield return new WaitForSeconds(warningDelay);
-
-        if (warning != null)
-        {
-            Destroy(warning);
-        }
 
         primaryBossHand.transform.Rotate(new Vector3(0, 0, -180));
 
@@ -580,7 +585,18 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
+        if (hitbox != null)
+        {
+            hitbox.SetContactDamage(punchDamage);
+            hitbox.SetHitboxActive(true);
+        }
+        
         yield return new WaitForSeconds(punchRecoveryDelay);
+
+        if (warning != null)
+        {
+            Destroy(warning);
+        }
 
         primaryBossHand.ReturnToOrigin();
 
