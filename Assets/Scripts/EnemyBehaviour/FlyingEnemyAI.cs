@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System.Linq;
 
-public class FlyingEnemyAI : EnemyAI
+public class FlyingEnemyAI : TroopAI
 {
     [Header("Target Detection:")]
     [SerializeField] private float areaRadius = 10f;
@@ -34,6 +35,7 @@ public class FlyingEnemyAI : EnemyAI
     [SerializeField] private float attackMinDistance = 6f;
 
     [Header("Ramming:")]
+    [SerializeField] private string[] collisionTags;
     [SerializeField] private int rammingDamage = 20;
     [SerializeField] private int healthToRam = 3;
     [SerializeField] private float rammingDelay = 1f;
@@ -54,7 +56,6 @@ public class FlyingEnemyAI : EnemyAI
     private Vector3 movementPoint;
     private Vector3 rammingDirection;
 
-    private Transform targetTransform;
     private Vector3 lastTargetPos;
 
     private float pathUpdateTimer;
@@ -62,6 +63,8 @@ public class FlyingEnemyAI : EnemyAI
     private int currentPathIndex = 0;
 
     private float timer;
+    private float attackTimer;
+    private bool isRamming = false;
 
     private bool lostTarget = false;
 
@@ -70,7 +73,6 @@ public class FlyingEnemyAI : EnemyAI
     private void Awake()
     {
         InitializeBasicComponents();
-        DecideMovementPoint();
     }
 
     private void Start()
@@ -81,15 +83,10 @@ public class FlyingEnemyAI : EnemyAI
 
     private void OnEnable()
     {
-        if (isDead)
-        {
-            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
-            ResetEnemy();
-        }
-            
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
         characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += AddKnockback;
     }
 
     private void OnDisable()
@@ -97,6 +94,7 @@ public class FlyingEnemyAI : EnemyAI
         characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
         characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= AddKnockback;
     }
 
     private void FixedUpdate()
@@ -130,20 +128,24 @@ public class FlyingEnemyAI : EnemyAI
             case ENEMY_STATE.DEAD:
                 break;
         }
+
+        externalMovement = Vector3.Lerp(externalMovement, Vector3.zero, externalMovementDecay * Time.fixedDeltaTime);
+
+        rb.linearVelocity = localMovement + externalMovement;
     }
 
     private void OnDrawGizmos()
     {
         if (!showGizmos) return;
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, personalBubbleRadius);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, areaRadius);
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, transitableAreaRadius);
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, areaRadius);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, personalBubbleRadius);
     
         if (movementPoint != Vector3.zero)
         {
@@ -186,13 +188,22 @@ public class FlyingEnemyAI : EnemyAI
     #endregion
 
     #region STATE BEHAVIOUR
+
+    // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
+
+    // Comportamiento en estado PATROL
     private void OnPatrol()
     {
-        if (TargetDetectedOnArea(areaRadius)) ToChasing();
+        if (TargetDetectedOnArea(areaRadius)) 
+        {
+            ToChasing();
+            return;
+        } 
 
         timer += Time.fixedDeltaTime;
 
-        rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+        //rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+        localMovement = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
         if (timer >= Random.Range(minTimeToTurn, maxTimeToTurn) || DetectedWall())
         {
@@ -201,10 +212,20 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    // Comportamiento en estado CHASING
     private void OnChasing()
     {
-        if (!TargetDetectedOnArea(areaRadius)) ToSearching();
-        if (Vector3.Distance(transform.position, targetTransform.position) <= attackMinDistance) ToAttack();
+        if (!TargetDetectedOnArea(areaRadius))
+        {
+            ToSearching();
+            return;
+        }
+
+        if (Vector3.Distance(transform.position, targetTransform.position) <= attackMinDistance) 
+        {
+            ToAttack();
+            return;
+        } 
 
         UpdateNodeGrid();
 
@@ -214,40 +235,64 @@ public class FlyingEnemyAI : EnemyAI
 
         MoveThroughPathBetween(transform.position, targetTransform.position);
 
-        if (PlayerBehind() != invertedDirection)
+        if (TargetBehind(targetTransform.position))
         {
             Flip();
         }
     }
 
+    // Comportamiento en estado ATTACK
     private void OnAttack()
     {
-        if (!TargetDetectedOnArea(areaRadius)) ToSearching();
-        if (Vector3.Distance(transform.position, targetTransform.position) >= attackMinDistance && TargetDetectedOnArea(areaRadius)) ToChasing();
+        if (!TargetDetectedOnArea(areaRadius)) 
+        {
+            ToSearching();
+            return;
+        }
 
-        rb.linearVelocity = Vector3.zero;
+        if (Vector3.Distance(transform.position, targetTransform.position) >= attackMinDistance && TargetDetectedOnArea(areaRadius)) 
+        {
+            ToChasing();
+            return;
+        }
 
-        timer += Time.fixedDeltaTime;
+        attackTimer -= Time.fixedDeltaTime;
 
         lastTargetPos = targetTransform.position;
 
-        if (timer >= attackCooldown)
+        localMovement = Vector3.Lerp(localMovement, Vector3.zero, externalMovementDecay * Time.fixedDeltaTime);
+
+        if (attackTimer <= 0)
         {
             Debug.Log("Projectile shot!");
             GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-            newProjectile.GetComponent<EnemyProjectileController>().SetMovement(projectileSpeed, targetTransform.position);
 
-            timer = 0;
+            EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
+            projectileController.SetMovement(projectileSpeed, targetTransform.position);
+            projectileController.SetContactDamage(projectileDamage);
+
+            attackTimer = attackCooldown;
         }
 
-        if (PlayerBehind() != invertedDirection)
+        if (Vector3.Distance(transform.position, targetTransform.position) <= personalBubbleRadius)
+        {
+            localMovement = (transform.position - targetTransform.position).normalized * (speed / 2f);
+        }
+
+        if (TargetBehind(targetTransform.position))
         {
             Flip();
         }
     }
 
+    // Comportamiento en estado RAMMING
     private void OnRamming()
     {
+        if (!colorFlashing)
+        {
+            ChangeColor(Color.red);
+        }
+        
         timer += Time.fixedDeltaTime;
 
         Vector3 targetDirection = (targetTransform.position - transform.position).normalized;
@@ -256,7 +301,10 @@ public class FlyingEnemyAI : EnemyAI
         {
             rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
 
-            rb.linearVelocity = rammingDirection * rammingSpeed;
+            //rb.linearVelocity = rammingDirection * rammingSpeed;
+            localMovement = rammingDirection * rammingSpeed;
+
+            isRamming = true;
         }
         else
         {
@@ -264,9 +312,14 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    // Comportamiento en estado SEARCHING
     private void OnSearching()
     {
-        if (TargetDetectedOnArea(areaRadius)) ToChasing();
+        if (TargetDetectedOnArea(areaRadius)) 
+        {
+            ToChasing();
+            return;
+        } 
 
         if (Vector3.Distance(transform.position, lastTargetPos) > 0.1f)
         {
@@ -284,7 +337,8 @@ public class FlyingEnemyAI : EnemyAI
 
             timer += Time.fixedDeltaTime;
 
-            rb.linearVelocity = Vector3.zero;
+            //rb.linearVelocity = Vector3.zero;
+            localMovement = Vector3.zero;
 
             if (timer >= timeToStopSearching)
             {
@@ -294,12 +348,19 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    // Comportamiento en estado RETREAT
     private void OnRetreat()
     {
-        if (TargetDetectedOnArea(areaRadius)) ToChasing();
-
+        if (TargetDetectedOnArea(areaRadius)) 
+        {
+            ToChasing();
+            return;
+        }
+        
         UpdateNodeGrid();
         MoveThroughPathBetween(transform.position, spawnPosition);
+
+        if (TargetBehind(spawnPosition)) Flip();
 
         if (Vector3.Distance(transform.position, spawnPosition) <= 0.1f)
         {
@@ -311,54 +372,55 @@ public class FlyingEnemyAI : EnemyAI
 
     #region STATE TRANSITION
 
+    // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
 
-    private IEnumerator WaitToMove()
-    {
-        decidingDirection = true;
-
-        yield return new WaitForSeconds(Random.Range(minMovementDelay, maxMovementDelay));
-
-        DecideMovementPoint();
-        decidingDirection = false;
-    }
-
+    // Comportamiento de transición a PATROL
     private void ToPatrol()
     {
         ResetTimer();
-        rb.linearVelocity = Vector3.zero;
+
+        nodes.Clear();
+
+        localMovement = Vector3.zero;
         state = ENEMY_STATE.PATROL;
     }
 
+    // Comportamiento de transición a CHASING
     private void ToChasing()
     {
         ResetTimer();
         state = ENEMY_STATE.CHASING;
     }
 
+    // Comportamiento de transición a ATTACK
     private void ToAttack()
     {
         ResetTimer();
         state = ENEMY_STATE.ATTACK;
     }
 
+    // Comportamiento de transición a RAMMING
     private void ToRamming()
     {
         ResetTimer();
         state = ENEMY_STATE.RAMMING;
     }
 
+    // Comportamiento de transición a SEARCHING
     private void ToSearching()
     {
         ResetTimer();
         state = ENEMY_STATE.SEARCHING;
     }
 
+    // Comportamiento de transición a RETREAT
     private void ToRetreat()
     {
         ResetTimer();
         state = ENEMY_STATE.RETREAT;
     }
 
+    // Comportamiento de transición a DEAD
     private void ToDead()
     {
         isDead = true;
@@ -370,22 +432,7 @@ public class FlyingEnemyAI : EnemyAI
 
     #region STATE CONDITION
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            // Limpia los objetivos del ataque anterior
-            hitTargets.Clear();
-
-            CombatDamage damage = new CombatDamage(state == ENEMY_STATE.RAMMING ? rammingDamage : contactDamage, characterStats, false);
-            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
-        }
-
-        if (state == ENEMY_STATE.RAMMING)
-        {
-            characterStats.Death();
-        }
-    }
+    // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
     // Devuelve si ha detectado al objetivo dentro de un area determinada
     private bool TargetDetectedOnArea(float radius)
@@ -394,7 +441,7 @@ public class FlyingEnemyAI : EnemyAI
 
         foreach (Collider2D collider in detectionArea)
         {
-            if (collider.CompareTag("Player"))
+            if (collider.CompareTag("Player") && !ObstacleBlocksTarget(collider.transform.position, areaRadius))
             {
                 lastTargetPos = collider.transform.position;
                 targetTransform = collider.transform;
@@ -406,52 +453,7 @@ public class FlyingEnemyAI : EnemyAI
         return false;
     }
 
-    private void DecideMovementPoint()
-    {
-        Vector3 candidatePoint = Vector3.zero;
-
-        bool validPoint = false;
-
-        while (!validPoint)
-        {
-            candidatePoint = transform.position + (Vector3)Random.insideUnitCircle * transitableAreaRadius;
-            Collider2D areaCheck = Physics2D.OverlapCircle(candidatePoint, personalBubbleRadius);
-
-            if (areaCheck == null)
-            {
-                validPoint = true;
-            }
-        }
-
-        movementPoint = candidatePoint;
-    }
-
-    private bool PlayerBehind()
-    {
-        float deltaX = targetTransform.position.x - transform.position.x;
-
-        return deltaX < 0;
-    }
-
-    private void ResetTimer()
-    {
-        timer = 0;
-    }
-
-    protected override void ResetEnemy()
-    {
-        if (!canRespawn) return;
-
-        transform.position = spawnPosition;
-        transform.rotation = Quaternion.Euler(spawnRotation);
-        state = defaultState;
-        isDead = false;
-
-        rb.linearVelocity = Vector3.zero;
-        characterStats.FullHeal();
-        ResetTimer();
-    }
-
+    // Comprueba si tiene la vida necesaria para cambiar a estado RAMMING
     private void CheckHealthLeft()
     {
         if (characterStats.CurrentHealth <= healthToRam)
@@ -460,6 +462,39 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    // Devuelve si ha detectado una pared en frente
+    private bool DetectedWall()
+    {
+        Debug.DrawRay(wallCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(wallCheck.position, Vector3.down, 1f, wallLayer);
+    }
+
+    #endregion
+
+    #region UTILITIES
+
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
+    // Si colisiona con el player le inflinge daño, y si esta en estado ramming, tambien muere
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collisionTags.Contains(collision.tag))
+        {
+            // Limpia los objetivos del ataque anterior
+            hitTargets.Clear();
+
+            CombatDamage damage = new CombatDamage(state == ENEMY_STATE.RAMMING ? rammingDamage : contactDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
+
+            if (state == ENEMY_STATE.RAMMING && isRamming)
+            {
+                characterStats.Death();
+                isRamming = false;
+            }
+        }
+    }
+
+    // Genera nodos de navegacion en un espacio determinado alrededor del player
     private void GenerateNodes()
     {
         nodes.Clear();
@@ -483,6 +518,7 @@ public class FlyingEnemyAI : EnemyAI
         lastGridCenter = transform.position;
     }
 
+    // Relaciona los nodos de navegacion que estan suficientemente cerca entre si
     private void ConnectNodes()
     {
         foreach (NavigationNode node in nodes)
@@ -509,6 +545,7 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    // Actualiza la cuadricula de nodos de navegacion cuando se ha desplazado lo suficiente en relacion al ultimo nodo
     private void UpdateNodeGrid()
     {
         if (Vector2.Distance(transform.position, lastGridCenter) > nodeSpacing)
@@ -517,6 +554,7 @@ public class FlyingEnemyAI : EnemyAI
         }
     }
 
+    // Recorre la cuadricula y almacena el conjunto de nodos que hacen el camino mas corto al objetivo
     private List<NavigationNode> FindPath(NavigationNode startNode, NavigationNode targetNode)
     {
         List<NavigationNode> openSet = new List<NavigationNode>();
@@ -570,6 +608,7 @@ public class FlyingEnemyAI : EnemyAI
         return null;
     }
 
+    // Cambia el orden del camino para que vaya del punto mas lejano del objetivo al mas cercano
     private List<NavigationNode> RetracePath(NavigationNode startNode, NavigationNode endNode)
     {
         List<NavigationNode> path = new List<NavigationNode>();
@@ -584,6 +623,7 @@ public class FlyingEnemyAI : EnemyAI
         return path;
     }
 
+    // Devuelve el nodo mas cercano a la posicion
     private NavigationNode GetClosestNode(Vector3 position)
     {
         NavigationNode closestNode = null;
@@ -603,6 +643,7 @@ public class FlyingEnemyAI : EnemyAI
         return closestNode;
     }
 
+    // Mueve al enemigo a traves del camino de nodos que se genere entre dos posiciones
     private void MoveThroughPathBetween(Vector3 startPosition, Vector3 targetPosition)
     {
         if (nodes.Count == 0) return;
@@ -632,7 +673,8 @@ public class FlyingEnemyAI : EnemyAI
 
             Vector3 targetNodePosition = currentPath[currentPathIndex].Position;
 
-            rb.linearVelocity = (targetNodePosition - startPosition).normalized * speed;
+            //rb.linearVelocity = (targetNodePosition - startPosition).normalized * speed;
+            localMovement = (targetNodePosition - startPosition).normalized * speed;
 
             if (Vector3.Distance(startPosition, targetNodePosition) < 0.4f)
             {
@@ -641,14 +683,40 @@ public class FlyingEnemyAI : EnemyAI
         }
         else
         {
-            rb.linearVelocity = (targetPosition - startPosition).normalized * speed;
+            //rb.linearVelocity = (targetPosition - startPosition).normalized * speed;
+            localMovement = (targetPosition - startPosition).normalized * speed; ;
         }
     }
 
-    private bool DetectedWall()
+    // Resetea el temporizador general
+    private void ResetTimer()
     {
-        Debug.DrawRay(wallCheck.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(wallCheck.position, Vector3.down, 1f, wallLayer);
+        timer = 0;
+    }
+
+    // Logica de reseteo del enemigo
+    public override void ResetEnemy()
+    {
+        if (!canRespawn) return;
+
+        gameObject.SetActive(true);
+
+        ResetColor();
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
+        state = defaultState;
+        isDead = false;
+
+        currentPath?.Clear();
+        currentPathIndex = 0;
+        nodes.Clear();
+
+        rb.linearVelocity = Vector3.zero;
+        localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
+        characterStats.FullHeal();
+        ResetTimer();
     }
 
     #endregion

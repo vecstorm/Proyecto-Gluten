@@ -1,23 +1,14 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class MiniBossEnemyAI : MonoBehaviour
+public class MiniBossEnemyAI : BossAI
 {
     private enum BOSS_STATE { INTRO, IDLE, ATTACK, HEAVY_ATTACK, PREPARING_JUMP, JUMP_ATTACK };
 
-    [Header("Debug:")]
+    [Header("States:")]
     [SerializeField] private BOSS_STATE state;
-    [SerializeField] private bool bossActive = false;
-    [SerializeField] private Transform targetTransform;
-    [SerializeField] protected float flashTimer = 0.2f;
-    [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
-
-    [Header("Ground Detection:")]
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] GameObject doors;
+    [SerializeField] private BOSS_STATE defaultState;
 
     [Header("Intro / Idle:")]
     [SerializeField] private int contactDamage = 10;
@@ -66,6 +57,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     [Header("Difficulty:")]
     [SerializeField] private int difficultyLevel = 0;
+    [SerializeField, Min(2)] private int healthToDivideDifficulty = 2;
     [SerializeField][Range(-1f, 0f)] private float delayMultiplier = -0.3f;
     [SerializeField][Range(-1f, 0f)] private float recoverDurationMultiplier = -0.4f;
     [SerializeField][Range(0f, 1f)] private float attackMovementDurationMultiplier = 0.2f;
@@ -79,9 +71,6 @@ public class MiniBossEnemyAI : MonoBehaviour
     private Vector3 jumpStartPosition;
     private Vector3 jumpLandingPosition;
     private Vector3 lastJumpVerticalPosition;
-    private Vector3 spawnPosition;
-
-    protected Color rendererColor;
 
     private bool alreadyAttacking = false;
     private bool attackHitboxActive = false;
@@ -95,48 +84,52 @@ public class MiniBossEnemyAI : MonoBehaviour
     private bool waitingToAct = false;
 
     private float healthModule = 0;
-    private Rigidbody2D rb;
     private float timer;
-    private bool invertedDirection = false;
-
-    private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
-
-    CharacterStats characterStats;
+    private Vector3 originalScale;
 
     #region MAIN LOOP
 
     private void Awake()
     {
-        characterStats = GetComponent<CharacterStats>();
+        InitializeBasicComponents();
+
+        defaultState = state;
     }
 
     private void Start()
     {
-        state = BOSS_STATE.INTRO;
-        rb = GetComponent<Rigidbody2D>();
-        rendererColor = GetComponent<SpriteRenderer>().color;
-
         spawnPosition = transform.position;
+        spawnRotation = transform.rotation.eulerAngles;
+
+        originalScale = transform.localScale;
 
         healthModule = characterStats.MaxHealth / (float)healthToDivideDifficulty;
     }
 
     private void OnEnable()
     {
-        characterStats.OnDeath += Death;
+        characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
         characterStats.OnDamageTaken += FlashColor;
     }
 
     private void OnDisable()
     {
-        characterStats.OnDeath -= Death;
+        characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
         characterStats.OnDamageTaken -= FlashColor;
     }
 
     private void FixedUpdate()
     {
+        if (!bossActive)
+        {
+            state = defaultState;
+            rb.linearVelocity = Vector3.zero;
+            transform.position = new Vector3(spawnPosition.x, transform.position.y);
+            return;
+        }
+
         switch (state)
         {
             case BOSS_STATE.INTRO:
@@ -195,8 +188,6 @@ public class MiniBossEnemyAI : MonoBehaviour
     // Comportamiento en estado INTRO
     private void OnIntro()
     {
-        if (!bossActive) return;
-
         timer += Time.fixedDeltaTime;
 
         if (timer >= introTime)
@@ -284,7 +275,7 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         rb.MovePosition(jumpPosition);
 
-        if ((jumpPosition.y < lastJumpVerticalPosition.y && DetectedGround()) || timer >= finalJumpDuration)
+        if ((jumpPosition.y < lastJumpVerticalPosition.y && GroundBeneath()) || timer >= finalJumpDuration)
         {
             timer = 0f;
             alreadyJumpAttacking = false;
@@ -332,7 +323,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     // Comportamiento de transición a JUMP_ATTACK
     private void ToJump()
     {
-        transform.localScale = new Vector3(3f, 3f, 3f);
+        transform.localScale = originalScale;
 
         jumpStartPosition = transform.position;
         jumpLandingPosition = new Vector3(targetTransform.position.x, transform.position.y, transform.position.z);
@@ -388,16 +379,6 @@ public class MiniBossEnemyAI : MonoBehaviour
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            hitTargets.Clear();
-            CombatDamage damage = new CombatDamage(state != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, characterStats, false);
-            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
-        }
-    }
-
     // Espera un tiempo definido para decidir que accion realizar
     private IEnumerator WaitToAct()
     {
@@ -405,7 +386,10 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         yield return new WaitForSeconds(UnityEngine.Random.Range(minIdleTime, maxIdleTime));
 
-        DecideAction();
+        if (bossActive)
+        {
+            DecideAction();
+        }
 
         waitingToAct = false;
     }
@@ -459,6 +443,8 @@ public class MiniBossEnemyAI : MonoBehaviour
     // Devuelve si el objetivo esta a mas distancia que un valor
     private bool TargetDistanceExceeds(float distance)
     {
+        if (targetTransform == null) return false;
+
         return Vector3.Distance(transform.position, targetTransform.position) > distance;
     }
 
@@ -483,6 +469,8 @@ public class MiniBossEnemyAI : MonoBehaviour
 
         yield return new WaitForSeconds(StatWithMultiplier(attackRecoverDuration, recoverDurationMultiplier));
 
+        //Debug.Log("ATTACK PROCESS ENDED");
+
         attackHitboxActive = false;
         alreadyAttacking = false;
 
@@ -493,7 +481,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     private IEnumerator HeavyAttackProcess()
     {
         alreadyHeavyAttacking = true;
-        transform.localScale = new Vector3(3f, 3.2f, 3f);
+        transform.localScale = new Vector3(originalScale.x, originalScale.y + 0.2f, originalScale.z);
 
         yield return new WaitForSeconds(StatWithMultiplier(heavyAttackDelay, delayMultiplier));
 
@@ -502,11 +490,13 @@ public class MiniBossEnemyAI : MonoBehaviour
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
 
-        transform.localScale = new Vector3(3f, 3f, 3f);
+        transform.localScale = originalScale;
 
         StartCoroutine(SpawnSpikes());
 
         yield return new WaitForSeconds(StatWithMultiplier(heavyAttackRecoverDuration, recoverDurationMultiplier));
+
+        //Debug.Log("HEAVY ATTACK PROCESS ENDED");
 
         heavyAttackHitboxActive = false;
         alreadyHeavyAttacking = false;
@@ -519,7 +509,7 @@ public class MiniBossEnemyAI : MonoBehaviour
     {
         alreadyJumpAttacking = true;
 
-        transform.localScale = new Vector3(3f, 2.8f, 3f);
+        transform.localScale = new Vector3(originalScale.x, originalScale.y - 0.2f, originalScale.z);
 
         yield return new WaitForSeconds(StatWithMultiplier(jumpPreparationTime, delayMultiplier));
 
@@ -561,41 +551,30 @@ public class MiniBossEnemyAI : MonoBehaviour
         }
     }
 
-    // Gira al enemigo en direccion contraria
-    private void Flip()
-    {
-        invertedDirection = !invertedDirection;
-
-        transform.Rotate(0, 180, 0);
-    }
-
     // Devuelve si el jugador esta detras del enemigo o no
     private bool PlayerBehind()
     {
+        if (targetTransform == null) return false;
+
         float deltaX = targetTransform.position.x - transform.position.x;
 
         return deltaX < 0;
     }
 
-    // Devuelve si esta detectando suelo delante suyo
-    private bool DetectedGround()
-    {
-        Debug.DrawRay(groundCheck.position, Vector3.down, Color.blue);
-        return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
-    }
+    #endregion
 
-    // Ejecuta una funcion depend
-    private void ProbabilityToAct(float probability, Action behaviour, Action alternateBehaviour = null)
-    {
-        if (UnityEngine.Random.Range(0f, 100f) <= probability)
-        {
-            behaviour();
-        }
-        else
-        {
-            if (alternateBehaviour == null) return;
+    #region UTILITIES
 
-            alternateBehaviour();
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
+    // Si colisiona con el player, le inflinge daño
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            hitTargets.Clear();
+            CombatDamage damage = new CombatDamage(state != BOSS_STATE.JUMP_ATTACK ? contactDamage : jumpAttackDamage, characterStats, false);
+            CombatManager.MakeDamage(transform, collision, hitTargets, damage, characterStats.Team);
         }
     }
 
@@ -612,59 +591,85 @@ public class MiniBossEnemyAI : MonoBehaviour
         return baseStat + (difficultyLevel * statMultiplier);
     }
 
-    private void Death()
-    {
-        gameObject.SetActive(false);
-        doors.SetActive(false);
-    }
-
+    // Comprueba la vida que le queda al enemigo y, si llega a x cantidad, inicia el proceso de añadir dificultad
     private void CheckHealthLeft()
     {
-        //float currenthealth = characterStats.CurrentHealth;
+        if (!HealthCheck()) return;
 
-        if (HealthCheck())
-        {
-            //Debug.Log("Ha subido la dificultad | Current Health: " + currenthealth + " | Health Module: " + healthModule + " | Resultado: " + currenthealth % healthModule + " | Max Health: " + characterStats.MaxHealth);
-            alreadyMultiJumpAttacking = true;
-            difficultyLevel++;
-            ToConsecutiveJump();
-        }
+        StopAllCoroutines();
+
+        alreadyAttacking = false;
+        alreadyHeavyAttacking = false;
+        alreadyJumpAttacking = false;
+        waitingToAct = false;
+
+        alreadyMultiJumpAttacking = true;
+        difficultyLevel++;
+
+        ToConsecutiveJump();
     }
 
+    // Devuelve la vida restante del enemigo
     private bool HealthCheck()
     {
         float currenthealth = characterStats.CurrentHealth;
-        return currenthealth % healthModule == 0 && currenthealth != characterStats.MaxHealth && currenthealth != 0;
-    }
 
-    public void BossActive(bool value)
-    {
-        bossActive = value;
-    }
-
-    protected void FlashColor()
-    {
-        StartCoroutine(FlashSequence());
-    }
-
-    private IEnumerator FlashSequence()
-    {
-        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
-
-        foreach (SpriteRenderer renderer in renderers)
+        if (currenthealth == characterStats.MaxHealth || currenthealth == 0)
         {
-            renderer.color = Color.white;
+            return false;
         }
 
-        yield return new WaitForSeconds(flashTimer);
+        float healthRemaining = currenthealth % healthModule;
 
-        foreach (SpriteRenderer renderer in renderers)
-        {
-            renderer.color = rendererColor;
-        }
+        return Mathf.Abs(healthRemaining) < 0.01f;
+    }
+
+    // Inicia el proceso de muerte del enemigo
+    private void ToDead()
+    {
+        isDead = true;
+        gameObject.SetActive(false);
+        bossArea.DisableDoors();
+    }
+
+    // Logica de reseteo del enemigo
+    public override void ResetEnemy()
+    {
+        if (isDead) return;
+
+        bossArea.DisableDoors();
+
+        gameObject.SetActive(true);
+
+        Debug.Log("Boss has been reseted");
+
+        timer = 0;
+
+        targetTransform = null;
+
+        difficultyLevel = 0;
+        multiAttackCount = 0;
+        multiJumpCount = 0;
+
+        alreadyAttacking = false;
+        attackHitboxActive = false;
+        alreadyHeavyAttacking = false;
+        heavyAttackHitboxActive = false;
+        alreadyJumpAttacking = false;
+        alreadyMultiJumpAttacking = false;
+        waitingToAct = false;
+
+        ResetColor();
+        localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
+        isDead = false;
+        bossActive = false;
+        state = defaultState;
+        characterStats.FullHeal();
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
     }
 
     #endregion
-
-
 }

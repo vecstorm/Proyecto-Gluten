@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PatrolEnemyAI : EnemyAI
+public class PatrolEnemyAI : TroopAI
 {
     [Header("Movement:")]
     [SerializeField] private float speed = 2f;
 
-    [Header("Ground Detection:")]
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask groundLayer;
+    [Header("Edge Detection:")]
+    [SerializeField] private Transform edgeCheck;
 
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
@@ -32,6 +31,7 @@ public class PatrolEnemyAI : EnemyAI
     {
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += AddKnockback;
 
         if (isDead)
         {
@@ -44,6 +44,7 @@ public class PatrolEnemyAI : EnemyAI
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= AddKnockback;
     }
 
     private void FixedUpdate()
@@ -57,6 +58,10 @@ public class PatrolEnemyAI : EnemyAI
             case ENEMY_STATE.DEAD:
                 break;
         }
+
+        externalMovement = Vector3.Lerp(externalMovement, Vector3.zero, externalMovementDecay * Time.fixedDeltaTime);
+
+        rb.linearVelocity = localMovement + externalMovement;
     }
 
     #endregion
@@ -68,9 +73,9 @@ public class PatrolEnemyAI : EnemyAI
     // Comportamiento en estado PATROL
     private void OnPatrol()
     {
-        rb.linearVelocity = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
+        localMovement = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
 
-        if (!DetectedGround())
+        if (!DetectedEdge())
         {
             Flip();
         }
@@ -81,12 +86,6 @@ public class PatrolEnemyAI : EnemyAI
     #region STATE TRANSITION
 
     // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
-
-    // Comportamiento de transición a PATROL
-    private void ToPatrol()
-    {
-        state = ENEMY_STATE.PATROL;
-    }
 
     // Comportamiento de transición a DEAD
     protected void ToDead()
@@ -102,6 +101,20 @@ public class PatrolEnemyAI : EnemyAI
 
     // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
+    // Devuelve si esta detectando suelo delante suyo
+    private bool DetectedEdge()
+    {
+        Debug.DrawRay(edgeCheck.position, Vector3.down, Color.red);
+        return Physics2D.Raycast(edgeCheck.position, Vector3.down, 1f, groundLayer);
+    }
+
+    #endregion
+
+    #region UTILITIES
+
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
+    // Si colisiona con el player, le inflinge daño
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -114,19 +127,19 @@ public class PatrolEnemyAI : EnemyAI
         }
     }
 
-    // Devuelve si esta detectando suelo delante suyo
-    private bool DetectedGround()
-    {
-        Debug.DrawRay(groundCheck.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(groundCheck.position, Vector3.down, 1f, groundLayer);
-    }
-
     // Gira al enemigo si colisiona con un elemento del escenario
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.transform.CompareTag("Ground"))
         {
             ContactPoint2D contact = collision.GetContact(0);
+
+            if (tryiedFlipAirborne && GroundBeneath())
+            {
+                tryiedFlipAirborne = false;
+                Flip();
+                return;
+            }
 
             if (Mathf.Abs(contact.normal.x) > 0.5f)
             {
@@ -135,16 +148,22 @@ public class PatrolEnemyAI : EnemyAI
         }
     }
 
-    protected override void ResetEnemy()
+    // Logica de reseteo del enemigo
+    public override void ResetEnemy()
     {
         if (!canRespawn) return;
 
-        rb.linearVelocity = Vector3.zero;
+        gameObject.SetActive(true);
+
+        ResetColor();
+        localMovement = Vector3.zero;
+        externalMovement = Vector3.zero;
         isDead = false;
         state = defaultState;
         characterStats.FullHeal();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
+        invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
     }
 
     #endregion

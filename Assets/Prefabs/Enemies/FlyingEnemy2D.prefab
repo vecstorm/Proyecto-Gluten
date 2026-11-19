@@ -342,7 +342,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 4f3a392e601dda8478468e16b70fcc49, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -369,8 +369,21 @@ MonoBehaviour:
   defaultState: 0
   showGizmos: 1
   canRespawn: 1
+  isAerial: 1
   flashTimer: 0.2
   stunnedIcon: {fileID: 0}
+  playerDetectionLayer:
+    serializedVersion: 2
+    m_Bits: 136
+  targetTransform: {fileID: 0}
+  horizontalKnockback: 1
+  verticalKnockback: 1
+  knockbackForce: 7
+  externalMovementDecay: 3
+  groundDetection: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
   areaRadius: 10
   speed: 3
   timeToStopSearching: 2
@@ -393,12 +406,15 @@ MonoBehaviour:
   projectileSpeed: 6
   attackCooldown: 1.7
   attackMinDistance: 6
+  collisionTags:
+  - Player
+  - Ground
   rammingDamage: 20
   healthToRam: 1
   rammingDelay: 1.5
   rammingSpeed: 15
   rammignTurnSpeed: 4
-  personalBubbleRadius: 2
+  personalBubbleRadius: 3
   transitableAreaRadius: 6
   minFloorDistance: 3
   maxFloorDistance: 7

@@ -8,13 +8,13 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
     public CombatTeam Team => team;
 
-    [Header("Configuración de Vida")]
+    [Header("Configuraciï¿½n de Vida")]
     [SerializeField] private float maxHealth = 10;
     [SerializeField] private float currentHealth;
     [SerializeField] private HealthUpgradeMenu healthUI;
 
 
-    [Header("Configuración de Estamina / Magia")]
+    [Header("Configuraciï¿½n de Estamina / Magia")]
     [SerializeField] private float maxStamina = 100f;
     [SerializeField] private float staminaRegenRate = 15f;
     private float currentStamina;
@@ -26,10 +26,11 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     [SerializeField] private bool canTakeDamage = true;
 
     // Eventos de C# para notificar cambios de forma desacoplada
-    public event Action<float, float> OnHealthChanged;   // (Vida Actual, Vida Máxima)
-    public event Action<float, float> OnStaminaChanged;  // (Estamina Actual, Estamina Máxima)
+    public event Action<float, float> OnHealthChanged;   // (Vida Actual, Vida Mï¿½xima)
+    public event Action<float, float> OnStaminaChanged;  // (Estamina Actual, Estamina Mï¿½xima)
     public event Action OnDeath; // Se dispara al llegar a 0 de vida
     public event Action OnDamageTaken;
+    public event Action<CombatDamage> OnDamageBlocked;
     public event Action OnStunApplied;
 
     public float CurrentHealth => currentHealth;
@@ -58,13 +59,13 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     private bool isParrying;
 
     /// <summary>
-    /// Dirección en la que se inició el parry, si el jugador cambia de dirección, el parry se cancela.
+    /// Direcciï¿½n en la que se iniciï¿½ el parry, si el jugador cambia de direcciï¿½n, el parry se cancela.
     /// </summary>
     private int parryFacingDirection;
 
     [Header("Parry")]
 
-    [Tooltip("Duración de la ventana durante la que el jugador puede realizar un parry")]
+    [Tooltip("Duraciï¿½n de la ventana durante la que el jugador puede realizar un parry")]
     [SerializeField, Min(0f)] private float parryWindow = 0.15f;
 
     [Tooltip("Tiempo que debe pasar antes de poder iniciar otro parry")]
@@ -77,7 +78,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
 
     /// <summary>
-    /// Indica si el jugador está realizando un parry.
+    /// Indica si el jugador estï¿½ realizando un parry.
     /// </summary>
     public bool IsParrying => isParrying;
 
@@ -98,7 +99,11 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 	public int HealthUpgradeCount => healthUpgradeCount;
 	public int AttackUpgradeCount => attackUpgradeCount;
 
-	private void Awake()
+    private Vector3 lastDamagePosition;
+
+    public Vector3 LastDamagePosition => lastDamagePosition;
+
+    private void Awake()
     {
         currentHealth = maxHealth;
         currentStamina = maxStamina;
@@ -119,13 +124,13 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
             RegenerateStamina();
         }
 
-        // Duración de la ventana de parry
+        // Duraciï¿½n de la ventana de parry
         parryTimer = Mathf.Max(0f, parryTimer - Time.deltaTime);
 
         // Cooldown entre intentos de parry
         parryCooldownTimer = Mathf.Max(0f, parryCooldownTimer - Time.deltaTime);
 
-        // Finaliza automáticamente el parry cuando termina su ventana temporal
+        // Finaliza automï¿½ticamente el parry cuando termina su ventana temporal
         if (isParrying && parryTimer <= 0f)
             isParrying = false;
     }
@@ -180,16 +185,16 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         attackUpgradeCount++;
     }
 	/// <summary>
-	/// Recibe daño a través del contrato común de combate.
+	/// Recibe daï¿½o a travï¿½s del contrato comï¿½n de combate.
 	/// </summary>
-	/// <param name="damage">Daño a recibir</param>
+	/// <param name="damage">Daï¿½o a recibir</param>
 	/// <returns>Devuelve false si el impacto no se ha aplicado.</returns>
 	public bool ReceiveDamage(CombatDamage damage)
     {
         if (currentHealth <= 0f || damage.Amount <= 0f)
             return false;
 
-        // Evita daño entre miembros del mismo equipo. Los objetos neutrales pueden recibir daño de cualquiera
+        // Evita daï¿½o entre miembros del mismo equipo. Los objetos neutrales pueden recibir daï¿½o de cualquiera
         if (team != CombatTeam.Neutral && team == damage.SourceTeam)
         {
             return false;
@@ -201,8 +206,13 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
             return false;
         }
 
-        if (!canTakeDamage) return false;
+        if (!canTakeDamage)
+        {
+            OnDamageBlocked?.Invoke(damage);
+            return false;
+        }
 
+        lastDamagePosition = damage.HitPoint;
         TakeDamage(damage.Amount);
         AddKnockback(damage.HitPoint);
         return true;
@@ -226,9 +236,9 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
     /// <summary>
     /// Comprueba si el ataque recibido procede del lado hacia el que mira el jugador.
-    /// No tiene límite de distancia: únicamente comprueba la dirección.
+    /// No tiene lï¿½mite de distancia: ï¿½nicamente comprueba la direcciï¿½n.
     /// </summary>
-    /// <param name="incomingDamage">Información del ataque recibido.</param>
+    /// <param name="incomingDamage">Informaciï¿½n del ataque recibido.</param>
     /// <returns>True si el ataque procede de delante del jugador.</returns>
     private bool IsAttackInFront(CombatDamage incomingDamage)
     {
@@ -237,8 +247,8 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
         Vector2 directionToAttack = attackPosition - (Vector2)transform.position;
 
-        // Si el punto de impacto coincide prácticamente con la posición
-        // del jugador, utiliza la posición del atacante como referencia.
+        // Si el punto de impacto coincide prï¿½cticamente con la posiciï¿½n
+        // del jugador, utiliza la posiciï¿½n del atacante como referencia.
         if (directionToAttack.sqrMagnitude < 0.001f &&
             incomingDamage.Source != null)
         {
@@ -247,13 +257,13 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         }
 
         // Si no se puede determinar la procedencia del ataque,
-        // no se considera válido para realizar un parry.
+        // no se considera vï¿½lido para realizar un parry.
         if (directionToAttack.sqrMagnitude < 0.001f)
             return false;
 
         // El producto escalar permite comprobar si el ataque procede
         // del mismo semiplano hacia el que mira el jugador.
-        // Un resultado positivo indica que está delante.
+        // Un resultado positivo indica que estï¿½ delante.
         Vector2 facing = Vector2.right * facingDirection;
 
         return Vector2.Dot(facing, directionToAttack.normalized) > 0f;
@@ -272,7 +282,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
         isParrying = true;
 
-        // Guarda la dirección inicial para impedir que el jugador
+        // Guarda la direcciï¿½n inicial para impedir que el jugador
         // pueda girar y cubrir ambos lados con el mismo parry.
         parryFacingDirection = facingDirection;
 
@@ -293,9 +303,9 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     }
 
     /// <summary>
-    /// Resuelve las consecuencias de un parry exitoso según el tipo de ataque.
+    /// Resuelve las consecuencias de un parry exitoso segï¿½n el tipo de ataque.
     /// </summary>
-    /// <param name="incomingDamage">Información del ataque neutralizado.</param>
+    /// <param name="incomingDamage">Informaciï¿½n del ataque neutralizado.</param>
     private void ResolveParry(CombatDamage incomingDamage)
     {
         // Consume inmediatamente la ventana para impedir que un mismo parry
@@ -313,11 +323,11 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
             if (projectile != null)
             {
-                // Calcula la dirección de reflexión utilizando la posición
+                // Calcula la direcciï¿½n de reflexiï¿½n utilizando la posiciï¿½n
                 // del proyectil respecto al jugador.
                 Vector2 direction = incomingDamage.Source.position - transform.position;
 
-                // Si ambas posiciones coinciden, utiliza una dirección alternativa
+                // Si ambas posiciones coinciden, utiliza una direcciï¿½n alternativa
                 // para evitar enviar un vector nulo al proyectil.
                 direction = direction.sqrMagnitude > 0.001f
                     ? direction.normalized
@@ -328,7 +338,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         }
         // Parry contra ataques cuerpo a cuerpo:
         // intenta localizar un componente que implemente IStunnable
-        // y le aplica la duración de aturdimiento configurada.
+        // y le aplica la duraciï¿½n de aturdimiento configurada.
         else if (incomingDamage.AttackType == CombatAttackType.Melee &&
                  incomingDamage.Source != null)
         {
@@ -340,10 +350,10 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     }
 
     /// <summary>
-    /// Actualiza la dirección hacia la que mira el jugador.
-    /// Si cambia de dirección durante un parry, lo cancela inmediatamente.
+    /// Actualiza la direcciï¿½n hacia la que mira el jugador.
+    /// Si cambia de direcciï¿½n durante un parry, lo cancela inmediatamente.
     /// </summary>
-    /// <param name="direction">Dirección del jugador: 1 para derecha y -1 para izquierda.</param>
+    /// <param name="direction">Direcciï¿½n del jugador: 1 para derecha y -1 para izquierda.</param>
     public void SetFacingDirection(int direction)
     {
         if (direction == 0)
@@ -352,14 +362,14 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         // Normaliza cualquier valor recibido a 1 o -1
         int newDirection = direction > 0 ? 1 : -1;
 
-        // No es necesario hacer nada si la dirección no ha cambiado
+        // No es necesario hacer nada si la direcciï¿½n no ha cambiado
         if (newDirection == facingDirection)
             return;
 
         facingDirection = newDirection;
 
-        // El parry solo protege hacia la dirección en la que comenzó
-        // Cambiar de dirección cancela la ventana para evitar cubrir ambos lados
+        // El parry solo protege hacia la direcciï¿½n en la que comenzï¿½
+        // Cambiar de direcciï¿½n cancela la ventana para evitar cubrir ambos lados
         if (isParrying && facingDirection != parryFacingDirection)
             EndParry();
     }
@@ -404,7 +414,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         }
     }
 
-    // Restablece la estamina al máximo al reaparecer
+    // Restablece la estamina al mï¿½ximo al reaparecer
     public void ResetStaminaOnRespawn()
     {
         currentStamina = maxStamina;

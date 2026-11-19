@@ -15,15 +15,6 @@ public class CheckpointInteract : MonoBehaviour
             indicadorUI.SetActive(false);
     }
 
-    private void Update()
-    {
-/*        
-        if (jugadorEnRango && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            ActivarCheckpoint();
-        }*/
-    }
-
     public void ActivarCheckpoint()
     {
         // Buscamos al jugador y curamos usando tu Singleton / CharacterStats
@@ -43,11 +34,7 @@ public class CheckpointInteract : MonoBehaviour
             }
         }
 
-        // 2. Ordenamos al GameManager central que resetee a los enemigos
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.RespawnAllEnemies();
-        }
+        EnemyManager.ResetEnemies();
 
         Debug.Log("Checkpoint activado en: " + transform.position);
     }
