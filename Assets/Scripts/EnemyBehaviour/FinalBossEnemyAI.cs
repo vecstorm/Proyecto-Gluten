@@ -144,6 +144,9 @@ public class FinalBossEnemyAI : BossAI
 
         spawnChestPosition = chest.transform.position;
         spawnNeckRotation = neck.transform.rotation.eulerAngles;
+
+        leftArm.SetOwnerBoss(this);
+        rightArm.SetOwnerBoss(this);
     }
 
     private void FixedUpdate()
@@ -720,6 +723,13 @@ public class FinalBossEnemyAI : BossAI
     private bool BothArmsOnPosition()
     {
         return leftArm.OnOrigin && rightArm.OnOrigin;
+    }
+
+    public void ArmHitPlayer(Transform armTransform, Collider2D collision)
+    {
+        hitTargets.Clear();
+        CombatDamage damage = new CombatDamage(10, characterStats, armTransform.position, false);
+        CombatManager.MakeDamage(armTransform, collision, hitTargets, damage, characterStats.Team);
     }
     
     private void ToDead()

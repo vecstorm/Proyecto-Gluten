@@ -65,7 +65,6 @@ public class MiniBossEnemyAI : BossAI
 
     private BOSS_STATE lastAttackState;
 
-
     private int multiAttackCount = 0;
     private int multiJumpCount = 0;
 

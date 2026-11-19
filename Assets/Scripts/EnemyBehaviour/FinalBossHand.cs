@@ -13,6 +13,8 @@ public class FinalBossHand : MonoBehaviour
     private float movementOffset;
     private float incomingOffset;
 
+    private FinalBossEnemyAI ownerBoss;
+
     private bool isBusy = false;
 
     private Rigidbody2D rb;
@@ -24,7 +26,6 @@ public class FinalBossHand : MonoBehaviour
     private CapsuleCollider2D damageCollider;
 
     private Vector3 spawnRotation;
-
 
     public bool ArmCollided => armCollided;
 
@@ -54,6 +55,11 @@ public class FinalBossHand : MonoBehaviour
                 onOrigin = true;
             }
         }
+    }
+
+    public void SetOwnerBoss(FinalBossEnemyAI boss)
+    {
+        ownerBoss = boss;
     }
 
     public void ReturnToOrigin()
@@ -107,6 +113,17 @@ public class FinalBossHand : MonoBehaviour
     public void SetMovementOffset(float offset)
     {
         incomingOffset = offset;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.transform.CompareTag("Player"))
+        {
+            if (ownerBoss != null)
+            {
+                ownerBoss.ArmHitPlayer(transform, collision);
+            }
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
