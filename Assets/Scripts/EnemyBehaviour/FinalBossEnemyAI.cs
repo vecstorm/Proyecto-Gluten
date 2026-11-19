@@ -412,6 +412,7 @@ public class FinalBossEnemyAI : BossAI
         isFollowing = true;
 
         primaryBossHand.transform.Rotate(new Vector3(0, 0, 90));
+        primaryBossHand.BeginSafeTime();
 
         yield return new WaitForSeconds(slamFollowDelay);
 

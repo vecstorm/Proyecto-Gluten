@@ -55,9 +55,12 @@ public class FinalBossHand : MonoBehaviour
                 onOrigin = true;
             }
         }
-        else
+
+        timer -= Time.fixedDeltaTime;
+
+        if (timer <= 0)
         {
-            timer -= Time.fixedDeltaTime;
+            timer = 0;
         }
     }
 
@@ -97,14 +100,14 @@ public class FinalBossHand : MonoBehaviour
     // Mueve el brazo hacia una posicion especifica
     public void MoveToPosition(Vector3 targetPosition, float speed)
     {
-        SetArmBusy();
+        isBusy = true;
         rb.MovePosition(Vector3.MoveTowards(transform.position, targetPosition, speed * Time.fixedDeltaTime));
     }
 
     // Mueve el brazo en una direccion especifica
     public void MoveToDirection(Vector3 targetDirection, float speed)
     {
-        SetArmBusy();
+        isBusy = true;
         rb.linearVelocity = targetDirection * speed;
     }
 
@@ -117,15 +120,13 @@ public class FinalBossHand : MonoBehaviour
             return;
         }
 
-        SetArmBusy();
+        isBusy = true;
 
         rb.linearVelocity = targetDirection * speed;
     }
 
-    // Logica de que el brazo esté ocupado
-    private void SetArmBusy()
+    public void BeginSafeTime()
     {
-        isBusy = true;
         timer = safeTime;
     }
 

@@ -1,7 +1,4 @@
-
-
 using UnityEngine;
-using static Unity.Cinemachine.IInputAxisOwner.AxisDescriptor;
 
 public class RespawnPointScript : MonoBehaviour
 {
