@@ -104,6 +104,7 @@ public class FinalBossEnemyAI : BossAI
     private bool alreadyPunching = false;
     private bool isFollowing;
     private bool movementEnabled = true;
+    private bool damagedWhileStunned = false;
 
     private int consecutivePunches = 0;
 
@@ -134,14 +135,14 @@ public class FinalBossEnemyAI : BossAI
     private void OnEnable()
     {
         characterStats.OnDeath += ToDead;
-        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += DamageReaction;
         characterStats.OnDamageBlocked += DamageArmour;
     }
 
     private void OnDisable()
     {
         characterStats.OnDeath -= ToDead;
-        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= DamageReaction;
         characterStats.OnDamageBlocked -= DamageArmour;
     }
 
@@ -240,6 +241,8 @@ public class FinalBossEnemyAI : BossAI
     // Comportamiento en estado STUNNED
     private void OnStunned()
     {
+        if (!damagedWhileStunned) return;
+
         timer -= Time.fixedDeltaTime;
 
         if (timer <= 0)
@@ -248,9 +251,8 @@ public class FinalBossEnemyAI : BossAI
             DisarmBoss(false);
             rightArm.SetColliderActive(true);
             leftArm.SetColliderActive(true);
-            //ToPunching();
-            //ToSlamming();
             ToRaining();
+            damagedWhileStunned = false;
         }
     }
 
@@ -777,6 +779,16 @@ public class FinalBossEnemyAI : BossAI
         CombatManager.MakeDamage(armTransform, collision, hitTargets, damage, characterStats.Team);
     }
     
+    private void DamageReaction()
+    {
+        FlashColor();
+
+        if (state == BOSS_STATE.STUNNED)
+        {
+            damagedWhileStunned = true;
+        }
+    }
+
     private void ToDead()
     {
         isDead = true;
