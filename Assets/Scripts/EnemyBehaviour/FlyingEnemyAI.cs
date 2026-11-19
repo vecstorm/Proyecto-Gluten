@@ -517,6 +517,10 @@ public class FlyingEnemyAI : TroopAI
         state = defaultState;
         isDead = false;
 
+        currentPath?.Clear();
+        currentPathIndex = 0;
+        nodes.Clear();
+
         localMovement = Vector3.zero;
         externalMovement = Vector3.zero;
         characterStats.FullHeal();
