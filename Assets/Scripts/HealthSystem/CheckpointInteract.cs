@@ -3,9 +3,6 @@ using UnityEngine.InputSystem; // <-- 1. Importante: Asegúrate de tener este usi
 
 public class CheckpointInteract : MonoBehaviour
 {
-    [Header("Configuración")]
-    [SerializeField] private KeyCode teclaInteraccion = KeyCode.E; // (Opcional, si prefieres usar el nuevo sistema, puedes cambiarlo por Key.E)
-    [SerializeField] private bool yaActivado = false;
 
     [Header("Efectos Visuales / Opcionales")]
     [SerializeField] private GameObject indicadorUI;
