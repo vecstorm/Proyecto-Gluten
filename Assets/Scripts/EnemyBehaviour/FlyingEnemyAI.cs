@@ -521,6 +521,7 @@ public class FlyingEnemyAI : TroopAI
         currentPathIndex = 0;
         nodes.Clear();
 
+        rb.linearVelocity = Vector3.zero;
         localMovement = Vector3.zero;
         externalMovement = Vector3.zero;
         characterStats.FullHeal();
