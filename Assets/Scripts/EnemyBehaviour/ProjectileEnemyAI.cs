@@ -1,3 +1,4 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class ProjectileEnemyAI : TroopAI
@@ -28,10 +29,13 @@ public class ProjectileEnemyAI : TroopAI
     [SerializeField] private float newSpawnPositionDelay = 3f;
 
     private Vector3 lastTargetPos;
+    private float lastSpawnDistance;
 
     private Vector3 dynamicSpawnPosition;
 
     private int projectileCount;
+
+    private bool spawnInvertedDirection;
 
     private float timer;
 
@@ -46,6 +50,7 @@ public class ProjectileEnemyAI : TroopAI
     {
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+        spawnInvertedDirection = invertedDirection;
     }
 
     private void OnEnable()
@@ -104,6 +109,9 @@ public class ProjectileEnemyAI : TroopAI
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, personalBubbleRadius);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(dynamicSpawnPosition, 0.1f);
     }
 
     #endregion
@@ -118,9 +126,11 @@ public class ProjectileEnemyAI : TroopAI
             return;
         }
 
-        if (Vector3.Distance(transform.position, spawnPosition) >= 0.1f)
+        if (Vector3.Distance(transform.position, dynamicSpawnPosition) >= 0.1f)
         {
-            if (TargetBehind(spawnPosition))
+            Debug.Log("Moving to new Dynamic Spawn Point");
+
+            if (TargetBehind(dynamicSpawnPosition))
             {
                 Flip();
             }
@@ -131,19 +141,32 @@ public class ProjectileEnemyAI : TroopAI
 
             if (!DetectedEdge(edgeCheck.position))
             {
-                timer -= Time.fixedDeltaTime;
-
-                localMovement = new Vector3(0, rb.linearVelocity.y, 0);
-
-                if (timer <= 0)
-                {
-                    dynamicSpawnPosition = transform.position;
-                }
+                localMovement = new Vector3(0, rb.linearVelocity.y);
             }
+
+            float currentSpawnDistance = Vector3.Distance(transform.position, dynamicSpawnPosition);
+
+            if (currentSpawnDistance < lastSpawnDistance - 0.05f)
+            {
+                timer = newSpawnPositionDelay;
+            }
+            else
+            {
+                timer -= Time.fixedDeltaTime;
+            }
+
+            if (timer <= 0)
+            {
+                dynamicSpawnPosition = transform.position;
+
+                timer = newSpawnPositionDelay;
+            }
+
+            lastSpawnDistance = currentSpawnDistance;
         }
         else
         {
-            if (spawnRotation != transform.rotation.eulerAngles)
+            if (invertedDirection != spawnInvertedDirection)
             {
                 Flip();
             }
@@ -243,14 +266,11 @@ public class ProjectileEnemyAI : TroopAI
             movementPosition = transform.position;
         }
 
-        if (Vector3.Distance(transform.position, movementPosition) < 0.1f)
-        {
-            timer -= Time.fixedDeltaTime;
+        timer -= Time.fixedDeltaTime;
 
-            if (timer <= 0)
-            {
-                ToPatrol();
-            }
+        if (timer <= 0)
+        {
+            ToPatrol();
         }
     }
 
@@ -263,6 +283,8 @@ public class ProjectileEnemyAI : TroopAI
         Debug.Log("Changed to PATROL");
 
         timer = newSpawnPositionDelay;
+
+        lastSpawnDistance = Vector3.Distance(transform.position, dynamicSpawnPosition);
 
         localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
