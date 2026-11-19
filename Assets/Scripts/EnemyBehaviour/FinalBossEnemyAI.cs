@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using Unity.Collections;
 using UnityEngine;
 
 public class FinalBossEnemyAI : BossAI
@@ -24,6 +22,7 @@ public class FinalBossEnemyAI : BossAI
     [Header("Pieces:")]
     [SerializeField] private FinalBossHand leftArm;
     [SerializeField] private FinalBossHand rightArm;
+    [SerializeField] private float armSafeTime = 0.3f;
     [SerializeField] private GameObject hookPoints;
     [SerializeField] private GameObject chest;
     [SerializeField] private GameObject neck;
@@ -156,7 +155,9 @@ public class FinalBossEnemyAI : BossAI
         spawnNeckRotation = neck.transform.rotation.eulerAngles;
 
         leftArm.SetOwnerBoss(this);
+        leftArm.SetSafeTime(armSafeTime);
         rightArm.SetOwnerBoss(this);
+        rightArm.SetSafeTime(armSafeTime);
     }
 
     private void FixedUpdate()

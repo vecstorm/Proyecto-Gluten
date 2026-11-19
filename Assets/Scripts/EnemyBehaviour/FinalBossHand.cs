@@ -1,7 +1,4 @@
-using System.Collections;
-using TMPro;
 using UnityEngine;
-using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 
 [RequireComponent (typeof(Rigidbody2D))]
 public class FinalBossHand : MonoBehaviour
@@ -9,7 +6,7 @@ public class FinalBossHand : MonoBehaviour
     [SerializeField] private Transform originPoint;
     [SerializeField] private float returningSpeed = 20f;
     [SerializeField] private float offsetSpeed = 3f;
-
+    
     private float movementOffset;
     private float incomingOffset;
 
@@ -26,6 +23,9 @@ public class FinalBossHand : MonoBehaviour
     private CapsuleCollider2D damageCollider;
 
     private Vector3 spawnRotation;
+
+    private float safeTime = 0.3f;
+    private float timer;
 
     public bool ArmCollided => armCollided;
 
@@ -55,6 +55,10 @@ public class FinalBossHand : MonoBehaviour
                 onOrigin = true;
             }
         }
+        else
+        {
+            timer -= Time.fixedDeltaTime;
+        }
     }
 
     public void SetOwnerBoss(FinalBossEnemyAI boss)
@@ -80,15 +84,20 @@ public class FinalBossHand : MonoBehaviour
         ResetRotation();
     }
 
+    public void SetSafeTime(float safeTime)
+    {
+        this.safeTime = safeTime;
+    }
+
     public void MoveToPosition(Vector3 targetPosition, float speed)
     {
-        isBusy = true;
+        SetArmBusy();
         rb.MovePosition(Vector3.MoveTowards(transform.position, targetPosition, speed * Time.fixedDeltaTime));
     }
 
     public void MoveToDirection(Vector3 targetDirection, float speed)
     {
-        isBusy = true;
+        SetArmBusy();
         rb.linearVelocity = targetDirection * speed;
     }
 
@@ -100,9 +109,15 @@ public class FinalBossHand : MonoBehaviour
             return;
         }
 
-        isBusy = true;
+        SetArmBusy();
 
         rb.linearVelocity = targetDirection * speed;
+    }
+
+    private void SetArmBusy()
+    {
+        isBusy = true;
+        timer = safeTime;
     }
 
     public void SetColliderActive(bool value)
@@ -119,7 +134,7 @@ public class FinalBossHand : MonoBehaviour
     {
         if (collision.transform.CompareTag("Player"))
         {
-            if (ownerBoss != null && isBusy)
+            if (ownerBoss != null && isBusy && timer <= 0)
             {
                 ownerBoss.ArmHitPlayer(transform, collision);
             }
