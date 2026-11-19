@@ -17,14 +17,14 @@ public class CheckpointInteract : MonoBehaviour
 
     private void Update()
     {
-        
+/*        
         if (jugadorEnRango && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             ActivarCheckpoint();
-        }
+        }*/
     }
 
-    private void ActivarCheckpoint()
+    public void ActivarCheckpoint()
     {
         // Buscamos al jugador y curamos usando tu Singleton / CharacterStats
         GameObject player = GameObject.FindWithTag("Player");
