@@ -56,6 +56,7 @@ public class FinalBossEnemyAI : BossAI
     [SerializeField] private int minSlamProjectiles = 2;
     [SerializeField] private int maxSlamProjectiles = 4;
     [SerializeField] private float minSlamProjectileDistance = 5f;
+    [SerializeField] private int knocksToAddDebris = 2;
 
     [Header("Raining Attack:")]
     [SerializeField] private GameObject fallingDebrisPrefab;
@@ -415,7 +416,7 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
-        if (timesStunned >= 1)
+        if (timesStunned >= knocksToAddDebris)
         {
             StartCoroutine(DebrisGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
         }
