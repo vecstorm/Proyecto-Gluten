@@ -20,18 +20,22 @@ public class HealthUpgradeMenu : MonoBehaviour
 	[SerializeField] private PlayerCombat playerCombat;
     [SerializeField] private CharacterStats characterStats;
 
+	[SerializeField] private int initialHealthUpgradeCost = 30;
+	[SerializeField] private int healthUpgradeCostIncrease = 20;
 
-    /*    [Header("Heart Sprites")]
+	[SerializeField] private int initialAttackUpgradeCost = 30;
+	[SerializeField] private int attackUpgradeCostIncrease = 20;
+
+
+	/*    [Header("Heart Sprites")]
         [SerializeField] private Sprite fullHeart;
         [SerializeField] private Sprite halfHeart;
         [SerializeField] private Sprite emptyHeart;*/
 
-    private List<Image> hearts = new();
+	private List<Image> hearts = new();
 
 	public void Initialize(float maxHealth)
 	{
-		Debug.Log("Initialize ejecutado. Vida máxima: " + maxHealth);
-
 		// Limpiar imágenes anteriores
 		foreach (Transform child in healthContainer)
 			Destroy(child.gameObject);
@@ -79,65 +83,69 @@ public class HealthUpgradeMenu : MonoBehaviour
 	}
 
 
-    public void UpgradeHealth()
-	{
-		if (!characterStats.UseHealthUpgradeToken())
-			return;
+   public void UpgradeHealth()
+{
+    int cost = characterStats.GetHealthUpgradeCost(
+        initialHealthUpgradeCost,
+        healthUpgradeCostIncrease
+    );
 
-		characterStats.IncreaseMaxHealth(1f);
+    if (characterStats.currentXp < cost)
+        return;
 
-		Image newPoint = Instantiate(
-		healthPointPrefab,
-		healthContainer,
-		false
-		);
-        RefreshUpgradeButtons();
-        healthUpgradeButton.transform.SetAsLastSibling();
-    }
+    if (!characterStats.UseHealthUpgradeToken())
+        return;
+
+    if (!characterStats.SpendXp(cost))
+        return;
+
+    characterStats.IncreaseMaxHealth(1f);
+    characterStats.RegisterHealthUpgrade();
+
+    Instantiate(healthPointPrefab, healthContainer, false);
+
+    RefreshUpgradeButtons();
+    healthUpgradeButton.transform.SetAsLastSibling();
+}
 
 	public void UpgradeAttack()
 	{
+		int cost = characterStats.GetAttackUpgradeCost(
+			initialAttackUpgradeCost,
+			attackUpgradeCostIncrease
+		);
+
+		if (characterStats.currentXp < cost)
+			return;
+
 		if (!characterStats.UseHealthUpgradeToken())
+			return;
+
+		if (!characterStats.SpendXp(cost))
 			return;
 
 		playerCombat.IncreaseBasicAttackDamage(1f);
 
-		Instantiate(
-			attackPointPrefab,
-			attackContainer,
-			false
-		);
-        RefreshUpgradeButtons();
-        attackUpgradeButton.transform.SetAsLastSibling();
-    }
+		characterStats.RegisterAttackUpgrade();
+
+		Instantiate(attackPointPrefab, attackContainer, false);
+
+		RefreshUpgradeButtons();
+		attackUpgradeButton.transform.SetAsLastSibling();
+	}
 
 	private void CreateUpgradeButtons()
-	{
-        Debug.Log("Objeto consultado: " + characterStats.gameObject.name);
-        Debug.Log("ID: " + characterStats.GetInstanceID()
-            + " | Fichas: " + characterStats.HealthUpgradeTokens);
+	{ 
 
         if (characterStats.HealthUpgradeTokens <= 0)
 			return;
 
 
-		healthUpgradeButton = Instantiate(
-			upgradeButtonPrefab,
-			healthContainer,
-			false
-		);
+		healthUpgradeButton = Instantiate(upgradeButtonPrefab, healthContainer, false);
 
-		attackUpgradeButton = Instantiate(
-			upgradeButtonPrefab,
-			attackContainer,
-			false
-		);
+		attackUpgradeButton = Instantiate(upgradeButtonPrefab, attackContainer, false);
 
 		healthUpgradeButton.onClick.AddListener(UpgradeHealth);
 		attackUpgradeButton.onClick.AddListener(UpgradeAttack);
-
-        Debug.Log("Menú consulta: " + characterStats.gameObject.name +
-          " | ID: " + characterStats.GetInstanceID() +
-          " | Total: " + characterStats.HealthUpgradeTokens);
     }
 }

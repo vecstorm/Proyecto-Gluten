@@ -86,7 +86,19 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public int currentXp = 0;
     [SerializeField] private float knockbackForce = 3f;
 
-    private void Awake()
+    [Header ("CosteMejoras")]
+	[SerializeField] private int healthUpgradeCount = 0;
+	[SerializeField] private int attackUpgradeCount = 0;
+	[SerializeField] private int initialHealthUpgradeCost = 30;
+	[SerializeField] private int healthUpgradeCostIncrease = 20;
+
+	[SerializeField] private int initialAttackUpgradeCost = 30;
+	[SerializeField] private int attackUpgradeCostIncrease = 20;
+
+	public int HealthUpgradeCount => healthUpgradeCount;
+	public int AttackUpgradeCount => attackUpgradeCount;
+
+	private void Awake()
     {
         currentHealth = maxHealth;
         currentStamina = maxStamina;
@@ -121,10 +133,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public void AddHealthUpgradeToken()
     {
         healthUpgradeTokens++;
-        Debug.Log("Ficha añadida a: " + gameObject.name +
-          " | ID: " + GetInstanceID() +
-          " | Total: " + healthUpgradeTokens);
-		Debug.Log("Ficha añadida. Total: " + healthUpgradeTokens);
+
 	}
 
     public bool UseHealthUpgradeToken()
@@ -143,6 +152,33 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 		maxHealth += amount;
 	}
 
+    public int GetHealthUpgradeCost(int initialCost, int costIncrease)
+    {
+        return initialCost + (healthUpgradeCount * costIncrease);
+    }
+    public int GetAttackUpgradeCost(int initialCost, int costIncrease)
+    {
+        return initialCost + (attackUpgradeCount * costIncrease);
+    }
+
+	public bool SpendXp(int amount)
+	{
+		if (currentXp < amount)
+			return false;
+
+		currentXp -= amount;
+		return true;
+	}
+
+	public void RegisterHealthUpgrade()
+    {
+		healthUpgradeCount++;
+    }
+
+    public void RegisterAttackUpgrade()
+    {
+        attackUpgradeCount++;
+    }
 	/// <summary>
 	/// Recibe daño a través del contrato común de combate.
 	/// </summary>
