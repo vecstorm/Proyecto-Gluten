@@ -43,6 +43,7 @@ public class FinalBossEnemyAI : BossAI
     [Header("Stunned:")]
     [SerializeField] private int timesStunned = 0;
     [SerializeField] private float stunnedTime = 4f;
+    [SerializeField] private float stunnedUnharmedTime = 15f;
 
     [Header("Slam Attack:")]
     [SerializeField] private int slamDamage = 20;
@@ -205,6 +206,8 @@ public class FinalBossEnemyAI : BossAI
 
     #region STATE BEHAVIOUR
 
+    // ========================================================= FUNCIONES DE COMPORTAMIENTO DE ESTADO ========================================================= //
+
     // Comportamiento en estado INTRO
     private void OnIntro()
     {
@@ -241,8 +244,6 @@ public class FinalBossEnemyAI : BossAI
     // Comportamiento en estado STUNNED
     private void OnStunned()
     {
-        if (!damagedWhileStunned) return;
-
         timer -= Time.fixedDeltaTime;
 
         if (timer <= 0)
@@ -315,12 +316,14 @@ public class FinalBossEnemyAI : BossAI
 
     #region STATE TRANSITION
 
+    // ========================================================= FUNCIONES DE TRANSICIÓN DE ESTADO ========================================================= //
+
     // Comportamiento de transición a STUNNED
     private void ToStunned()
     {
         timesStunned++;
 
-        timer = stunnedTime;
+        timer = stunnedUnharmedTime;
 
         ResetArmsOffset();
 
@@ -399,6 +402,8 @@ public class FinalBossEnemyAI : BossAI
     #endregion
 
     #region STATE CONDITION
+
+    // ========================================================= FUNCIONES DE CONDICIÓN DE ESTADO ========================================================= //
 
     // Seqüencia de ataque slam del enemigo
     private IEnumerator SlamProcess()
@@ -634,6 +639,46 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
+    // Devuelve el brazo del jefe que esta mas cerca del target
+    private FinalBossHand ClosestHandToTarget(Vector3 targetPosition)
+    {
+        float leftArmDistance = (leftArm.transform.position - targetPosition).sqrMagnitude;
+        float rightArmDistance = (rightArm.transform.position - targetPosition).sqrMagnitude;
+
+        return leftArmDistance <= rightArmDistance ? leftArm : rightArm;
+    }
+
+    // Devuelve el brazo del jefe que esta mas lejos del target
+    private FinalBossHand FarthestHandToTarget(Vector3 targetPosition)
+    {
+        float leftArmDistance = (leftArm.transform.position - targetPosition).sqrMagnitude;
+        float rightArmDistance = (rightArm.transform.position - targetPosition).sqrMagnitude;
+
+        return leftArmDistance >= rightArmDistance ? leftArm : rightArm;
+    }
+
+    // Devuelve la esquina del area del jefe que esta mas cerca del target
+    private Vector3 FarthestArenaCornerToTarget(Vector3 targetPosition)
+    {
+        float leftCornerDistance = (leftArenaCorner.transform.position - targetPosition).sqrMagnitude;
+        float rightCornerDistance = (rightArenaCorner.transform.position - targetPosition).sqrMagnitude;
+
+        return leftCornerDistance >= rightCornerDistance ? leftArenaCorner.position : rightArenaCorner.position;
+    }
+
+    // Devuelve si los dos brazos estan en posicion
+    private bool BothArmsOnPosition()
+    {
+        return leftArm.OnOrigin && rightArm.OnOrigin;
+    }
+
+    #endregion
+
+    #region UTILITIES
+
+    // ========================================================= FUNCIONES DE UTILIDAD ========================================================= //
+
+    // Logica de armar o desarmar al enemigo
     private void DisarmBoss(bool value)
     {
         characterStats.SetCanTakeDamage(value);
@@ -642,6 +687,7 @@ public class FinalBossEnemyAI : BossAI
         helmet.SetActive(!value);
     }
 
+    // Movimiento del cuerpo principal del enemigo y el offset del seguimiento de los brazos
     private void BodyMovement()
     {
         Vector3 targetPosition = new Vector3(targetTransform.position.x, chest.transform.position.y, chest.transform.position.z);
@@ -684,6 +730,7 @@ public class FinalBossEnemyAI : BossAI
         }
     }
 
+    // Logica de dañado y rotura de la armadura
     private void DamageArmour(CombatDamage damage)
     {
         currentArmourHealth -= (int)damage.Amount;
@@ -708,17 +755,20 @@ public class FinalBossEnemyAI : BossAI
         Debug.Log("Boss blocked damage | Remaining armour: " + currentArmourHealth);
     }
 
+    // Reseteo del offset del seguimiento de los brazos
     private void ResetArmsOffset()
     {
         leftArm.SetMovementOffset(0f);
         rightArm.SetMovementOffset(0f);
     }
 
+    // Reseteo de la vida de la armadura
     private void ResetArmour()
     {
         currentArmourHealth = maxArmourHealth;
     }
 
+    // Gira en direccion contraria un objeto concreto
     private void FlipObject(GameObject objectToFlip)
     {
         invertedDirection = !invertedDirection;
@@ -726,35 +776,7 @@ public class FinalBossEnemyAI : BossAI
         objectToFlip.transform.Rotate(0, 180, 0);
     }
 
-    private FinalBossHand ClosestHandToTarget(Vector3 targetPosition)
-    {
-        float leftArmDistance = (leftArm.transform.position - targetPosition).sqrMagnitude;
-        float rightArmDistance = (rightArm.transform.position - targetPosition).sqrMagnitude;
-
-        return leftArmDistance <= rightArmDistance ? leftArm : rightArm;
-    }
-
-    private FinalBossHand FarthestHandToTarget(Vector3 targetPosition)
-    {
-        float leftArmDistance = (leftArm.transform.position - targetPosition).sqrMagnitude;
-        float rightArmDistance = (rightArm.transform.position - targetPosition).sqrMagnitude;
-
-        return leftArmDistance >= rightArmDistance ? leftArm : rightArm;
-    }
-
-    private Vector3 FarthestArenaCornerToTarget(Vector3 targetPosition)
-    {
-        float leftCornerDistance = (leftArenaCorner.transform.position - targetPosition).sqrMagnitude;
-        float rightCornerDistance = (rightArenaCorner.transform.position - targetPosition).sqrMagnitude;
-
-        return leftCornerDistance >= rightCornerDistance ? leftArenaCorner.position : rightArenaCorner.position;
-    }
-
-    private bool BothArmsOnPosition()
-    {
-        return leftArm.OnOrigin && rightArm.OnOrigin;
-    }
-
+    // Logica de si alguno de los brazos del enemigo ha golpeado al jugador
     public void ArmHitPlayer(Transform armTransform, Collider2D collision)
     {
         int damageQuantity = 0;
@@ -778,17 +800,26 @@ public class FinalBossEnemyAI : BossAI
         CombatDamage damage = new CombatDamage(damageQuantity, characterStats, armTransform.position, false);
         CombatManager.MakeDamage(armTransform, collision, hitTargets, damage, characterStats.Team);
     }
-    
+
+    // Reaccion del enemigo a la recepcion de daño
     private void DamageReaction()
     {
         FlashColor();
 
         if (state == BOSS_STATE.STUNNED)
         {
+            if (damagedWhileStunned) return;
+
             damagedWhileStunned = true;
+
+            if (timer > stunnedTime)
+            {
+                timer = stunnedTime;
+            }
         }
     }
 
+    // Inicia el proceso de muerte del enemigo
     private void ToDead()
     {
         isDead = true;
@@ -796,6 +827,7 @@ public class FinalBossEnemyAI : BossAI
         bossArea.DisableDoors();
     }
 
+    // Destruye todos los objetos activos que ha spawneado el enemigo
     private void DestroySpawneables()
     {
         foreach (GameObject spawneable in spawneables)
@@ -809,10 +841,11 @@ public class FinalBossEnemyAI : BossAI
         spawneables.Clear();
     }
 
+    // Logica de reseteo del enemigo
     public override void ResetEnemy()
     {
         if (isDead) return;
-        
+
         Debug.Log("FINAL BOSS RESETED");
 
         bossArea.DisableDoors();
