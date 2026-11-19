@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.Collections;
 using UnityEngine;
 
@@ -123,12 +124,14 @@ public class FinalBossEnemyAI : BossAI
 
     private void OnEnable()
     {
+        characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += FlashColor;
         characterStats.OnDamageBlocked += DamageArmour;
     }
 
     private void OnDisable()
     {
+        characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= FlashColor;
         characterStats.OnDamageBlocked -= DamageArmour;
     }
@@ -714,6 +717,13 @@ public class FinalBossEnemyAI : BossAI
     private bool BothArmsOnPosition()
     {
         return leftArm.OnOrigin && rightArm.OnOrigin;
+    }
+    
+    private void ToDead()
+    {
+        isDead = true;
+        gameObject.SetActive(false);
+        bossArea.DisableDoors();
     }
 
     public override void ResetEnemy()
