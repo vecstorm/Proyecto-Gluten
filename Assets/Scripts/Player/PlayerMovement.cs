@@ -108,6 +108,8 @@ public class PlayerMovement : MonoBehaviour
 
     public bool IsGrounded => isGrounded;
 
+    public LayerMask GroundLayer => groundLayer;
+
     #endregion
 
     #region Wall Check
@@ -381,7 +383,7 @@ public class PlayerMovement : MonoBehaviour
         // Actualizamos velocidad lineal a jumpForce en Y
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
-        ParticleManager.SpawnParticlesOnSurface("JumpingSmoke", transform, Vector3.down, transform.right * facingDirection, groundLayer);
+        ParticleManager.SpawnParticlesOnSurface("JumpingSmoke", transform.position, Vector3.down, groundLayer);
     }
 
     /// <summary>
@@ -459,6 +461,8 @@ public class PlayerMovement : MonoBehaviour
         if (startedFromWall)
         {
             dashDirection = -facingDirection;
+
+            ParticleManager.SpawnParticlesOnSurface("JumpingSmoke", transform.position, Vector3.right * facingDirection, groundLayer);
         }
         else
         {
@@ -466,7 +470,11 @@ public class PlayerMovement : MonoBehaviour
 
             if (Mathf.Abs(dashDirection) < 0.01f)
                 dashDirection = facingDirection;
+
+            ParticleManager.SpawnParticlesOnSurface("DashSmoke", transform, Vector3.down, transform.right * facingDirection, groundLayer);
         }
+
+        ParticleManager.SpawnParticles("SpeedTrail", transform, transform.right * facingDirection);
 
         rb.gravityScale = 0f;
     }
@@ -539,6 +547,7 @@ public class PlayerMovement : MonoBehaviour
     public void ApplyWallJump(int facingDirection)
     {
         rb.linearVelocity = new Vector2(-facingDirection * wallJumpForceX, wallJumpForceY);
+        ParticleManager.SpawnParticlesOnSurface("JumpingSmoke", transform.position, Vector3.right * facingDirection, groundLayer);
     }
 
     #endregion

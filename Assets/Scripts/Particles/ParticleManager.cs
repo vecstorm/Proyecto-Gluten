@@ -1,11 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.ParticleSystem;
 
 public static class ParticleManager
 {
     private static Dictionary<string, ParticleSystem> particleDictionary = new Dictionary<string, ParticleSystem>();
+
+    private static List<ParticleSystem> persistentParticlesUsed = new List<ParticleSystem>();
+    private static List<ParticleSystem> persistentParticles = new List<ParticleSystem>();
 
     static ParticleManager()
     {
@@ -22,6 +27,21 @@ public static class ParticleManager
         if (particleDictionary.ContainsKey(name))
         {
             Object.Instantiate(particleDictionary[name], transform);
+        }
+        else
+        {
+            Debug.LogError("No existen particulas con el identificador " + name);
+        }
+    }
+
+    public static void SpawnParticles(string name, Transform transform, Vector3 direction)
+    {
+        if (particleDictionary.ContainsKey(name))
+        {
+            Quaternion rotation = Quaternion.FromToRotation(Vector3.right, direction);
+
+            ParticleSystem particle = Object.Instantiate(particleDictionary[name], transform);
+            particle.transform.localRotation = rotation;
         }
         else
         {
@@ -55,17 +75,91 @@ public static class ParticleManager
         }
     }
 
-    public static void SpawnParticlesOnSurface(string name, Transform transform, Vector3 surfaceDirection, LayerMask layerMask)
+    public static void SpawnParticlesOnSurface(string name, Transform transform, Vector3 surfaceDirection, LayerMask layerMask, bool isPersistent = false)
     {
         if (particleDictionary.ContainsKey(name))
         {
-            //Quaternion rotation = Quaternion.FromToRotation(Vector3.right, direction);
-
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 5f, layerMask);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 2f, layerMask);
 
             if (hit.collider)
             {
-                Object.Instantiate(particleDictionary[name], hit.point, Quaternion.identity);
+                if (persistentParticlesUsed.Contains(particleDictionary[name]) && isPersistent)
+                {
+                    return;
+                }
+
+                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+
+                ParticleSystem particle = Object.Instantiate(particleDictionary[name], transform);
+                particle.gameObject.transform.position = hit.point;
+                particle.gameObject.transform.localRotation = rotation;
+
+                if (isPersistent)
+                {
+                    persistentParticlesUsed.Add(particleDictionary[name]);
+                    persistentParticles.Add(particle);
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("No existen particulas con el identificador " + name);
+        }
+    }
+
+    public static void SpawnParticlesOnSurface(string name, Transform transform, Vector3 surfaceDirection, Vector3 particleDirection, LayerMask layerMask, bool isPersistent = false)
+    {
+        if (particleDictionary.ContainsKey(name))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 2f, layerMask);
+
+            if (hit.collider)
+            {
+                if (persistentParticlesUsed.Contains(particleDictionary[name]) && isPersistent)
+                {
+                    return;
+                }
+
+                Quaternion rotation = Quaternion.FromToRotation(Vector3.right, particleDirection);
+
+                ParticleSystem particle = Object.Instantiate(particleDictionary[name], transform);
+                particle.gameObject.transform.position = hit.point;
+                particle.gameObject.transform.localRotation = rotation;
+
+                if (isPersistent)
+                {
+                    persistentParticlesUsed.Add(particleDictionary[name]);
+                    persistentParticles.Add(particle);
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("No existen particulas con el identificador " + name);
+        }
+    }
+
+    public static void SpawnParticlesOnSurface(string name, Vector3 transformPosition, Vector3 surfaceDirection, LayerMask layerMask, bool isPersistent = false)
+    {
+        if (particleDictionary.ContainsKey(name))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transformPosition, surfaceDirection, 2f, layerMask);
+
+            if (hit.collider)
+            {
+                if (persistentParticlesUsed.Contains(particleDictionary[name]) && isPersistent)
+                {
+                    return;
+                }
+
+                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                ParticleSystem particle = Object.Instantiate(particleDictionary[name], hit.point, rotation);
+
+                if (isPersistent)
+                {
+                    persistentParticlesUsed.Add(particleDictionary[name]);
+                    persistentParticles.Add(particle);
+                }
             }
         }
         else
@@ -80,7 +174,7 @@ public static class ParticleManager
         {
             Quaternion rotation = Quaternion.FromToRotation(Vector3.right, particleDirection);
 
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 5f, layerMask);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 2f, layerMask);
 
             if (hit.collider)
             {
@@ -91,6 +185,19 @@ public static class ParticleManager
         {
             Debug.LogError("No existen particulas con el identificador " + name);
         }
+    }
+
+    public static void StopAllPersistentParticles()
+    {
+        foreach (ParticleSystem particle in persistentParticles)
+        {
+            if (particle == null) continue;
+
+            particle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        }
+
+        persistentParticlesUsed.Clear();
+        persistentParticles.Clear();
     }
 
     public static void StopAllParticles()

@@ -433,6 +433,9 @@ public class PlayerController : MonoBehaviour
     {
         switch (state)
         {
+            case PlayerState.Idle:
+                break;
+
             // Aplicamos velocidad en el aire según de que estado vengamos
             case PlayerState.Jump:
 
@@ -961,9 +964,11 @@ public class PlayerController : MonoBehaviour
 
         if (!playerMovement.IsGrounded)
         {
-            ChangeState(PlayerState.Airborne);
+            ChangeState(PlayerState.Airborne);            
             return;
         }
+
+        ParticleManager.SpawnParticlesOnSurface("WalkDust", transform, Vector3.down, -transform.right * facingDirection, playerMovement.GroundLayer, true);
 
         if (TryJump())
             return;
@@ -1049,6 +1054,7 @@ public class PlayerController : MonoBehaviour
             {
                 playerMovement.ConsumeDoubleJump();
                 playerInputs.ConsumeJumpInput();
+                ParticleManager.SpawnParticles("DoubleJumpSmoke", transform.position, Quaternion.identity);
                 return;
             }
         }
@@ -1064,6 +1070,7 @@ public class PlayerController : MonoBehaviour
         if (playerMovement.IsGrounded && playerMovement.Velocity.y <= 0)
         {
             ChangeToGroundState();
+            ParticleManager.SpawnParticlesOnSurface("LandingSmoke", transform.position, Vector3.down, playerMovement.GroundLayer);
             return;
         }
 
