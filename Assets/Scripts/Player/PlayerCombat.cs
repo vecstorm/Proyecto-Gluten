@@ -36,13 +36,16 @@ public class PlayerCombat : MonoBehaviour
     [Header("Basic Attack")]
 
     [Tooltip("Cantidad de daño que inflige cada ataque básico")]
-    [SerializeField, Min(0f)] private float basicAttackDamage = 2f;
+    [SerializeField, Min(0f)] private float basicAttackDamage = 1f;
 
-    [Tooltip("Radio de la esfera de detección del ataque básico")]
-    [SerializeField, Min(0f)] private float basicAttackRange = 1f;
+    [Tooltip("Distancia a la que se coloca el centro del ataque respecto al jugador")]
+    [SerializeField, Min(0f)] private float basicAttackDistance = 1f;
+
+    [Tooltip("Radio del área de detección del ataque básico")]
+    [SerializeField, Min(0f)] private float basicAttackRadius = 1f;
 
     [Tooltip("Tiempo que debe pasar entre dos ataques básicos")]
-    [SerializeField, Min(0f)] private float basicAttackCooldown = 0.3f;
+    [SerializeField, Min(0f)] private float basicAttackCooldown = 0.5f;
 
     [Tooltip("Tiempo de duración de la detección del ataque")]
     [SerializeField, Min(0f)] private float basicAttackDuration = 0.2f;
@@ -51,6 +54,21 @@ public class PlayerCombat : MonoBehaviour
     /// Temporizador que controla cuánto tiempo permanece activo el ataque y visible su representación para debug.
     /// </summary>
     private float basicAttackTimer;
+
+    [Header("Basic Attack Visual")]
+
+    [Tooltip("Prefab que representa visualmente el área del ataque")]
+    [SerializeField] private GameObject attackIndicatorPrefab;
+
+    /// <summary>
+    /// Instancia de la representación visual del área del ataque.
+    /// </summary>
+    private GameObject attackIndicatorInstance;
+
+    /// <summary>
+    /// Referencia al renderer de la representación visual del área del ataque.
+    /// </summary>
+    private SpriteRenderer attackIndicatorRenderer;
 
     [Header("Ranged Attack")]
 
@@ -117,17 +135,13 @@ public class PlayerCombat : MonoBehaviour
     /// </summary>
     public bool CanRangedAttack => rangedAttackCooldownTimer <= 0f;
 
-    #endregion
 
-    #region Debug Configuration
+    public float BasicAttackDamage => basicAttackDamage;
 
-    [Header("Debug Gizmos")]
-
-    [Tooltip("Activa o desactiva la visualización del área de ataque para debug")]
-    [SerializeField] private bool showCombatGizmos = true;
-
-    [Tooltip("Color del gizmo que representa el área real del ataque básico")]
-    [SerializeField] private Color attackGizmoColor = Color.red;
+    public void IncreaseBasicAttackDamage(float amount)
+    {
+        basicAttackDamage += amount;
+    }
 
     #endregion
 
@@ -143,6 +157,23 @@ public class PlayerCombat : MonoBehaviour
 
         if (attackOrigin == null)
             attackOrigin = transform;
+
+        if (attackIndicatorPrefab != null)
+        {
+            attackIndicatorInstance = Instantiate(attackIndicatorPrefab);
+            attackIndicatorRenderer = attackIndicatorInstance.GetComponent<SpriteRenderer>();
+
+            attackIndicatorInstance.SetActive(false);
+
+            if (attackIndicatorRenderer != null)
+            {
+                Vector2 spriteSize = attackIndicatorRenderer.sprite.bounds.size;
+
+                float diameter = basicAttackRadius * 2f;
+
+                attackIndicatorInstance.transform.localScale = new Vector3(diameter / spriteSize.x, diameter / spriteSize.y,1f);
+            }
+        }
     }
 
     private void OnEnable()
@@ -177,10 +208,18 @@ public class PlayerCombat : MonoBehaviour
         if (basicAttackTimer > 0f)
         {
             // Calcula el centro de la esfera desplazándola hacia delante
-            Vector2 center = (Vector2)attackOrigin.position + Vector2.right * facingDirection * (basicAttackRange * 0.5f);
+            Vector2 center = (Vector2)attackOrigin.position + Vector2.right * facingDirection * basicAttackDistance;
+
+            if (attackIndicatorInstance != null)
+            {
+                attackIndicatorInstance.transform.position = center;
+
+                if (!attackIndicatorInstance.activeSelf)
+                    attackIndicatorInstance.SetActive(true);
+            }
 
             // Detecta todos los colliders que se encuentren dentro de la esfera
-            Collider2D[] hits = Physics2D.OverlapCircleAll(center, basicAttackRange, hittableLayers);
+            Collider2D[] hits = Physics2D.OverlapCircleAll(center, basicAttackRadius, hittableLayers);
 
             // Construye la información del daño que recibirán los objetivos
             CombatDamage damage = new CombatDamage(basicAttackDamage, CombatTeam.Player, transform, center, CombatAttackType.Melee, false);
@@ -190,7 +229,16 @@ public class PlayerCombat : MonoBehaviour
         }
 
         if (basicAttackTimer > 0f)
+        {
             basicAttackTimer -= Time.deltaTime;
+
+            if (basicAttackTimer <= 0f && attackIndicatorInstance != null)
+                attackIndicatorInstance.SetActive(false);
+        }
+        else if (attackIndicatorInstance != null && attackIndicatorInstance.activeSelf)
+        {
+            attackIndicatorInstance.SetActive(false);
+        }
     }
 
     #endregion
@@ -283,30 +331,6 @@ public class PlayerCombat : MonoBehaviour
 
         // Activa el temporizador de invulnerabilidad
         invulnerabilityTimer = invulnerabilityDuration;
-    }
-
-    #endregion
-
-    #region Debug
-
-    /// <summary>
-    /// Dibuja en la escena el área real del ataque básico mientras su temporizador de visualización permanece activo.
-    /// </summary>
-    private void OnDrawGizmos()
-    {
-        if (!showCombatGizmos || basicAttackTimer <= 0f)
-            return;
-
-        Gizmos.color = attackGizmoColor;
-
-        // Utiliza el origen configurado o el propio jugador como alternativa
-        Transform origin = attackOrigin != null ? attackOrigin : transform;
-
-        // Calcula el centro utilizando la misma fórmula que se emplea en OverlapCircleAll
-        Vector3 center = origin.position + Vector3.right * facingDirection * (basicAttackRange * 0.5f);
-
-        // Dibuja el contorno de la esfera que representa el área de ataque
-        Gizmos.DrawWireSphere(center, basicAttackRange);
     }
 
     #endregion

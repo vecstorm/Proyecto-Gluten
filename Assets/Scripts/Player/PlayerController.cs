@@ -4,12 +4,14 @@ using UnityEngine;
 /// <summary>
 /// Define todos los estados en los que puede encontrarse el jugador.
 /// </summary>
-public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Crouch, Attack, Parry, Hurt, Dead }
+public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Attack, Parry, Hurt, Dead }
 
 /// <summary>
 /// Gestiona todo el control del jugador mediante una máquina de estados.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(PlayerMovement))]
+[RequireComponent(typeof(PlayerInputs))]
 [RequireComponent(typeof(PlayerCombat))]
 [RequireComponent(typeof(PlayerHook))]
 [RequireComponent(typeof(CharacterStats))]
@@ -45,9 +47,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private SkillUnlockManager skillManager;
 
     /// <summary>
-    /// Referencia al Rigidbody2D utilizado para mover al personaje.
+    /// Referencia al sistema de inputs del jugador.
     /// </summary>
-    private Rigidbody2D rb;
+    private PlayerInputs playerInputs;
+
+    /// <summary>
+    /// Referencia al sistema de movimiento del jugador.
+    /// </summary>
+    private PlayerMovement playerMovement;
 
     /// <summary>
     /// Referencia al sistema de gancho del jugador.
@@ -66,87 +73,6 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
-    #region Inputs
-
-    /// <summary>
-    /// Referencia al sistema de inputs del jugador.
-    /// </summary>
-    private GlutenActionControls glutenActionControls;
-
-    /// <summary>
-    /// Dirección horizontal introducida por el jugador. Valores entre -1 y 1.
-    /// </summary>
-    private float movementDirection;
-
-    /// <summary>
-    /// Indica si se ha pulsado el salto durante este frame.
-    /// </summary>
-    private bool jumpPressed;
-
-    /// <summary>
-    /// Indica si se ha soltado el salto durante este frame.
-    /// </summary>
-    private bool jumpReleased;
-
-    /// <summary>
-    /// Indica si el jugador mantiene pulsado el botón de correr.
-    /// </summary>
-    private bool runPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado realizar un dash.
-    /// </summary>
-    private bool dashPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado usar el gancho.
-    /// </summary>
-    private bool hookPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado realizar un ataque.
-    /// </summary>
-    private bool attackPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado realizar un ataque a distancia.
-    /// </summary>
-    private bool rangedAttackPressed;
-
-    /// <summary>
-    /// Indica si se ha solicitado realizar un parry.
-    /// </summary>
-    private bool parryPressed;
-
-    #endregion
-
-    #region Movement
-
-    [Header("Movement")]
-
-    [Tooltip("Velocidad de movimiento caminando")]
-    [SerializeField] private float walkSpeed = 5f;
-
-    [Tooltip("Velocidad de movimiento corriendo")]
-    [SerializeField] private float runSpeed = 7f;
-
-    [Tooltip("Control horizontal en el aire")]
-    [SerializeField] private float airborneSpeed = 5f;
-
-    [Tooltip("Aceleración horizontal del jugador en el aire")]
-    [SerializeField] private float airborneAcceleration = 100f;
-
-    [Tooltip("Fuerza aplicada al salto")]
-    [SerializeField] private float jumpForce = 16.5f;
-
-    [Tooltip("Fuerza aplicada al doble salto")]
-    [SerializeField] private float doubleJumpForce = 14f;
-
-    [Tooltip("Indica si el jugador puede realizar un doble salto")]
-    [SerializeField] private bool canDoubleJump;
-
-    #endregion
-
     #region Hurt
 
     [Header("Damage")]
@@ -158,108 +84,6 @@ public class PlayerController : MonoBehaviour
     /// Tiempo que queda de estado de daño recibido.
     /// </summary>
     private float hurtTimer;
-
-    #endregion
-
-    #region Ground Check
-
-    [Header("Ground Check")]
-
-    [Tooltip("Indica si el personaje está tocando el suelo")]
-    [SerializeField] private bool isGrounded;
-
-    [Tooltip("Punto desde el cual se comprueba si el jugador está tocando el suelo")]
-    [SerializeField] private Transform groundCheck;
-
-    [Tooltip("Capa considerada como suelo")]
-    [SerializeField] private LayerMask groundLayer;
-
-    [Tooltip("Radio de detección del Ground Check")]
-    [SerializeField] private float groundCheckRadius = 0.2f;
-
-    #endregion
-
-    #region Wall Check
-
-    [Header("Wall Check")]
-
-    [Tooltip("Indica si el personaje está tocando la pared")]
-    [SerializeField] private bool isTouchingWall;
-
-    [Tooltip("Punto desde el cual se comprueba si el jugador está tocando una pared")]
-    [SerializeField] private Transform wallCheck;
-
-    [Tooltip("Capa considerada como pared")]
-    [SerializeField] private LayerMask wallLayer;
-
-    [Tooltip("Distancia de detección del Wall Check")]
-    [SerializeField] private float wallCheckDistance = 0.6f;
-
-    #endregion
-
-    #region Dash
-
-    [Header("Dash")]
-
-    [Tooltip("Velocidad del dash")]
-    [SerializeField] private float dashSpeed = 20f;
-
-    [Tooltip("Duración del dash en segundos")]
-    [SerializeField] private float dashDuration = 0.15f;
-
-    [Tooltip("Tiempo de espera entre dashes")]
-    [SerializeField] private float dashCooldown = 0.4f;
-
-    /// <summary>
-    /// Tiempo restante hasta que el dash vuelva a estar disponible.
-    /// </summary>
-    private float dashCooldownTimer;
-
-    /// <summary>
-    /// Tiempo restante de duración del dash actual.
-    /// </summary>
-    private float dashTimer;
-
-    /// <summary>
-    /// Dirección en la que se realizará el dash.
-    /// </summary>
-    private float dashDirection;
-
-    /// <summary>
-    /// Determina si el jugador puede utilizar el dash.
-    /// </summary>
-    private bool canDash;
-
-    #endregion
-
-    #region Wall
-
-    [Header("Wall")]
-
-    [Tooltip("Duración del deslizamiento en la pared")]
-    [SerializeField] private float wallGrabDuration = 0.5f;
-
-    [Tooltip("Velocidad de deslizamiento en la pared")]
-    [SerializeField] private float wallSlideMaxSpeed = 3f;
-
-    [Tooltip("Velocidad de deslizamiento en la pared")]
-    [SerializeField] private float wallSlideAcceleration = 1.5f;
-
-    [Tooltip("Fuerza aplicada al salto en la pared en X")]
-    [SerializeField] private float wallJumpForceX = 15f;
-
-    [Tooltip("Fuerza aplicada al salto en la pared en Y")]
-    [SerializeField] private float wallJumpForceY = 12f;
-
-    /// <summary>
-    /// Tiempo restante de duración del wall grab actual.
-    /// </summary>
-    private float wallGrabTimer;
-
-    /// <summary>
-    /// Velocidad del wall slide actual.
-    /// </summary>
-    private float wallSlideSpeed;
 
     #endregion
 
@@ -275,21 +99,74 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
-    #region Orientation
+    #region Orientation and Sprite
 
     /// <summary>
     /// Dirección hacia la que mira el personaje. 1 = derecha, -1 = izquierda. 
     /// </summary>
     private int facingDirection = 1;
 
-    #endregion
+    [Header("Sprite")]
 
-    #region Physics
+    [Tooltip("Transform del sprite del personaje")]
+    [SerializeField] private Transform spriteTransform;
+
+    [Header("Parry Visual")]
+
+    [Tooltip("Color del personaje mientras realiza un parry")]
+    [SerializeField] private Color parryColor = Color.cyan;
 
     /// <summary>
-    /// Valor de gravedad original del Rigidbody. Se restaura al finalizar un dash.
+    /// Renderer del sprite del personaje.
     /// </summary>
-    private float originalGravity;
+    private SpriteRenderer[] spriteRenderers;
+
+    /// <summary>
+    /// Color original del sprite del personaje.
+    /// </summary>
+    private Color originalSpriteColor;
+
+    [Tooltip("Prefab que aparece cuando se realiza un parry exitoso")]
+    [SerializeField] private GameObject parryHitPrefab;
+
+    [Tooltip("Posición del indicador respecto al jugador")]
+    [SerializeField] private Vector3 parryHitOffset = new Vector3(0.5f, 1f, 0f);
+
+    [Tooltip("Tiempo que permanece visible el indicador")]
+    [SerializeField, Min(0f)] private float parryHitDuration = 0.5f;
+
+    /// <summary>
+    /// Instancia de la representación visual del parry exitoso.
+    /// </summary>
+    private GameObject parryHitInstance;
+
+    /// <summary>
+    /// Temporizador de la representación visual del parry exitoso.
+    /// </summary>
+    private float parryHitTimer;
+
+    [Header("Damage Visual")]
+
+    [Tooltip("Color que adquiere el personaje al recibir daño")]
+    [SerializeField] private Color damageFlashColor = Color.red;
+
+    [Tooltip("Intervalo entre cambios de color")]
+    [SerializeField, Min(0.01f)] private float damageFlashInterval = 0.05f;
+
+    /// <summary>
+    /// Tiempo restante del parpadeo.
+    /// </summary>
+    private float damageFlashTimer;
+
+    /// <summary>
+    /// Tiempo restante hasta el siguiente cambio de color.
+    /// </summary>
+    private float damageFlashIntervalTimer;
+
+    /// <summary>
+    /// Indica si el personaje debe mostrar el color de daño.
+    /// </summary>
+    private bool damageFlashActive;
 
     #endregion
 
@@ -299,38 +176,52 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        glutenActionControls = new GlutenActionControls();
-
         characterStats = GetComponent<CharacterStats>();
 
-        if (rb == null)
-            rb = GetComponent<Rigidbody2D>();
+        if (playerInputs == null)
+            playerInputs = GetComponent<PlayerInputs>();
+
+        if (playerMovement == null)
+            playerMovement = GetComponent<PlayerMovement>();
 
         if (playerHook == null)
             playerHook = GetComponent<PlayerHook>();
 
         if (playerCombat == null)
             playerCombat = GetComponent<PlayerCombat>();
-    }
 
-    private void OnEnable()
-    {
-        glutenActionControls.Enable();
+        if (spriteTransform != null)
+        {
+            spriteRenderers = spriteTransform.GetComponentsInChildren<SpriteRenderer>(true);
+
+            if (spriteRenderers.Length > 0)
+                originalSpriteColor = spriteRenderers[0].color;
+        }
+
+        if (parryHitPrefab != null)
+        {
+            parryHitInstance = Instantiate(parryHitPrefab, transform);
+
+            parryHitInstance.transform.localPosition = parryHitOffset;
+            parryHitInstance.SetActive(false);
+        }
+
+        characterStats.OnParrySuccess += ShowParryHit;
     }
 
     private void Start()
     {
-        // Marcamos el dash como usable y guardamos la gravedad del player
-        canDash = true;
-        originalGravity = rb.gravityScale;
-
         EnterState(currentState);
     }
 
     private void Update()
     {
-        ReadInputs();
+        playerInputs.ReadInputs();
+
         UpdateFacingDirection();
+
+        UpdateParryHit();
+        UpdateDamageFlash();
     }
 
     private void FixedUpdate()
@@ -338,10 +229,12 @@ public class PlayerController : MonoBehaviour
         if (hurtTimer > 0f)
             hurtTimer -= Time.fixedDeltaTime;
 
-        CheckGround();
-        CheckWall();
+        playerInputs.UpdateInputBuffers();
 
-        UpdateCooldowns();
+        playerMovement.CheckGround(currentState == PlayerState.Idle || currentState == PlayerState.Walk || currentState == PlayerState.Run);
+        playerMovement.CheckWall(facingDirection);
+
+        playerMovement.UpdateCooldowns();
         
         // Procesamos el gancho solo si el jugador lo tiene desbloqueado
         if (CanUseSkill("GANCHO"))
@@ -366,77 +259,42 @@ public class PlayerController : MonoBehaviour
                 UpdateState();
         }
 
-        jumpPressed = false;
-        jumpReleased = false;
-        dashPressed = false;
-        hookPressed = false;
-        attackPressed = false;
-        rangedAttackPressed = false;
-        parryPressed = false;
+        playerInputs.ConsumeJumpRelease();
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        glutenActionControls.Disable();
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        if (groundCheck == null)
-            return;
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
-        Gizmos.DrawLine(wallCheck.position, wallCheck.position + Vector3.right * facingDirection * wallCheckDistance);
+        if (characterStats != null)
+            characterStats.OnParrySuccess -= ShowParryHit;
     }
 
     #endregion
 
-    #region Inputs
-
-    /// <summary>
-    /// Lee todos los inputs del jugador.
-    /// </summary>
-    private void ReadInputs()
-    {
-        movementDirection = glutenActionControls.Player.Move.ReadValue<Vector2>().x;
-
-        runPressed = glutenActionControls.Player.Sprint.IsPressed();
-
-        if (glutenActionControls.Player.Jump.WasPressedThisFrame())
-            jumpPressed = true;
-
-        if (glutenActionControls.Player.Jump.WasReleasedThisFrame())
-            jumpReleased = true;
-
-        if (glutenActionControls.Player.Dash.WasPressedThisFrame())
-            dashPressed = true;
-
-        if (glutenActionControls.Player.Hook.WasPressedThisFrame())
-            hookPressed = true;
-
-        if (glutenActionControls.Player.Attack.WasPressedThisFrame())
-            attackPressed = true;
-
-        if (glutenActionControls.Player.RangedAttack.WasPressedThisFrame())
-            rangedAttackPressed = true;
-
-        if (glutenActionControls.Player.Parry.WasPressedThisFrame())
-            parryPressed = true;
-    }
+    #region Direction
 
     /// <summary>
     /// Actualiza la dirección hacia la que mira el personaje.
     /// </summary>
     private void UpdateFacingDirection()
     {
-        if (movementDirection > 0)
+        if (playerInputs.MovementDirection > 0)
             facingDirection = 1;
-        else if (movementDirection < 0)
+        else if (playerInputs.MovementDirection < 0)
             facingDirection = -1;
+
+        UpdateSpriteDirection();
 
         playerCombat?.SetFacingDirection(facingDirection);
         characterStats?.SetFacingDirection(facingDirection);
+    }
+
+    private void UpdateSpriteDirection()
+    {
+        Vector3 scale = spriteTransform.localScale;
+
+        scale.x = Mathf.Abs(scale.x) * facingDirection;
+
+        spriteTransform.localScale = scale;
     }
 
     #endregion
@@ -496,19 +354,19 @@ public class PlayerController : MonoBehaviour
         switch (from)
         {
             case PlayerState.Idle:
-                return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Walk:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Run, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Run:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Crouch, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Airborne, PlayerState.Jump, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry, PlayerState.Hook);
 
             case PlayerState.Jump:
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Airborne:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Jump, PlayerState.Run, PlayerState.DoubleJump, PlayerState.Dash, PlayerState.WallGrab, PlayerState.WallSlide, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.DoubleJump:
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
@@ -526,13 +384,10 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Hook:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.Attack, PlayerState.Parry);
-
-            case PlayerState.Crouch:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Attack, PlayerState.Hook, PlayerState.Dash, PlayerState.Parry);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Attack:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Crouch, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
 
             case PlayerState.Parry:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Attack);
@@ -577,44 +432,37 @@ public class PlayerController : MonoBehaviour
     {
         switch (state)
         {
+            // Aplicamos velocidad en el aire según de que estado vengamos
+            case PlayerState.Jump:
+
+                playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
+                break;
+
+            case PlayerState.Airborne:
+
+                // Si hemos caído directamente desde Walk o Run, conservamos la velocidad del estado anterior
+                if (previousState == PlayerState.Walk || previousState == PlayerState.Run)
+                {
+                    playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
+                }
+                break;
+
             // Definimos timer, dirección y desactivamos la gravedad
             case PlayerState.Dash:
 
-                dashTimer = dashDuration;
-
-                if (IsWallState(previousState))
-                {
-                    // Desde una pared, el dash siempre se dirige hacia fuera.
-                    dashDirection = -facingDirection;
-                }
-                else
-                {
-                    dashDirection = movementDirection;
-
-                    if (Mathf.Abs(dashDirection) < 0.01f)
-                        dashDirection = facingDirection;
-                }
-
-                rb.gravityScale = 0f;
-
+                playerMovement.EnterDash(IsWallState(previousState), facingDirection, playerInputs.MovementDirection);
                 break;
 
             // Definimos timer y desactivamos la gravedad
             case PlayerState.WallGrab:
 
-                wallGrabTimer = wallGrabDuration;
-
-                rb.gravityScale = 0f;
-
+                playerMovement.EnterWallGrab();
                 break;
 
             // Definimos velocidad y reactivamos la gravedad
             case PlayerState.WallSlide:
 
-                wallSlideSpeed = 0f;
-
-                rb.gravityScale = originalGravity;
-
+                playerMovement.EnterWallSlide();
                 break;
 
             case PlayerState.Hook:
@@ -628,7 +476,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    direction = glutenActionControls.Player.Move.ReadValue<Vector2>();
+                    direction = playerInputs.MoveInput;
 
                     // Evitamos lanzar hacia abajo
                     direction.y = Mathf.Max(0f, direction.y);
@@ -639,25 +487,25 @@ public class PlayerController : MonoBehaviour
                 }
 
                 playerHook.FireHook(direction);
-
                 break;
 
             case PlayerState.Attack:
 
                 playerCombat?.PerformBasicAttack();
-
                 break;
 
             case PlayerState.Parry:
 
                 characterStats.BeginParry();
+                SetSpriteColor(parryColor);
 
                 break;
 
             case PlayerState.Hurt:
 
-                rb.linearVelocity = Vector3.zero;
+                playerMovement.StopMovement();
                 hurtTimer = hurtTimerDuration;
+                StartDamageFlash();
 
                 break;
         }
@@ -674,19 +522,18 @@ public class PlayerController : MonoBehaviour
             // Reiniciamos la gravedad en los estados necesarios
             case PlayerState.Dash:
 
-                rb.gravityScale = originalGravity;
-
+                playerMovement.RestoreGravity();
                 break;
 
             case PlayerState.WallGrab:
 
-                rb.gravityScale = originalGravity;
-
+                playerMovement.RestoreGravity();
                 break;
 
             case PlayerState.Parry:
 
                 characterStats.EndParry();
+                RestoreSpriteColor();
 
                 break;
         }
@@ -704,37 +551,6 @@ public class PlayerController : MonoBehaviour
     private bool CanUseSkill(string skill)
     {
         return skillManager.IsSkillUnlocked(skill);
-    }
-
-    /// <summary>
-    /// Comprueba si el jugador está tocando el suelo.
-    /// </summary>
-    private void CheckGround()
-    {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
-        if (isGrounded)
-        {
-            canDash = true;
-            canDoubleJump = true;
-        }
-    }
-
-    /// <summary>
-    /// Comprueba si el jugador está tocando la pared.
-    /// </summary>
-    private void CheckWall()
-    {
-        isTouchingWall = Physics2D.Raycast(wallCheck.position, Vector2.right * facingDirection, wallCheckDistance, wallLayer);
-    }
-
-    /// <summary>
-    /// Actualiza los temporizadores de habilidades.
-    /// </summary>
-    private void UpdateCooldowns()
-    {
-        if (dashCooldownTimer > 0)
-            dashCooldownTimer -= Time.fixedDeltaTime;
     }
 
     /// <summary>
@@ -788,10 +604,6 @@ public class PlayerController : MonoBehaviour
                 Hook();
                 break;
 
-            case PlayerState.Crouch:
-                Crouch();
-                break;
-
             case PlayerState.Attack:
                 Attack();
                 break;
@@ -815,9 +627,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void ChangeToGroundState()
     {
-        if (Mathf.Abs(movementDirection) > 0.01f)
+        if (Mathf.Abs(playerInputs.MovementDirection) > 0.01f)
         {
-            if (runPressed)
+            if (playerInputs.RunPressed)
                 ChangeState(PlayerState.Run);
             else
                 ChangeState(PlayerState.Walk);
@@ -846,11 +658,17 @@ public class PlayerController : MonoBehaviour
     /// </returns>
     private bool TryJump()
     {
-        if (!jumpPressed || !isGrounded)
+        if (!playerInputs.JumpPressed || (!playerMovement.IsGrounded && !playerMovement.HasCoyoteTime))
             return false;
 
-        jumpPressed = false;
-        ChangeState(PlayerState.Jump);
+        if (!ChangeState(PlayerState.Jump))
+            return false;
+
+        // Si hemos saltado desde el aire, consumimos el Coyote Time
+        if (!playerMovement.IsGrounded)
+            playerMovement.ConsumeCoyoteTime();
+
+        playerInputs.ConsumeJumpInput();
 
         return true;
     }
@@ -863,17 +681,18 @@ public class PlayerController : MonoBehaviour
     /// </returns>
     private bool TryDash()
     {
-        if (!dashPressed || !canDash || dashCooldownTimer > 0)
+        if (!playerInputs.DashPressed || !playerMovement.CanDash)
             return false;
 
         if (!CanUseSkill("DASH"))
             return false;
+        
+        if (!ChangeState(PlayerState.Dash))
+            return false;
 
-        canDash = false;
-        dashPressed = false;
-        dashCooldownTimer = dashCooldown;
+        playerMovement.ConsumeDash();
 
-        ChangeState(PlayerState.Dash);
+        playerInputs.ConsumeDashInput();
 
         return true;
     }
@@ -886,7 +705,7 @@ public class PlayerController : MonoBehaviour
     /// </returns>
     private bool TryHook()
     {
-        if (!hookPressed)
+        if (!playerInputs.HookPressed)
             return false;
 
         if (!CanUseSkill("GANCHO"))
@@ -895,32 +714,34 @@ public class PlayerController : MonoBehaviour
         if (!playerHook.CanFire)
             return false;
 
-        hookPressed = false;
+        if (!ChangeState(PlayerState.Hook))
+            return false;
 
-        ChangeState(PlayerState.Hook);
+        playerInputs.ConsumeHookInput();
 
         return true;
     }
 
     /// <summary>
-    /// Comprobamos si se pueden usar las habilidades mientras se lanza el gancho
+    /// Comprobamos si se pueden usar las habilidades mientras se lanza el gancho.
     /// </summary>
     private void CheckHookAbilities()
     {
         // Doble salto
-        if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
+        if (playerInputs.JumpPressed && playerMovement.CanDoubleJump && CanUseSkill("DOUBLE_JUMP"))
         {
-            jumpPressed = false;
-            canDoubleJump = false;
-
             playerHook.CancelHook();
 
-            ChangeState(PlayerState.DoubleJump);
-            return;
+            if (ChangeState(PlayerState.DoubleJump))
+            {
+                playerMovement.ConsumeDoubleJump();
+                playerInputs.ConsumeJumpInput();
+                return;
+            }
         }
 
         // Dash
-        if (dashPressed && canDash && dashCooldownTimer <= 0f && CanUseSkill("DASH"))
+        if (playerInputs.DashPressed && playerMovement.CanDash && CanUseSkill("DASH"))
         {
             playerHook.CancelHook();
 
@@ -937,37 +758,146 @@ public class PlayerController : MonoBehaviour
             return false;
 
         // El parry tiene prioridad si se pulsan ambos botones
-        if (parryPressed && characterStats.CanParry)
+        if (playerInputs.ParryPressed && characterStats.CanParry)
         {
-            parryPressed = false;
-            attackPressed = false;
-            rangedAttackPressed = false;
-
-            ChangeState(PlayerState.Parry);
-
-            return true;
+            if (ChangeState(PlayerState.Parry))
+            {
+                playerInputs.ConsumeParryInput();
+                playerInputs.ConsumeAttackInput();
+                playerInputs.ConsumeRangedAttackInput();
+            
+                return true;
+            }
         }
 
         // Ataque básico
-        if (attackPressed && playerCombat.CanAttack)
+        if (playerInputs.AttackPressed && playerCombat.CanAttack)
         {
-            attackPressed = false;
-            rangedAttackPressed = false;
+            if (ChangeState(PlayerState.Attack))
+            {
+                playerInputs.ConsumeAttackInput();
+                playerInputs.ConsumeRangedAttackInput();
 
-            ChangeState(PlayerState.Attack);
-
-            return true;
+                return true;
+            }
         }
 
         // Ataque a distancia
-        if (rangedAttackPressed)
+        if (playerInputs.RangedAttackPressed)
         {
-            rangedAttackPressed = false;
-
-            playerCombat.PerformRangedAttack();
+            if (playerCombat.PerformRangedAttack())
+            {
+                playerInputs.ConsumeRangedAttackInput();
+            }
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Aplica un color a todos los sprites del personaje.
+    /// </summary>
+    private void SetSpriteColor(Color color)
+    {
+        if (spriteRenderers == null)
+            return;
+
+        foreach (SpriteRenderer renderer in spriteRenderers)
+        {
+            if (renderer != null)
+                renderer.color = color;
+        }
+    }
+
+    /// <summary>
+    /// Restaura el color original de todos los sprites del personaje.
+    /// </summary>
+    private void RestoreSpriteColor()
+    {
+        if (spriteRenderers == null)
+            return;
+
+        foreach (SpriteRenderer renderer in spriteRenderers)
+        {
+            if (renderer != null)
+                renderer.color = originalSpriteColor;
+        }
+    }
+
+    /// <summary>
+    /// Muestra el indicador visual al realizar un parry exitoso.
+    /// </summary>
+    private void ShowParryHit()
+    {
+        if (parryHitInstance == null)
+            return;
+
+        parryHitTimer = parryHitDuration;
+        parryHitInstance.SetActive(true);
+    }
+
+    /// <summary>
+    /// Controla cuánto tiempo permanece visible el indicador.
+    /// </summary>
+    private void UpdateParryHit()
+    {
+        if (parryHitTimer <= 0f)
+            return;
+
+        parryHitTimer -= Time.deltaTime;
+
+        if (parryHitTimer <= 0f)
+        {
+            parryHitTimer = 0f;
+            parryHitInstance.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Inicia el parpadeo visual cuando el jugador recibe daño.
+    /// </summary>
+    private void StartDamageFlash()
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+            return;
+
+        damageFlashTimer = hurtTimerDuration;
+        damageFlashIntervalTimer = 0f;
+
+        // Comenzamos mostrando el color de daño.
+        damageFlashActive = true;
+        SetSpriteColor(damageFlashColor);
+    }
+
+    /// <summary>
+    /// Actualiza el parpadeo visual mientras permanece activo.
+    /// </summary>
+    private void UpdateDamageFlash()
+    {
+        if (damageFlashTimer <= 0f)
+            return;
+
+        damageFlashTimer -= Time.deltaTime;
+        damageFlashIntervalTimer -= Time.deltaTime;
+
+        // Cambiamos entre el color original y el color de daño.
+        if (damageFlashIntervalTimer <= 0f)
+        {
+            damageFlashActive = !damageFlashActive;
+
+            SetSpriteColor(damageFlashActive ? damageFlashColor : originalSpriteColor);
+
+            damageFlashIntervalTimer = damageFlashInterval;
+        }
+
+        // Al finalizar, restauramos el color original.
+        if (damageFlashTimer <= 0f)
+        {
+            damageFlashTimer = 0f;
+            damageFlashActive = false;
+
+            RestoreSpriteColor();
+        }
     }
 
     #endregion
@@ -981,22 +911,12 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Idle()
     {
-        // Calculamos la velocidad horizontal deseada.
-        float targetSpeed = 0f;
-
-        // Ajustamos progresivamente la velocidad horizontal.
-        float newSpeed = Mathf.MoveTowards(
-            rb.linearVelocity.x,
-            targetSpeed,
-            airborneAcceleration * Time.fixedDeltaTime
-        );
-
-        rb.linearVelocity = new Vector2(newSpeed, rb.linearVelocity.y);
+        playerMovement.ApplyIdleMovement();
 
         // En cuanto se mueve, pasamos a estado de movimiento
-        if (Mathf.Abs(movementDirection) > 0.01f)
+        if (Mathf.Abs(playerInputs.MovementDirection) > 0.01f)
         {
-            if (runPressed)
+            if (playerInputs.RunPressed)
             {
                 ChangeState(PlayerState.Run);
                 return;
@@ -1023,23 +943,22 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Walk()
     {
-        // Actualizamos velocidad lineal a walkSpeed en X
-        rb.linearVelocity = new Vector2(movementDirection * walkSpeed, rb.linearVelocity.y);
+        playerMovement.ApplyWalkMovement(playerInputs.MovementDirection);
 
         // Si se deja de mover, pasamos a estado de reposo
-        if (Mathf.Abs(movementDirection) < 0.01f)
+        if (Mathf.Abs(playerInputs.MovementDirection) < 0.01f)
         {
             ChangeState(PlayerState.Idle);
             return;
         }
 
-        if (runPressed)
+        if (playerInputs.RunPressed)
         {
             ChangeState(PlayerState.Run);
             return;
         }
 
-        if (!isGrounded)
+        if (!playerMovement.IsGrounded)
         {
             ChangeState(PlayerState.Airborne);
             return;
@@ -1060,23 +979,22 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Run()
     {
-        // Actualizamos velocidad lineal a runSpeed en X
-        rb.linearVelocity = new Vector2(movementDirection * runSpeed, rb.linearVelocity.y);
-        
+        playerMovement.ApplyRunMovement(playerInputs.MovementDirection);
+
         // Si se deja de mover, pasamos a estado de reposo
-        if (Mathf.Abs(movementDirection) < 0.01f)
+        if (Mathf.Abs(playerInputs.MovementDirection) < 0.01f)
         {
             ChangeState(PlayerState.Idle);
             return;
         }
 
-        if (!runPressed)
+        if (!playerInputs.RunPressed)
         {
             ChangeState(PlayerState.Walk);
             return;
         }
 
-        if (!isGrounded)
+        if (!playerMovement.IsGrounded)
         {
             ChangeState(PlayerState.Airborne);
             return;
@@ -1092,14 +1010,6 @@ public class PlayerController : MonoBehaviour
             return;
     }
 
-    /// <summary>
-    /// Estado de agacharse.
-    /// </summary>
-    private void Crouch()
-    {
-        throw new NotImplementedException();
-    }
-
     #endregion
 
     #region Air States
@@ -1109,11 +1019,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Jump()
     {
-        jumpPressed = false;
-
-        // Actualizamos velocidad lineal a jumpForce en Y
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-
+        playerMovement.ApplyJump();
         ChangeState(PlayerState.Airborne);
     }
 
@@ -1122,46 +1028,39 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Airborne()
     {
-        // Calculamos la velocidad horizontal deseada.
-        float targetSpeed = movementDirection * airborneSpeed;
-
-        // Ajustamos progresivamente la velocidad horizontal.
-        float newSpeed = Mathf.MoveTowards(
-            rb.linearVelocity.x,
-            targetSpeed,
-            airborneAcceleration * Time.fixedDeltaTime
-        );
-
-        rb.linearVelocity = new Vector2(newSpeed, rb.linearVelocity.y);
+        playerMovement.ApplyAirborneMovement(playerInputs.MovementDirection);
 
         // Si se ha soltado el salto, bajamos antes
-        if (jumpReleased && rb.linearVelocity.y > 0)
+        if (playerInputs.JumpReleased)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                rb.linearVelocity.y * 0.5f
-            );
-
-            jumpReleased = false;
+            playerMovement.ApplyJumpCut();
+            playerInputs.ConsumeJumpRelease();
         }
 
-        // Si se ha presionado el salto en el aire, se puede realizar un doble salto y tenemos la habilidad, se ejecuta
-        if (jumpPressed && canDoubleJump && CanUseSkill("DOUBLE_JUMP"))
-        {
-            canDoubleJump = false;
-            ChangeState(PlayerState.DoubleJump);
+        // Intentamos realizar un salto normal mediante Coyote Time
+        if (!playerMovement.IsGrounded && TryJump())
             return;
+
+        // Si se ha presionado el salto en el aire, se puede realizar un doble salto y tenemos la habilidad, se ejecuta
+        if (playerInputs.JumpPressed && playerMovement.CanDoubleJump && CanUseSkill("DOUBLE_JUMP"))
+        {
+            if (ChangeState(PlayerState.DoubleJump))
+            {
+                playerMovement.ConsumeDoubleJump();
+                playerInputs.ConsumeJumpInput();
+                return;
+            }
         }
 
         // Si estamos tocando la pared, no estamos en el suelo y tenemos la habilidad, hacemos wall grab
-        if (isTouchingWall && !isGrounded && rb.linearVelocity.y <= 0 && CanUseSkill("WALL_SKILL"))
+        if (playerMovement.IsTouchingWall && !playerMovement.IsGrounded && playerMovement.Velocity.y <= 0 && CanUseSkill("WALL_SKILL"))
         {
             ChangeState(PlayerState.WallGrab);
             return;
         }
 
         // Si dejamos de caer, pasamos a un estado terrestre
-        if (isGrounded && rb.linearVelocity.y <= 0)
+        if (playerMovement.IsGrounded && playerMovement.Velocity.y <= 0)
         {
             ChangeToGroundState();
             return;
@@ -1179,10 +1078,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void DoubleJump()
     {
-        jumpPressed = false;
-
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, doubleJumpForce);
-
+        playerMovement.ApplyDoubleJump();
         ChangeState(PlayerState.Airborne);
     }
 
@@ -1191,38 +1087,34 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void WallGrab()
     {
-        canDoubleJump = true;
-        canDash = true;
+        playerMovement.RefreshAirAbilities();
+        playerMovement.ApplyWallGrab();
 
-        wallGrabTimer -= Time.fixedDeltaTime;
-
-        rb.linearVelocity = Vector2.zero;
-
-        if (jumpPressed)
+        if (playerInputs.JumpPressed && ChangeState(PlayerState.WallJump))
         {
-            ChangeState(PlayerState.WallJump);
+            playerInputs.ConsumeJumpInput();
             return;
         }
 
-        if (!isTouchingWall)
+        if (!playerMovement.IsTouchingWall)
         {
             ChangeState(PlayerState.Airborne);
             return;
         }
 
-        if (isGrounded)
+        if (playerMovement.IsGrounded)
         {
             ChangeToGroundState();
             return;
         }
 
-        if (wallGrabTimer <= 0)
+        if (playerMovement.WallGrabFinished)
         {
             ChangeState(PlayerState.WallSlide);
             return;
         }
 
-        if (movementDirection != facingDirection)
+        if (playerInputs.MovementDirection != facingDirection)
         {
             ChangeState(PlayerState.WallSlide);
             return;
@@ -1240,25 +1132,21 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void WallSlide()
     {
-        wallSlideSpeed += wallSlideAcceleration * Time.fixedDeltaTime;
+        playerMovement.ApplyWallSlide();
 
-        wallSlideSpeed = Mathf.Clamp(wallSlideSpeed, 0f, wallSlideMaxSpeed);
-
-        rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
-
-        if (jumpPressed)
+        if (playerInputs.JumpPressed && ChangeState(PlayerState.WallJump))
         {
-            ChangeState(PlayerState.WallJump);
+            playerInputs.ConsumeJumpInput();
             return;
         }
 
-        if (!isTouchingWall)
+        if (!playerMovement.IsTouchingWall)
         {
             ChangeState(PlayerState.Airborne);
             return;
         }
 
-        if (isGrounded)
+        if (playerMovement.IsGrounded)
         {
             ChangeToGroundState();
             return;
@@ -1276,8 +1164,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void WallJump()
     {
-        rb.linearVelocity = new Vector2(-facingDirection * wallJumpForceX, wallJumpForceY);
-
+        playerMovement.ApplyWallJump(facingDirection);
         ChangeState(PlayerState.Airborne);
     }
 
@@ -1290,14 +1177,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Dash()
     {
-        dashTimer -= Time.fixedDeltaTime;
-
-        // Actualizamos velocidad lineal a dashSpeed en X
-        rb.linearVelocity = new Vector2(dashDirection * dashSpeed, 0f);
-
-        if (dashTimer <= 0f)
+        if (playerMovement.ApplyDashMovement())
         {
-            if (isGrounded)
+            if (playerMovement.IsGrounded)
             {
                 ChangeToGroundState();
                 return;
@@ -1315,7 +1197,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Hook()
     {
-        if (!isGrounded)
+        if (!playerMovement.IsGrounded)
         {
             ChangeState(PlayerState.Airborne);
         }
@@ -1332,7 +1214,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Attack()
     {
-        if (isGrounded)
+        if (playerMovement.IsGrounded)
         {
             ChangeToGroundState();
         }
@@ -1350,7 +1232,7 @@ public class PlayerController : MonoBehaviour
         // Cuando termina la ventana de parry, abandonamos el estado.
         if (playerCombat == null || !characterStats.IsParrying)
         {
-            if (isGrounded)
+            if (playerMovement.IsGrounded)
             {
                 ChangeToGroundState();
             }
@@ -1368,7 +1250,7 @@ public class PlayerController : MonoBehaviour
     {
         if (hurtTimer <= 0)
         {
-            if (isGrounded)
+            if (playerMovement.IsGrounded)
                 ChangeState(PlayerState.Idle);
             else
                 ChangeState(PlayerState.Airborne);
