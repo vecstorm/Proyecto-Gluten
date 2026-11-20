@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Gestiona la lectura de los controles del jugador y el Input Buffering.
@@ -9,10 +10,58 @@ public class PlayerInputs : MonoBehaviour
 
     #region Input System
 
+    [Tooltip("Asset de acciones compartido con el menú de rebindings")]
+    [SerializeField] private InputActionAsset inputActionsAsset;
+
     /// <summary>
-    /// Referencia al sistema de inputs del jugador.
+    /// Mapa de acciones del jugador.
     /// </summary>
-    private GlutenActionControls glutenActionControls;
+    private InputActionMap playerActionMap;
+
+    /// <summary>
+    /// Acción de movimiento.
+    /// </summary>
+    private InputAction moveAction;
+
+    /// <summary>
+    /// Acción de sprint.
+    /// </summary>
+    private InputAction sprintAction;
+
+    /// <summary>
+    /// Acción de salto.
+    /// </summary>
+    private InputAction jumpAction;
+
+    /// <summary>
+    /// Acción de dash.
+    /// </summary>
+    private InputAction dashAction;
+
+    /// <summary>
+    /// Acción de gancho.
+    /// </summary>
+    private InputAction hookAction;
+
+    /// <summary>
+    /// Acción de ataque.
+    /// </summary>
+    private InputAction attackAction;
+
+    /// <summary>
+    /// Acción de ataque a distancia.
+    /// </summary>
+    private InputAction rangedAttackAction;
+
+    /// <summary>
+    /// Acción de parry.
+    /// </summary>
+    private InputAction parryAction;
+
+    /// <summary>
+    /// Acción de acción.
+    /// </summary>
+    private InputAction actionAction;
 
     #endregion
 
@@ -68,6 +117,9 @@ public class PlayerInputs : MonoBehaviour
     /// </summary>
     private bool parryPressed;
 
+    /// <summary>
+    /// Indica si se ha solicitado realizar una acción.
+    /// </summary>
     private bool actionPressed;
 
     /// <summary>
@@ -105,6 +157,9 @@ public class PlayerInputs : MonoBehaviour
     /// </summary>
     public bool ParryPressed => parryPressed;
 
+    /// <summary>
+    /// [Getter] Indica si se ha solicitado realizar una acción.
+    /// </summary>
     public bool ActionPressed => actionPressed;
 
     #endregion
@@ -169,17 +224,37 @@ public class PlayerInputs : MonoBehaviour
 
     private void Awake()
     {
-        glutenActionControls = new GlutenActionControls();
+        if (inputActionsAsset == null)
+        {
+            Debug.LogError("PlayerInputs: No se ha asignado el Input Action Asset.", this);
+            return;
+        }
+
+        // Guardamos todas las acciones en sus variables correspondientes
+
+        playerActionMap = inputActionsAsset.FindActionMap("Player", true);
+
+        moveAction = playerActionMap.FindAction("Move", true);
+        sprintAction = playerActionMap.FindAction("Sprint", true);
+        jumpAction = playerActionMap.FindAction("Jump", true);
+        dashAction = playerActionMap.FindAction("Dash", true);
+        hookAction = playerActionMap.FindAction("Hook", true);
+        attackAction = playerActionMap.FindAction("Attack", true);
+        rangedAttackAction = playerActionMap.FindAction("RangedAttack", true);
+        parryAction = playerActionMap.FindAction("Parry", true);
+        actionAction = playerActionMap.FindAction("Action", true);
     }
 
     private void OnEnable()
     {
-        glutenActionControls.Enable();
+        if (playerActionMap != null)
+            playerActionMap.Enable();
     }
 
     private void OnDisable()
     {
-        glutenActionControls.Disable();
+        if (playerActionMap != null)
+            playerActionMap.Disable();
     }
 
     #endregion
@@ -191,33 +266,36 @@ public class PlayerInputs : MonoBehaviour
     /// </summary>
     public void ReadInputs()
     {
-        MoveInput = glutenActionControls.Player.Move.ReadValue<Vector2>();
+        if (playerActionMap == null || !playerActionMap.enabled)
+            return;
+
+        MoveInput = moveAction.ReadValue<Vector2>();
         MovementDirection = MoveInput.x;
 
-        RunPressed = glutenActionControls.Player.Sprint.IsPressed();
+        RunPressed = sprintAction.IsPressed();
 
-        if (glutenActionControls.Player.Jump.WasPressedThisFrame())
+        if (jumpAction.WasPressedThisFrame())
             BufferInput(ref jumpPressed, ref jumpBufferTimer, jumpBufferDuration);
 
-        if (glutenActionControls.Player.Jump.WasReleasedThisFrame())
+        if (jumpAction.WasReleasedThisFrame())
             jumpReleased = true;
 
-        if (glutenActionControls.Player.Dash.WasPressedThisFrame())
+        if (dashAction.WasPressedThisFrame())
             BufferInput(ref dashPressed, ref dashBufferTimer, dashBufferDuration);
 
-        if (glutenActionControls.Player.Hook.WasPressedThisFrame())
+        if (hookAction.WasPressedThisFrame())
             BufferInput(ref hookPressed, ref hookBufferTimer, hookBufferDuration);
 
-        if (glutenActionControls.Player.Attack.WasPressedThisFrame())
+        if (attackAction.WasPressedThisFrame())
             BufferInput(ref attackPressed, ref attackBufferTimer, attackBufferDuration);
 
-        if (glutenActionControls.Player.RangedAttack.WasPressedThisFrame())
+        if (rangedAttackAction.WasPressedThisFrame())
             BufferInput(ref rangedAttackPressed, ref rangedAttackBufferTimer, rangedAttackBufferDuration);
 
-        if (glutenActionControls.Player.Parry.WasPressedThisFrame())
+        if (parryAction.WasPressedThisFrame())
             BufferInput(ref parryPressed, ref parryBufferTimer, parryBufferDuration);
 
-        if (glutenActionControls.Player.Action.WasPressedThisFrame())
+        if (actionAction.WasPressedThisFrame())
             actionPressed = true;
     }
 
@@ -326,6 +404,9 @@ public class PlayerInputs : MonoBehaviour
         jumpReleased = false;
     }
 
+    /// <summary>
+    /// Consume el suelte del botón de acción.
+    /// </summary>
     public void ConsumeActionPressed()
     {
         actionPressed = false;
