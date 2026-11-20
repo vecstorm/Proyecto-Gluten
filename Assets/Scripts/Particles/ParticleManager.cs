@@ -1,30 +1,26 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class ParticleManager : MonoBehaviour
+public static class ParticleManager
 {
-    public static ParticleManager instance;
+    private static Dictionary<string, ParticleSystem> particleDictionary = new Dictionary<string, ParticleSystem>();
 
-    private Dictionary<string, ParticleSystem> particleDictionary = new Dictionary<string, ParticleSystem>();
-
-    [Header("Particle Prefabs")]
-    [SerializeField] private List<ParticleSystem> particles;
-
-    private void Awake()
+    static ParticleManager()
     {
-        instance = this;
+        List<ParticleSystem> particleResources = Resources.LoadAll<ParticleSystem>("Particles").ToList();
 
-        foreach (ParticleSystem particle in particles)
+        foreach (ParticleSystem particle in particleResources)
         {
             particleDictionary.Add(particle.name, particle);
         }
     }
 
-    public void SpawnParticles(string name, Transform transform)
+    public static void SpawnParticles(string name, Transform transform)
     {
         if (particleDictionary.ContainsKey(name))
         {
-            Instantiate(particleDictionary[name], transform);
+            Object.Instantiate(particleDictionary[name], transform);
         }
         else
         {
@@ -32,11 +28,11 @@ public class ParticleManager : MonoBehaviour
         }
     }
 
-    public void SpawnParticles(string name, Vector3 position, Quaternion rotation)
+    public static void SpawnParticles(string name, Vector3 position, Quaternion rotation)
     {
         if (particleDictionary.ContainsKey(name))
         {
-            Instantiate(particleDictionary[name], position, rotation);
+            Object.Instantiate(particleDictionary[name], position, rotation);
         }
         else
         {
@@ -44,19 +40,19 @@ public class ParticleManager : MonoBehaviour
         }
     }
 
-    public void StopAllParticles()
+    public static void StopAllParticles()
     {
-        foreach (ParticleSystem particle in FindObjectsByType<ParticleSystem>(FindObjectsSortMode.InstanceID))
+        foreach (ParticleSystem particle in Object.FindObjectsByType<ParticleSystem>(FindObjectsSortMode.InstanceID))
         {
             particle.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         }
     }
 
-    public void DeleteAllParticles()
+    public static void DeleteAllParticles()
     {
-        foreach (ParticleSystem particle in FindObjectsByType<ParticleSystem>(FindObjectsSortMode.InstanceID))
+        foreach (ParticleSystem particle in Object.FindObjectsByType<ParticleSystem>(FindObjectsSortMode.InstanceID))
         {
-            Destroy(particle.gameObject);
+            Object.Destroy(particle.gameObject);
         }
     }
 }
