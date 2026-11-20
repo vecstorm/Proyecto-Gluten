@@ -871,6 +871,7 @@ public class FinalBossEnemyAI : BossAI
         gameObject.SetActive(true);
 
         timer = 1f;
+        consecutivePunches = 0;
 
         isFollowing = false;
         alreadySlamming = false;

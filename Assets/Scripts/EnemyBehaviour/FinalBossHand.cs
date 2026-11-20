@@ -87,6 +87,8 @@ public class FinalBossHand : MonoBehaviour
     // Logica de reseteo del brazo
     public void ResetHand()
     {
+        rb.linearVelocity = Vector3.zero;
+
         ReturnToOrigin();
         ResetRotation();
     }
