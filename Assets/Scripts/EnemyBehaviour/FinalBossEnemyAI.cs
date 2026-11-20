@@ -326,6 +326,8 @@ public class FinalBossEnemyAI : BossAI
 
         timer = stunnedUnharmedTime;
 
+        DestroyWarnings();
+
         ResetArmsOffset();
 
         rightArm.ResetHand();
@@ -843,6 +845,18 @@ public class FinalBossEnemyAI : BossAI
         }
 
         spawneables.Clear();
+    }
+
+    // Destruye todos los objetos de spawneables que sean advertencias de hitbox
+    private void DestroyWarnings()
+    {
+        for (int i = 0; i < spawneables.Count; i++)
+        {
+            if (spawneables[i] != null && spawneables[i].GetComponent<HitboxWithWarning>() != null)
+            {
+                Destroy(spawneables[i]);
+            }
+        }
     }
 
     // Logica de reseteo del enemigo
