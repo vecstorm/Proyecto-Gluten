@@ -67,6 +67,8 @@ public class PlayerMovement : MonoBehaviour
 
     public bool CanDoubleJump => canDoubleJump;
 
+    private int facingDirection = 1;
+
     #endregion
 
     #region Coyote Time
@@ -163,6 +165,27 @@ public class PlayerMovement : MonoBehaviour
     /// Determina si el jugador puede utilizar el dash.
     /// </summary>
     public bool CanDash => canDash && dashCooldownTimer <= 0f;
+
+    #endregion
+
+    #region Direction
+
+    /// <summary>
+    /// Actualiza la dirección hacia la que mira el jugador.
+    /// </summary>
+    /// <param name="direction">Dirección del jugador: 1 para derecha y -1 para izquierda</param>
+    public void SetFacingDirection(int direction)
+    {
+        if (direction == 0)
+            return;
+
+        int newDirection = direction > 0 ? 1 : -1;
+
+        if (newDirection == facingDirection)
+            return;
+
+        facingDirection = newDirection;
+    }
 
     #endregion
 
@@ -357,6 +380,8 @@ public class PlayerMovement : MonoBehaviour
 
         // Actualizamos velocidad lineal a jumpForce en Y
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+        ParticleManager.SpawnParticlesOnSurface("JumpingSmoke", transform, Vector3.down, transform.right * facingDirection, groundLayer);
     }
 
     /// <summary>

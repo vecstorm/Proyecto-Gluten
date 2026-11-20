@@ -7460,6 +7460,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy2D (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 3396738433899943286, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: maxHealth
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 6730863921510643207, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: knockbackForce
       value: 7
@@ -14464,7 +14468,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3396738433899943286, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: maxHealth
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6730863921510643207, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: canRespawn

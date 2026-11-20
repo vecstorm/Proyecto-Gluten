@@ -285,6 +285,7 @@ public class PlayerController : MonoBehaviour
         UpdateSpriteDirection();
 
         playerCombat?.SetFacingDirection(facingDirection);
+        playerMovement?.SetFacingDirection(facingDirection);
         characterStats?.SetFacingDirection(facingDirection);
     }
 

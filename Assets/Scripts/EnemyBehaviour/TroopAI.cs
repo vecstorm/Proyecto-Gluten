@@ -75,6 +75,8 @@ public abstract class TroopAI : EnemyAI
     {
         Vector3 knockbackDirection = (transform.position - characterStats.LastDamagePosition).normalized;
 
+        ParticleManager.SpawnParticles("AttackImpact", transform.position, new Vector3(knockbackDirection.x, 0, 0));
+
         externalMovement = new Vector3(horizontalKnockback ? knockbackDirection.x : 0, verticalKnockback ? knockbackDirection.y : 0, 0) * knockbackForce;
     }
 }
