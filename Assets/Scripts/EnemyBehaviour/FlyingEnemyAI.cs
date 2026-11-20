@@ -488,6 +488,7 @@ public class FlyingEnemyAI : TroopAI
 
             if (state == ENEMY_STATE.RAMMING && isRamming)
             {
+                ParticleManager.SpawnParticles("ExplosionEffect", transform.position, Quaternion.identity);
                 characterStats.Death();
                 isRamming = false;
             }
