@@ -269,8 +269,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0092de6de81459e4198cdfe06b35dc58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  state: 1
-  defaultState: 0
   showGizmos: 1
   canRespawn: 1
   isAerial: 0
@@ -279,22 +277,25 @@ MonoBehaviour:
   playerDetectionLayer:
     serializedVersion: 2
     m_Bits: 136
-  horizontalKnockback: 1
-  verticalKnockback: 0
-  knockbackForce: 7
-  externalMovementDecay: 5
+  targetTransform: {fileID: 0}
+  state: 1
+  defaultState: 0
   groundDetection: {fileID: 5195230964363463074}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  horizontalKnockback: 1
+  verticalKnockback: 0
+  knockbackForce: 7
+  externalMovementDecay: 5
   speed: 2
   probabilityToTurn: 30
   stunnedTimerDuration: 1
   areaRadius: 3
   detectedAreaRadius: 10
   edgeCheck: {fileID: 4961119639869176115}
-  contactDamage: 10
-  attackDamage: 10
+  contactDamage: 1
+  attackDamage: 1
   attackDetectionRange: 3
   attackRange: 2
   attackRadius: 1
@@ -343,13 +344,21 @@ MonoBehaviour:
   team: 2
   maxHealth: 4
   currentHealth: 0
+  healthUI: {fileID: 0}
   maxStamina: 100
   staminaRegenRate: 15
+  healthUpgradeTokens: 0
   canTakeDamage: 1
   parryWindow: 0.15
   parryCooldown: 0.5
   currentXp: 0
   knockbackForce: 3
+  healthUpgradeCount: 0
+  attackUpgradeCount: 0
+  initialHealthUpgradeCost: 30
+  healthUpgradeCostIncrease: 20
+  initialAttackUpgradeCost: 30
+  attackUpgradeCostIncrease: 20
 --- !u!114 &2640961922105124049
 MonoBehaviour:
   m_ObjectHideFlags: 0

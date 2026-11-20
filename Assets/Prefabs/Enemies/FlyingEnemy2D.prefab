@@ -365,8 +365,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 756b728c43ad74444a3844b982944397, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlyingEnemyAI
-  state: 1
-  defaultState: 0
   showGizmos: 1
   canRespawn: 1
   isAerial: 1
@@ -376,14 +374,16 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 136
   targetTransform: {fileID: 0}
-  horizontalKnockback: 1
-  verticalKnockback: 1
-  knockbackForce: 7
-  externalMovementDecay: 3
+  state: 1
+  defaultState: 0
   groundDetection: {fileID: 0}
   groundLayer:
     serializedVersion: 2
     m_Bits: 0
+  horizontalKnockback: 1
+  verticalKnockback: 1
+  knockbackForce: 7
+  externalMovementDecay: 3
   areaRadius: 10
   speed: 3
   timeToStopSearching: 2
@@ -400,9 +400,9 @@ MonoBehaviour:
   nodeRadius: 4
   nodeCheckRadius: 0.5
   pathUpdateInterval: 0.2
-  contactDamage: 10
+  contactDamage: 1
   projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
-  projectileDamage: 10
+  projectileDamage: 1
   projectileSpeed: 6
   attackCooldown: 1.7
   attackMinDistance: 6
@@ -435,13 +435,21 @@ MonoBehaviour:
   team: 2
   maxHealth: 3
   currentHealth: 0
+  healthUI: {fileID: 0}
   maxStamina: 100
   staminaRegenRate: 15
+  healthUpgradeTokens: 0
   canTakeDamage: 1
   parryWindow: 0.15
   parryCooldown: 0.5
   currentXp: 0
   knockbackForce: 3
+  healthUpgradeCount: 0
+  attackUpgradeCount: 0
+  initialHealthUpgradeCost: 30
+  healthUpgradeCostIncrease: 20
+  initialAttackUpgradeCost: 30
+  attackUpgradeCostIncrease: 20
 --- !u!114 &-8705039332566184324
 MonoBehaviour:
   m_ObjectHideFlags: 0

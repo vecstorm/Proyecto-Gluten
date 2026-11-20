@@ -336,8 +336,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e259d3b79a9bcd41b9da010373e4622, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PatrolEnemyAI
-  state: 1
-  defaultState: 0
   showGizmos: 1
   canRespawn: 1
   isAerial: 0
@@ -346,17 +344,20 @@ MonoBehaviour:
   playerDetectionLayer:
     serializedVersion: 2
     m_Bits: 136
-  horizontalKnockback: 1
-  verticalKnockback: 0
-  knockbackForce: 14
-  externalMovementDecay: 5
+  targetTransform: {fileID: 0}
+  state: 1
+  defaultState: 0
   groundDetection: {fileID: 1942774061149538162}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  horizontalKnockback: 1
+  verticalKnockback: 0
+  knockbackForce: 14
+  externalMovementDecay: 5
   speed: 2
   edgeCheck: {fileID: 8359697859429855696}
-  contactDamage: 10
+  contactDamage: 1
 --- !u!114 &1626098131391707273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -372,13 +373,21 @@ MonoBehaviour:
   team: 2
   maxHealth: 2
   currentHealth: 0
+  healthUI: {fileID: 0}
   maxStamina: 100
   staminaRegenRate: 15
+  healthUpgradeTokens: 0
   canTakeDamage: 1
   parryWindow: 0.15
   parryCooldown: 0.5
   currentXp: 0
   knockbackForce: 0
+  healthUpgradeCount: 0
+  attackUpgradeCount: 0
+  initialHealthUpgradeCost: 30
+  healthUpgradeCostIncrease: 20
+  initialAttackUpgradeCost: 30
+  attackUpgradeCostIncrease: 20
 --- !u!114 &1878078336183355084
 MonoBehaviour:
   m_ObjectHideFlags: 0

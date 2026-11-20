@@ -19,6 +19,7 @@ public class ProjectileEnemyAI : TroopAI
     [SerializeField] private int contactDamage = 10;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private int projectileDamage = 10;
+    [SerializeField] private int chargedProjectileDamage = 20;
     [SerializeField] private float projectileSpeed = 6;
     [SerializeField] private int ampedProjectileCount = 4;
     [SerializeField] private float attackCooldown = 1.5f;
@@ -232,6 +233,7 @@ public class ProjectileEnemyAI : TroopAI
             {
                 projectileCount = 0;
                 newProjectile.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                projectileController.SetContactDamage(chargedProjectileDamage);
             }
             
             timer = attackCooldown;

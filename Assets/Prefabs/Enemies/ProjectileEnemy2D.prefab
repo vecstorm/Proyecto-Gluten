@@ -536,8 +536,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ea267da6f67e3b45b8ee378adaed5e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileEnemyAI
-  state: 1
-  defaultState: 0
   showGizmos: 1
   canRespawn: 1
   isAerial: 0
@@ -546,27 +544,33 @@ MonoBehaviour:
   playerDetectionLayer:
     serializedVersion: 2
     m_Bits: 136
-  horizontalKnockback: 1
-  verticalKnockback: 0
-  knockbackForce: 10
-  externalMovementDecay: 5
+  targetTransform: {fileID: 0}
+  state: 1
+  defaultState: 0
   groundDetection: {fileID: 5589942049983994211}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  horizontalKnockback: 1
+  verticalKnockback: 0
+  knockbackForce: 10
+  externalMovementDecay: 5
   personalBubbleRadius: 7
   areaRadius: 20
   attackAreaRadius: 15
   speed: 2
   edgeCheck: {fileID: 8570909192793290940}
   backEdgeCheck: {fileID: 6143666569087548949}
-  contactDamage: 10
+  contactDamage: 1
   projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
+  projectileDamage: 1
+  chargedProjectileDamage: 2
   projectileSpeed: 8
   ampedProjectileCount: 4
   attackCooldown: 1.5
   minSearchingDelay: 3
   maxSearchingDelay: 5
+  newSpawnPositionDelay: 3
 --- !u!114 &8841831874865696730
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -582,13 +586,21 @@ MonoBehaviour:
   team: 2
   maxHealth: 6
   currentHealth: 0
+  healthUI: {fileID: 0}
   maxStamina: 100
   staminaRegenRate: 15
+  healthUpgradeTokens: 0
   canTakeDamage: 1
   parryWindow: 0.15
   parryCooldown: 0.5
   currentXp: 0
   knockbackForce: 3
+  healthUpgradeCount: 0
+  attackUpgradeCount: 0
+  initialHealthUpgradeCost: 30
+  healthUpgradeCostIncrease: 20
+  initialAttackUpgradeCost: 30
+  attackUpgradeCostIncrease: 20
 --- !u!114 &7877052925465416808
 MonoBehaviour:
   m_ObjectHideFlags: 0

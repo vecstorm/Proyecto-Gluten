@@ -8,6 +8,11 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
     public CombatTeam Team => team;
 
+    private Collider2D ownerCollider;
+    private Collider2D lastDamageCollider;
+    private CombatDamage lastCombatDamage;
+    private bool couldTakeDamageLastFrame = true;
+
     [Header("Configuraci�n de Vida")]
     [SerializeField] private float maxHealth = 10;
     [SerializeField] private float currentHealth;
@@ -105,6 +110,8 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
     private void Awake()
     {
+        ownerCollider = GetComponent<Collider2D>();
+
         currentHealth = maxHealth;
         currentStamina = maxStamina;
         isPlayer = gameObject.CompareTag("Player");
@@ -133,6 +140,16 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         // Finaliza autom�ticamente el parry cuando termina su ventana temporal
         if (isParrying && parryTimer <= 0f)
             isParrying = false;
+
+        if (canTakeDamage && !couldTakeDamageLastFrame)
+        {
+            if (lastDamageCollider != null && lastDamageCollider.enabled && lastDamageCollider.gameObject.activeSelf)
+            {
+                CheckIfStillColliding();
+            }
+        }
+
+        couldTakeDamageLastFrame = canTakeDamage;
     }
 
     public void AddHealthUpgradeToken()
@@ -204,6 +221,14 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         {
             ResolveParry(damage);
             return false;
+        }
+
+        Collider2D collider = damage.Source.GetComponent<Collider2D>();
+
+        if (collider != null)
+        {
+            lastDamageCollider = collider;
+            lastCombatDamage = damage;
         }
 
         if (!canTakeDamage)
@@ -473,5 +498,38 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public void ApplyStun()
     {
         OnStunApplied?.Invoke();
+    }
+
+    private void CheckIfStillColliding()
+    {
+        if (lastDamageCollider == null || ownerCollider == null)
+        {
+            lastDamageCollider = null;
+            return;
+        }
+
+        if (!lastDamageCollider.gameObject.activeSelf || !lastDamageCollider.enabled)
+        {
+            lastDamageCollider = null;
+            return;
+        }
+
+        ColliderDistance2D distance = ownerCollider.Distance(lastDamageCollider);
+
+        if (distance.isOverlapped)
+        {
+            Collider2D hazardToApply = lastDamageCollider;
+            CombatDamage damageToApply = lastCombatDamage;
+
+            lastDamageCollider = null;
+            lastCombatDamage = default;
+
+            ReceiveDamage(damageToApply);
+        }
+        else
+        {
+            lastDamageCollider = null;
+            lastCombatDamage = default;
+        }
     }
 }

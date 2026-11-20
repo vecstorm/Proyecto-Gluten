@@ -803,7 +803,7 @@ public class FinalBossEnemyAI : BossAI
         }
 
         hitTargets.Clear();
-        CombatDamage damage = new CombatDamage(damageQuantity, characterStats, armTransform.position, false);
+        CombatDamage damage = new CombatDamage(damageQuantity, characterStats.Team, armTransform, armTransform.position, CombatAttackType.Melee, false);
         CombatManager.MakeDamage(armTransform, collision, hitTargets, damage, characterStats.Team);
     }
 

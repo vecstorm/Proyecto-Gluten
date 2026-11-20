@@ -665,6 +665,7 @@ MonoBehaviour:
   currentArmourHealth: 0
   leftArm: {fileID: 3592348993365430875}
   rightArm: {fileID: 4252602445565447852}
+  armSafeTime: 0.3
   hookPoints: {fileID: 4739460743048480254}
   chest: {fileID: 4429332226552652028}
   neck: {fileID: 6274195536169190015}
@@ -674,11 +675,12 @@ MonoBehaviour:
   minDistanceToWall: 10
   backHandOffset: 1.5
   frontHandOffset: 0.5
-  contactDamage: 10
+  contactDamage: 1
   introTime: 2
   timesStunned: 0
   stunnedTime: 6
-  slamDamage: 20
+  stunnedUnharmedTime: 15
+  slamDamage: 2
   handFollowingSpeed: 15
   slamHandBeneathDistance: 3
   slamFollowDelay: 3
@@ -691,7 +693,7 @@ MonoBehaviour:
   minSlamProjectileDistance: 5
   knocksToAddDebris: 2
   fallingDebrisPrefab: {fileID: 706270362039097128, guid: 920b819e09a29c146a0afb6674a0b4e3, type: 3}
-  debrisDamage: 10
+  debrisDamage: 1
   minDebris: 15
   maxDebris: 20
   rainDelay: 1
@@ -702,7 +704,7 @@ MonoBehaviour:
   minDebrisDistance: 2
   rainRecoveryDelay: 2
   projectilePrefab: {fileID: 8800497664785079264, guid: de09138f351fd0e4c969fd0fb741671d, type: 3}
-  projectileDamage: 10
+  projectileDamage: 1
   leftArenaCorner: {fileID: 0}
   rightArenaCorner: {fileID: 0}
   shootingPreparationDelay: 2
@@ -710,7 +712,7 @@ MonoBehaviour:
   minShots: 6
   maxShots: 10
   shotsDelay: 1
-  punchDamage: 10
+  punchDamage: 1
   punchWarning: {fileID: 561017133050389988, guid: f94e666ceeb544d43a12d2dad36a55ed, type: 3}
   maxConsecutivePunches: 4
   punchingSpeed: 30
@@ -735,13 +737,21 @@ MonoBehaviour:
   team: 2
   maxHealth: 12
   currentHealth: 0
+  healthUI: {fileID: 0}
   maxStamina: 100
   staminaRegenRate: 15
+  healthUpgradeTokens: 0
   canTakeDamage: 0
   parryWindow: 0.15
   parryCooldown: 0.5
   currentXp: 0
   knockbackForce: 0
+  healthUpgradeCount: 0
+  attackUpgradeCount: 0
+  initialHealthUpgradeCost: 30
+  healthUpgradeCostIncrease: 20
+  initialAttackUpgradeCost: 30
+  attackUpgradeCostIncrease: 20
 --- !u!1 &4177542214372524152
 GameObject:
   m_ObjectHideFlags: 0
