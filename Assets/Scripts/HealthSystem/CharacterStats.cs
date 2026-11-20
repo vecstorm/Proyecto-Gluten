@@ -116,7 +116,10 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         currentStamina = maxStamina;
         isPlayer = gameObject.CompareTag("Player");
         rb = GetComponent<Rigidbody2D>();
-    }
+
+		if (healthUI == null)
+			healthUI = FindFirstObjectByType<HealthUpgradeMenu>();
+	}
 
     private void Start()
     {

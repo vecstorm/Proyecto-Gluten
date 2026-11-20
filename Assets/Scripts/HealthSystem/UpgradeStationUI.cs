@@ -10,7 +10,29 @@ public class UpgradeStationUI : MonoBehaviour
     [SerializeField] private HealthUpgradeMenu healthUpgradeMenu;
     [SerializeField] private CharacterStats characterStats;
 
-    private void Start()
+	private void Awake()
+	{
+		if (playerInputs == null)
+			playerInputs = FindFirstObjectByType<PlayerInputs>();
+
+		if (healthUpgradeMenu == null)
+			healthUpgradeMenu = FindFirstObjectByType<HealthUpgradeMenu>();
+
+		if (characterStats == null)
+			characterStats = FindFirstObjectByType<CharacterStats>();
+
+		GameObject canvasObject = GameObject.Find("MejoraCanvas");
+
+		if (canvasObject != null)
+		{
+			if (healUpgradePanel == null)
+				healUpgradePanel = canvasObject.transform.Find("HealPanel")?.gameObject;
+
+			if (upgradePanel == null)
+				upgradePanel = canvasObject.transform.Find("UpgradePanel")?.gameObject;
+		}
+	}
+	private void Start()
     {
         SetPanel(false, healUpgradePanel);
         SetPanel(false, upgradePanel);

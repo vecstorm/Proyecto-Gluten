@@ -12434,17 +12434,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2697782921323942420, guid: 37aa365774459ca4a8f3da5623308225, type: 3}
   m_PrefabInstance: {fileID: 439763323}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &442099029 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1942929448653318921, guid: bb18ca5db9c26d046b22d375f59628b9, type: 3}
-  m_PrefabInstance: {fileID: 50359302}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de3477631de0c884d9db5372b62af1f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SkillUnlockManager
 --- !u!1001 &444759983
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45667,7 +45656,7 @@ PrefabInstance:
     - target: {fileID: 6413751089638512161, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
       propertyPath: skillManager
       value: 
-      objectReference: {fileID: 442099029}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

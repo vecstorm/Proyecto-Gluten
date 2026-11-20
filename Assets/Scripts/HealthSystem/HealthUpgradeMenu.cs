@@ -34,6 +34,30 @@ public class HealthUpgradeMenu : MonoBehaviour
 
 	private List<Image> hearts = new();
 
+	private void Awake()
+	{
+		if (healthContainer == null)
+			healthContainer = transform.Find("HealthContainer");
+
+		if (attackContainer == null)
+			attackContainer = transform.Find("AttackContainer");
+
+		if (playerCombat == null)
+			playerCombat = FindFirstObjectByType<PlayerCombat>();
+
+		if (characterStats == null)
+			characterStats = FindFirstObjectByType<CharacterStats>();
+
+		if (healthPointPrefab == null)
+			healthPointPrefab = Resources.Load<Image>("UpgradePrefabs/RanuraUpgrade");
+
+		if (attackPointPrefab == null)
+			attackPointPrefab = Resources.Load<Image>("UpgradePrefabs/RanuraUpgrade");
+
+		if (upgradeButtonPrefab == null)
+			upgradeButtonPrefab = Resources.Load<Button>("UpgradePrefabs/UpgradeButton");
+	}
+
 	public void Initialize(float maxHealth)
 	{
 		// Limpiar imágenes anteriores

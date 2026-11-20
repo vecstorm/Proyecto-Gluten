@@ -190,7 +190,10 @@ public class PlayerController : MonoBehaviour
         if (playerCombat == null)
             playerCombat = GetComponent<PlayerCombat>();
 
-        if (spriteTransform != null)
+		if (skillManager == null)
+			skillManager = FindFirstObjectByType<SkillUnlockManager>();
+
+		if (spriteTransform != null)
         {
             spriteRenderers = spriteTransform.GetComponentsInChildren<SpriteRenderer>(true);
 
