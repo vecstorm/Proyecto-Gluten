@@ -482,6 +482,7 @@ public class FinalBossEnemyAI : BossAI
         bool targetOnLeft = (targetTransform.position.x - chosenCornerPosition.x) < 0;
 
         secondaryBossHand.transform.Rotate(new Vector3(0, 0, targetOnLeft ? -90 : 90));
+        primaryBossHand.BeginSafeTime();
 
         yield return new WaitForSeconds(shootingPreparationDelay);
 
@@ -573,6 +574,7 @@ public class FinalBossEnemyAI : BossAI
         isFollowing = true;
 
         primaryBossHand.transform.Rotate(new Vector3(0, 0, 180));
+        primaryBossHand.BeginSafeTime();
 
         yield return new WaitForSeconds(punchDelay);
 
