@@ -205,4 +205,14 @@ public static class ParticleManager
             return false;
         }
     }
+
+    public static ParticleSystem GetParticles(string name)
+    {
+        if (CheckDictionary(name))
+        {
+            return particleDictionary[name];
+        }
+
+        return null;
+    }
 }

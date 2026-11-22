@@ -73,6 +73,14 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    #region Particles
+
+    [Header("Particles")]
+    [SerializeField] ParticleSystem walkingDust;
+    [SerializeField] ParticleSystem wallSlideDust;
+
+    #endregion
+
     #region Hurt
 
     [Header("Damage")]
@@ -296,6 +304,13 @@ public class PlayerController : MonoBehaviour
         scale.x = Mathf.Abs(scale.x) * facingDirection;
 
         spriteTransform.localScale = scale;
+
+        walkingDust.gameObject.transform.localScale = scale;
+
+        Vector3 wallDustPos = wallSlideDust.transform.localPosition;
+        wallDustPos.x = Mathf.Abs(wallDustPos.x) * facingDirection;
+
+        wallSlideDust.gameObject.transform.localPosition = wallDustPos;
     }
 
     #endregion
@@ -434,7 +449,10 @@ public class PlayerController : MonoBehaviour
         switch (state)
         {
             case PlayerState.Idle:
-                ParticleManager.StopAllPersistentParticles();
+                break;
+
+            case PlayerState.Walk:
+                walkingDust.gameObject.SetActive(true);
                 break;
 
             // Aplicamos velocidad en el aire según de que estado vengamos
@@ -450,7 +468,6 @@ public class PlayerController : MonoBehaviour
                 {
                     playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
                 }
-                ParticleManager.StopAllPersistentParticles();
                 break;
 
             // Definimos timer, dirección y desactivamos la gravedad
@@ -467,8 +484,8 @@ public class PlayerController : MonoBehaviour
 
             // Definimos velocidad y reactivamos la gravedad
             case PlayerState.WallSlide:
-
                 playerMovement.EnterWallSlide();
+                wallSlideDust.gameObject.SetActive(true);
                 break;
 
             case PlayerState.Hook:
@@ -525,6 +542,10 @@ public class PlayerController : MonoBehaviour
     {
         switch (state)
         {
+            case PlayerState.Walk:
+                walkingDust.gameObject.SetActive(false);
+                break;
+
             // Reiniciamos la gravedad en los estados necesarios
             case PlayerState.Dash:
 
@@ -534,6 +555,10 @@ public class PlayerController : MonoBehaviour
             case PlayerState.WallGrab:
 
                 playerMovement.RestoreGravity();
+                break;
+
+            case PlayerState.WallSlide:
+                wallSlideDust.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                 break;
 
             case PlayerState.Parry:
@@ -969,8 +994,6 @@ public class PlayerController : MonoBehaviour
             ChangeState(PlayerState.Airborne);            
             return;
         }
-
-        ParticleManager.SpawnParticlesOnSurface("WalkDust", transform, Vector3.down, -transform.right * facingDirection, playerMovement.GroundLayer, true);
 
         if (TryJump())
             return;
