@@ -50,7 +50,6 @@ public abstract class EnemyAI : MonoBehaviour
     protected void FlashColor()
     {
         StartCoroutine(FlashSequence());
-        //ParticleManager.SpawnParticles("AttackImpactParticles", transform);
     }
 
     protected void FlashColor(Color flashColor)

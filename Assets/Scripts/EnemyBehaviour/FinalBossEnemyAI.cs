@@ -606,6 +606,8 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
+        ParticleManager.SpawnParticlesOnSurface("BossPunchDust", primaryBossHand.transform.position, Vector3.down, groundLayer, false, 8f);
+
         if (hitbox != null)
         {
             hitbox.SetContactDamage(punchDamage);
@@ -743,6 +745,8 @@ public class FinalBossEnemyAI : BossAI
     {
         currentArmourHealth -= (int)damage.Amount;
 
+        ParticleManager.SpawnParticles("ArmourImpact", damage.HitPoint, Quaternion.identity);
+
         if (currentArmourHealth <= 0)
         {
             currentArmourHealth = 0;
@@ -813,6 +817,8 @@ public class FinalBossEnemyAI : BossAI
     private void DamageReaction()
     {
         FlashColor();
+
+        ParticleManager.SpawnParticles("AttackImpact", head.transform.position, Quaternion.identity);
 
         if (state == BOSS_STATE.STUNNED)
         {

@@ -14,6 +14,7 @@ public class KeyPickUp : MonoBehaviour
 
         keyManager.SaveKey(key);
 
+        ParticleManager.SpawnParticles("PickObject", transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 }

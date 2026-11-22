@@ -9,16 +9,27 @@ public class EnemyProjectileController : MonoBehaviour
     [SerializeField] private float speed = 6f;
     [SerializeField] private string[] contactTags;
     [SerializeField] private bool usesGravity = false;
+    [SerializeField] private ParticleSystem followParticlesPrefab;
 
     private Rigidbody2D rb;
     private Vector3 targetPosition;
     private Vector3 direction;
+    private ParticleSystem followParticles;
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void Start()
+    {
+        if (followParticlesPrefab != null)
+        {
+            followParticles = Instantiate(followParticlesPrefab, transform);
+            followParticles.transform.localScale = Vector3.one;
+        }
     }
 
     private void FixedUpdate()
@@ -40,6 +51,13 @@ public class EnemyProjectileController : MonoBehaviour
 
         if (contactTags.Contains(collision.tag))
         {
+            if (followParticles != null)
+            {
+                followParticles.transform.SetParent(null);
+                followParticles.transform.localScale = Vector3.one;
+                followParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+
             Destroy(gameObject);
         }
     }

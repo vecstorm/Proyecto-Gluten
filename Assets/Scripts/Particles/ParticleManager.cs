@@ -124,11 +124,11 @@ public static class ParticleManager
         }
     }
 
-    public static void SpawnParticlesOnSurface(string name, Vector3 transformPosition, Vector3 surfaceDirection, LayerMask layerMask, bool isPersistent = false)
+    public static void SpawnParticlesOnSurface(string name, Vector3 transformPosition, Vector3 surfaceDirection, LayerMask layerMask, bool isPersistent = false, float rayDistance = 2f)
     {
         if (CheckDictionary(name))
         {
-            RaycastHit2D hit = Physics2D.Raycast(transformPosition, surfaceDirection, 2f, layerMask);
+            RaycastHit2D hit = Physics2D.Raycast(transformPosition, surfaceDirection, rayDistance, layerMask);
 
             if (hit.collider)
             {

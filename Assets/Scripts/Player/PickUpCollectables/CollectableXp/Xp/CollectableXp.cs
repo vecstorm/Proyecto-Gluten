@@ -16,6 +16,7 @@ public class CollectableXp : MonoBehaviour
             if (player != null)
             {
                 player.AddXp(xpValue);
+                ParticleManager.SpawnParticles("PickObject", transform.position, Quaternion.identity);
                 Destroy(gameObject);
             }
         }
