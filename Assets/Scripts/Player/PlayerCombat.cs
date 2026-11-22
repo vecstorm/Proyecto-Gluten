@@ -334,6 +334,8 @@ public class PlayerCombat : MonoBehaviour
 
         // Activa el temporizador de invulnerabilidad
         invulnerabilityTimer = invulnerabilityDuration;
+
+        ParticleManager.SpawnParticles("PlayerHurt", transform.position, Quaternion.identity);
     }
 
     #endregion
