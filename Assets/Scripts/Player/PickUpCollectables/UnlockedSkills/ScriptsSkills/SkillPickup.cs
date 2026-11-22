@@ -35,6 +35,7 @@ public class SkillPickup : MonoBehaviour
     public void DestroyPickeable()
     {
         //Animaciones sonidos y particulas
+        ParticleManager.SpawnParticles("PickObject", transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 }
