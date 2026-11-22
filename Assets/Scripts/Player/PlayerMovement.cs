@@ -527,6 +527,8 @@ public class PlayerMovement : MonoBehaviour
         wallSlideSpeed = 0f;
 
         rb.gravityScale = originalGravity;
+
+        ParticleManager.SpawnParticlesOnSurface("WallSlideDust", transform, (Vector3.right + Vector3.up) * facingDirection, Vector3.up, groundLayer, true);
     }
 
     /// <summary>

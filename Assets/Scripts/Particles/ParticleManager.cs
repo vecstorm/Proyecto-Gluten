@@ -49,6 +49,22 @@ public static class ParticleManager
         }
     }
 
+    public static void SpawnParticles(string name, Transform transform, Vector3 position, Vector3 direction)
+    {
+        if (particleDictionary.ContainsKey(name))
+        {
+            Quaternion rotation = Quaternion.FromToRotation(Vector3.right, direction);
+
+            ParticleSystem particle = Object.Instantiate(particleDictionary[name], transform);
+            particle.transform.position = position;
+            particle.transform.localRotation = rotation;
+        }
+        else
+        {
+            Debug.LogError("No existen particulas con el identificador " + name);
+        }
+    }
+
     public static void SpawnParticles(string name, Vector3 position, Quaternion rotation)
     {
         if (particleDictionary.ContainsKey(name))
