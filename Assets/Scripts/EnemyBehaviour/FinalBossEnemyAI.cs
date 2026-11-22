@@ -432,6 +432,8 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
+        ParticleManager.SpawnParticlesOnSurface("BossSlamDust", primaryBossHand.transform.position, Vector3.down, groundLayer);
+
         if (timesStunned >= knocksToAddDebris)
         {
             StartCoroutine(DebrisGeneration(minSlamProjectiles, maxSlamProjectiles, minSlamProjectileDistance));
