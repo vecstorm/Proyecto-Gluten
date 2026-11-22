@@ -24,34 +24,26 @@ public static class ParticleManager
 
     public static void SpawnParticles(string name, Transform transform)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             Object.Instantiate(particleDictionary[name], transform);
-        }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
         }
     }
 
     public static void SpawnParticles(string name, Transform transform, Vector3 direction)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             Quaternion rotation = Quaternion.FromToRotation(Vector3.right, direction);
 
             ParticleSystem particle = Object.Instantiate(particleDictionary[name], transform);
             particle.transform.localRotation = rotation;
         }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
-        }
     }
 
     public static void SpawnParticles(string name, Transform transform, Vector3 position, Vector3 direction)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             Quaternion rotation = Quaternion.FromToRotation(Vector3.right, direction);
 
@@ -59,41 +51,29 @@ public static class ParticleManager
             particle.transform.position = position;
             particle.transform.localRotation = rotation;
         }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
-        }
     }
 
     public static void SpawnParticles(string name, Vector3 position, Quaternion rotation)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             Object.Instantiate(particleDictionary[name], position, rotation);
-        }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
         }
     }
 
     public static void SpawnParticles(string name, Vector3 position, Vector3 direction)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             Quaternion rotation = Quaternion.FromToRotation(Vector3.right, direction);
 
             Object.Instantiate(particleDictionary[name], position, rotation);
         }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
-        }
     }
 
     public static void SpawnParticlesOnSurface(string name, Transform transform, Vector3 surfaceDirection, LayerMask layerMask, bool isPersistent = false)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 2f, layerMask);
 
@@ -117,15 +97,11 @@ public static class ParticleManager
                 }
             }
         }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
-        }
     }
 
     public static void SpawnParticlesOnSurface(string name, Transform transform, Vector3 surfaceDirection, Vector3 particleDirection, LayerMask layerMask, bool isPersistent = false)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 2f, layerMask);
 
@@ -149,15 +125,11 @@ public static class ParticleManager
                 }
             }
         }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
-        }
     }
 
     public static void SpawnParticlesOnSurface(string name, Vector3 transformPosition, Vector3 surfaceDirection, LayerMask layerMask, bool isPersistent = false)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             RaycastHit2D hit = Physics2D.Raycast(transformPosition, surfaceDirection, 2f, layerMask);
 
@@ -178,15 +150,11 @@ public static class ParticleManager
                 }
             }
         }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
-        }
     }
 
     public static void SpawnParticlesOnSurface(string name, Transform transform, Vector3 surfaceDirection, Vector3 particleDirection, LayerMask layerMask)
     {
-        if (particleDictionary.ContainsKey(name))
+        if (CheckDictionary(name))
         {
             Quaternion rotation = Quaternion.FromToRotation(Vector3.right, particleDirection);
 
@@ -196,10 +164,6 @@ public static class ParticleManager
             {
                 Object.Instantiate(particleDictionary[name], hit.point, rotation);
             }
-        }
-        else
-        {
-            Debug.LogError("No existen particulas con el identificador " + name);
         }
     }
 
@@ -229,6 +193,19 @@ public static class ParticleManager
         foreach (ParticleSystem particle in Object.FindObjectsByType<ParticleSystem>(FindObjectsSortMode.InstanceID))
         {
             Object.Destroy(particle.gameObject);
+        }
+    }
+
+    private static bool CheckDictionary(string name)
+    {
+        if (particleDictionary.ContainsKey(name))
+        {
+            return true;
+        }
+        else
+        {
+            Debug.LogError("No existen particulas con el identificador " + name);
+            return false;
         }
     }
 }
