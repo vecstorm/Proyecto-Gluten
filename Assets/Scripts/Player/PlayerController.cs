@@ -434,6 +434,7 @@ public class PlayerController : MonoBehaviour
         switch (state)
         {
             case PlayerState.Idle:
+                ParticleManager.StopAllPersistentParticles();
                 break;
 
             // Aplicamos velocidad en el aire según de que estado vengamos
@@ -449,6 +450,7 @@ public class PlayerController : MonoBehaviour
                 {
                     playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
                 }
+                ParticleManager.StopAllPersistentParticles();
                 break;
 
             // Definimos timer, dirección y desactivamos la gravedad
