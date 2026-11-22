@@ -68,6 +68,25 @@ public static class ParticleManager
         }
     }
 
+    public static void SpawnParticles(string name, Transform parent, Vector3 direction, int facingDirection)
+    {
+        if (!CheckDictionary(name))
+            return;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        ParticleSystem particle = Object.Instantiate(particleDictionary[name], parent);
+
+        particle.transform.localRotation = Quaternion.Euler(0, 0, angle);
+
+        ParticleSystemRenderer renderer = particle.GetComponent<ParticleSystemRenderer>();
+
+        if (renderer != null)
+        {
+            renderer.flip = new Vector3(facingDirection < 0 ? 1f : 0f, 0f, 0f);
+        }
+    }
+
     public static void SpawnParticlesOnSurface(string name, Transform transform, Vector3 surfaceDirection, LayerMask layerMask, bool isPersistent = false)
     {
         if (CheckDictionary(name))
