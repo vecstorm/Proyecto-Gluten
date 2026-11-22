@@ -299,6 +299,11 @@ public class FlyingEnemyAI : TroopAI
 
         if (timer >= rammingDelay)
         {
+            if (!isRamming)
+            {
+                ParticleManager.SpawnParticles("CandyWrapping", transform.position, -transform.right);
+            }
+
             rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
 
             //rb.linearVelocity = rammingDirection * rammingSpeed;
