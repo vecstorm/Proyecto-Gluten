@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UpgradeStationUI : MonoBehaviour
 {
@@ -9,6 +10,10 @@ public class UpgradeStationUI : MonoBehaviour
     [SerializeField] public GameObject upgradePanel;
     [SerializeField] private HealthUpgradeMenu healthUpgradeMenu;
     [SerializeField] private CharacterStats characterStats;
+
+    [SerializeField] private Button closeUpgradeButton;
+    [SerializeField] private Button closeHealButton;
+    [SerializeField] private Button openUpgradeButton;
 
 	private void Awake()
 	{
@@ -30,7 +35,27 @@ public class UpgradeStationUI : MonoBehaviour
 
 			if (upgradePanel == null)
 				upgradePanel = canvasObject.transform.Find("UpgradePanel")?.gameObject;
+
+            if (closeUpgradeButton == null)
+                closeUpgradeButton = canvasObject.transform.Find("UpgradePanel/CloseButton")?.GetComponent<Button>();
+
+            if (closeHealButton == null)
+                closeHealButton = canvasObject.transform.Find("HealPanel/CloseButton")?.GetComponent<Button>();
+
+            if (openUpgradeButton == null)
+                openUpgradeButton = canvasObject.transform.Find("HealPanel/UpgradeButton")?.GetComponent<Button>();
+
+            if (closeUpgradeButton != null)
+                closeUpgradeButton.onClick.AddListener(CloseUpgradePanel);
+
+            if (closeHealButton != null)
+                closeHealButton.onClick.AddListener(CloseHealPanel);
+            
+            if (openUpgradeButton != null)
+                openUpgradeButton.onClick.AddListener(OpenUpgradePanel);
+
 		}
+
 	}
 	private void Start()
     {

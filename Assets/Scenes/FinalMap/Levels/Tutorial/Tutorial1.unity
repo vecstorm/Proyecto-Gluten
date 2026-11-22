@@ -48225,13 +48225,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 367190889557181244, guid: 73077c389f259854fbb6d913f0e219bf, type: 3}
+      propertyPath: m_Name
+      value: CloseButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 1359485031711429890, guid: 73077c389f259854fbb6d913f0e219bf, type: 3}
+      propertyPath: m_Name
+      value: CloseButton
+      objectReference: {fileID: 0}
     - target: {fileID: 2624725642406581853, guid: 73077c389f259854fbb6d913f0e219bf, type: 3}
       propertyPath: m_Name
       value: MejoraCanvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 5357700063992333323, guid: 73077c389f259854fbb6d913f0e219bf, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6969633847524744303, guid: 73077c389f259854fbb6d913f0e219bf, type: 3}
       propertyPath: m_Pivot.x

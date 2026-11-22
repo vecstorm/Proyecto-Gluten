@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2953681616872941892}
   - component: {fileID: 3337061558446763902}
   m_Layer: 5
-  m_Name: ColseButton
+  m_Name: CloseButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 3768637742317731474}
   - component: {fileID: 6660205540908782132}
   m_Layer: 5
-  m_Name: ColseButton
+  m_Name: CloseButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -548,6 +548,7 @@ GameObject:
   - component: {fileID: 279080316509319689}
   - component: {fileID: 1238025080383982638}
   - component: {fileID: 3141295514987657184}
+  - component: {fileID: 1354122650595508405}
   m_Layer: 5
   m_Name: MejoraCanvas
   m_TagString: Untagged
@@ -639,6 +640,29 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1354122650595508405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2624725642406581853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc52fa70ebc6fe3418837813c5851f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthUpgradeMenu
+  healthContainer: {fileID: 9133214611885553069}
+  attackContainer: {fileID: 7081503485851668612}
+  healthPointPrefab: {fileID: 2104668982839525214, guid: 6e8870b16e9458e4faf4fcf9167d26f6, type: 3}
+  attackPointPrefab: {fileID: 2104668982839525214, guid: 6e8870b16e9458e4faf4fcf9167d26f6, type: 3}
+  upgradeButtonPrefab: {fileID: 6724926786978463667, guid: 537017b7eb8d2bf4d848e5d455f4051c, type: 3}
+  playerCombat: {fileID: 0}
+  characterStats: {fileID: 0}
+  initialHealthUpgradeCost: 30
+  healthUpgradeCostIncrease: 20
+  initialAttackUpgradeCost: 30
+  attackUpgradeCostIncrease: 20
 --- !u!1 &2831423009626773676
 GameObject:
   m_ObjectHideFlags: 0
@@ -986,14 +1010,13 @@ GameObject:
   - component: {fileID: 889375573778081474}
   - component: {fileID: 5967204091684666191}
   - component: {fileID: 5362585635296760064}
-  - component: {fileID: 3548543908289537481}
   m_Layer: 5
   m_Name: UpgradePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &889375573778081474
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1056,29 +1079,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3548543908289537481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5357700063992333323}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc52fa70ebc6fe3418837813c5851f28, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HealthUpgradeMenu
-  healthContainer: {fileID: 9133214611885553069}
-  attackContainer: {fileID: 7081503485851668612}
-  healthPointPrefab: {fileID: 2104668982839525214, guid: 6e8870b16e9458e4faf4fcf9167d26f6, type: 3}
-  attackPointPrefab: {fileID: 2104668982839525214, guid: 6e8870b16e9458e4faf4fcf9167d26f6, type: 3}
-  upgradeButtonPrefab: {fileID: 6724926786978463667, guid: 537017b7eb8d2bf4d848e5d455f4051c, type: 3}
-  playerCombat: {fileID: 0}
-  characterStats: {fileID: 0}
-  initialHealthUpgradeCost: 30
-  healthUpgradeCostIncrease: 20
-  initialAttackUpgradeCost: 30
-  attackUpgradeCostIncrease: 20
 --- !u!1 &5775597268792142381
 GameObject:
   m_ObjectHideFlags: 0
