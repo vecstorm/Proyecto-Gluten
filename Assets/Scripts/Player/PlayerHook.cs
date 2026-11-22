@@ -287,6 +287,7 @@ public class PlayerHook : MonoBehaviour
             {
                 targetPosition = point.transform.position;
                 currentState = HookState.Pulling;
+                ParticleManager.SpawnParticles("HookContact", targetPosition, Quaternion.identity);
             }
             else
             {
