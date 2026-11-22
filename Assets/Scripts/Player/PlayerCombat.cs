@@ -309,6 +309,8 @@ public class PlayerCombat : MonoBehaviour
         // Inicia el cooldown independiente
         rangedAttackCooldownTimer = rangedAttackCooldown;
 
+        ParticleManager.SpawnParticles("MagicShot", transform.position, Quaternion.identity);
+
         return true;
     }
 
