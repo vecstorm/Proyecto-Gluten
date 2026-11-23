@@ -280,6 +280,8 @@ public class MiniBossEnemyAI : BossAI
             timer = 0f;
             alreadyJumpAttacking = false;
 
+            ParticleManager.SpawnParticlesOnSurface("BossPunchDust", transform.position, Vector3.down, groundLayer);
+
             if (alreadyMultiJumpAttacking)
             {
                 ToConsecutiveJump();
@@ -494,6 +496,8 @@ public class MiniBossEnemyAI : BossAI
 
         StartCoroutine(SpawnSpikes());
 
+        //ParticleManager.SpawnParticlesOnSurface("BossSlamDust", transform.position, Vector3.down, groundLayer, 5f);
+
         yield return new WaitForSeconds(StatWithMultiplier(heavyAttackRecoverDuration, recoverDurationMultiplier));
 
         //Debug.Log("HEAVY ATTACK PROCESS ENDED");
@@ -545,6 +549,8 @@ public class MiniBossEnemyAI : BossAI
 
             GameObject spike = Instantiate(spikePrefab, spikeSpawnPoint, Quaternion.identity);
             spike.transform.localScale = new Vector3(scaleMultiplier, scaleMultiplier, scaleMultiplier);
+
+            ParticleManager.SpawnParticlesOnSurface("SpikeSpawn", hit.point, Vector3.down, groundLayer);
 
             spike.GetComponent<AutoDestroy>().SetLifeTime(spikeLifeTime);
             spike.GetComponent<SpikeController>().SetContactDamage(spikeDamage);
