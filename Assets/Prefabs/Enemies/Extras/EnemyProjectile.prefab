@@ -176,6 +176,8 @@ MonoBehaviour:
   - Player
   - Ground
   usesGravity: 0
+  followParticlesPrefab: {fileID: 0}
+  impactParticlesPrefab: {fileID: 0}
 --- !u!114 &6466342410616007357
 MonoBehaviour:
   m_ObjectHideFlags: 0
