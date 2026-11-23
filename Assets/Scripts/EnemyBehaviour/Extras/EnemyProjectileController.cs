@@ -10,6 +10,7 @@ public class EnemyProjectileController : MonoBehaviour
     [SerializeField] private string[] contactTags;
     [SerializeField] private bool usesGravity = false;
     [SerializeField] private ParticleSystem followParticlesPrefab;
+    [SerializeField] private ParticleSystem impactParticlesPrefab;
 
     private Rigidbody2D rb;
     private Vector3 targetPosition;
@@ -58,8 +59,12 @@ public class EnemyProjectileController : MonoBehaviour
                 followParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
 
-            Destroy(gameObject);
-            ParticleManager.SpawnParticles("DebrisExplosionEffect", transform.position, Quaternion.identity);
+            if (impactParticlesPrefab != null)
+            {
+                Instantiate(impactParticlesPrefab, transform.position, Quaternion.identity);
+            }
+
+            Destroy(gameObject);        
         }
     }
 
