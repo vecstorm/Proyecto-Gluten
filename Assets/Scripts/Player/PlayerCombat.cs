@@ -217,7 +217,7 @@ public class PlayerCombat : MonoBehaviour
                 if (!attackIndicatorInstance.activeSelf)
                 {
                     ParticleManager.SpawnParticles("SlashTrail", transform, new Vector3(attackIndicatorInstance.transform.position.x + facingDirection, attackIndicatorInstance.transform.position.y, attackIndicatorInstance.transform.position.z), transform.right * facingDirection);
-                    ParticleManager.SpawnParticles("SlashEffect", attackIndicatorInstance.transform, transform.right, -facingDirection);
+                    ParticleManager.SpawnParticles("SlashEffect", attackIndicatorInstance.transform, -facingDirection);
                     attackIndicatorInstance.SetActive(true);
                 }
             }

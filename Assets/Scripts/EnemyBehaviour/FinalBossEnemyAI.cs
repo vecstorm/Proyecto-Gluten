@@ -606,7 +606,7 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
-        ParticleManager.SpawnParticlesOnSurface("BossPunchDust", primaryBossHand.transform.position, Vector3.down, groundLayer, false, 8f);
+        ParticleManager.SpawnParticlesOnSurface("BossPunchDust", primaryBossHand.transform.position, Vector3.down, groundLayer, 8f);
 
         if (hitbox != null)
         {
