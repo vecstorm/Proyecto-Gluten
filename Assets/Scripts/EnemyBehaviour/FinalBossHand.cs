@@ -4,6 +4,7 @@ using UnityEngine;
 public class FinalBossHand : MonoBehaviour
 {
     [SerializeField] private Transform originPoint;
+    [SerializeField] private Transform projectileSpawn;
     [SerializeField] private float returningSpeed = 20f;
     [SerializeField] private float offsetSpeed = 3f;
     
@@ -30,6 +31,8 @@ public class FinalBossHand : MonoBehaviour
     public bool ArmCollided => armCollided;
 
     public bool OnOrigin => onOrigin;
+
+    public Transform ProjectileSpawn => projectileSpawn;
 
     private void Start()
     {

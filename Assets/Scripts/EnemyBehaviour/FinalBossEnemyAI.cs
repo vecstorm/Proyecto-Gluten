@@ -511,9 +511,11 @@ public class FinalBossEnemyAI : BossAI
 
         for (int i = 0; i < projectileQuantity; i++)
         {
-            GameObject newProjectile = Instantiate(projectilePrefab, secondaryBossHand.transform.position, Quaternion.identity);
+            GameObject newProjectile = Instantiate(projectilePrefab, secondaryBossHand.ProjectileSpawn.position, Quaternion.identity);
             newProjectile.transform.localScale = new Vector3(2, 2, 2);
             spawneables.Add(newProjectile);
+
+            ParticleManager.SpawnParticles("BossShootingImpact", secondaryBossHand.ProjectileSpawn.position, secondaryBossHand.transform.rotation);
 
             EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
             projectileController.SetLinearDirection(projectileSpeed, projectileDirection);
