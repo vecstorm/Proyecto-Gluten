@@ -280,7 +280,7 @@ public class MiniBossEnemyAI : BossAI
             timer = 0f;
             alreadyJumpAttacking = false;
 
-            ParticleManager.SpawnParticlesOnSurface("BossPunchDust", transform.position, Vector3.down, groundLayer);
+            ParticleManager.SpawnParticlesOnSurface("MiniBossJumpDust", transform.position, Vector3.down, groundLayer);
 
             if (alreadyMultiJumpAttacking)
             {
@@ -325,6 +325,8 @@ public class MiniBossEnemyAI : BossAI
     // Comportamiento de transición a JUMP_ATTACK
     private void ToJump()
     {
+        ParticleManager.SpawnParticlesOnSurface("LandingSmoke", transform.position, Vector3.down, groundLayer, 5f);
+
         transform.localScale = originalScale;
 
         jumpStartPosition = transform.position;
@@ -496,7 +498,7 @@ public class MiniBossEnemyAI : BossAI
 
         StartCoroutine(SpawnSpikes());
 
-        //ParticleManager.SpawnParticlesOnSurface("BossSlamDust", transform.position, Vector3.down, groundLayer, 5f);
+        ParticleManager.SpawnParticlesOnSurface("MiniBossHeavyDust", transform.position, Vector3.down, groundLayer, 5f);
 
         yield return new WaitForSeconds(StatWithMultiplier(heavyAttackRecoverDuration, recoverDurationMultiplier));
 
