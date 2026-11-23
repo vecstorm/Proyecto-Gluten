@@ -471,7 +471,7 @@ public class PlayerMovement : MonoBehaviour
             if (Mathf.Abs(dashDirection) < 0.01f)
                 dashDirection = facingDirection;
 
-            ParticleManager.SpawnParticlesOnSurface("DashSmoke", transform, Vector3.down, transform.right * facingDirection, groundLayer);
+            ParticleManager.SpawnParticlesOnSurface("DashSmoke", transform.position, Vector3.down, transform.right * facingDirection, groundLayer);
         }
 
         ParticleManager.SpawnParticles("SpeedTrail", transform, transform.right * facingDirection);

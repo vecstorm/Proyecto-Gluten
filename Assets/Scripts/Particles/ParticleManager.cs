@@ -201,6 +201,30 @@ public static class ParticleManager
     }
 
     /// <summary>
+    /// Crea un raycast en dirección a una superficie e instancia un prefab de particulas
+    /// posicionado en el punto donde el raycast haya colisionado con la superficie y rotado en torno una dirección.
+    /// </summary>
+    /// <param name="name">Nombre del prefab de particulas</param>
+    /// <param name="position">Origen del raycast</param>
+    /// <param name="surfaceDirection">Dirección donde apuntara el raycast</param>
+    /// <param name="particleDirection">Dirección en la que rotar el prefab</param>
+    /// <param name="layerMask">Layers con los que podra colisionar el raycast</param>
+    /// <param name="rayDistance">Distancia de detección del raycast</param>
+    public static void SpawnParticlesOnSurface(string name, Vector3 position, Vector3 surfaceDirection, Vector3 particleDirection, LayerMask layerMask, float rayDistance = 2f)
+    {
+        if (CheckDictionary(name))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(position, surfaceDirection, rayDistance, layerMask);
+
+            if (hit.collider)
+            {
+                Quaternion rotation = Quaternion.FromToRotation(Vector3.right, particleDirection);
+                ParticleSystem particle = Object.Instantiate(particleDictionary[name], hit.point, rotation);
+            }
+        }
+    }
+
+    /// <summary>
     /// Termina la emision de todas las particulas en la escena.
     /// </summary>
     public static void StopAllParticles()
