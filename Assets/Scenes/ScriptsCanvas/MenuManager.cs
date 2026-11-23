@@ -1,4 +1,4 @@
-using UnityEngine.InputSystem;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,39 +6,7 @@ public class MenuManager : MonoBehaviour
 {
     [SerializeField] public GameObject mainMenuCanvas;
     [SerializeField] public GameObject optionCanvas;
-    [SerializeField] public GameObject pauseMenu;
     [SerializeField] public GameObject CreditMenu;
-
-    private bool isPaused = false;
-
-    private void Update()
-    {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            if (isPaused)
-            {
-                ResumeGame();
-            }
-            else
-            {
-                PauseGame();
-            }
-        }
-    }
-
-    public void PauseGame()
-    {
-        pauseMenu.SetActive(true);
-        Time.timeScale = 0f;
-        isPaused = true;
-    }
-
-    public void ResumeGame()
-    {
-        pauseMenu.SetActive(false);
-        Time.timeScale = 1f;
-        isPaused = false;
-    }
 
     public void SetCanvasActive(GameObject canva)
     {
@@ -52,11 +20,13 @@ public class MenuManager : MonoBehaviour
 
     public void ChangeSceneToGame()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("Tutorial1");
     }
 
     public void ChangeSceneToMenus()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("SceneMenus");
     }
 
