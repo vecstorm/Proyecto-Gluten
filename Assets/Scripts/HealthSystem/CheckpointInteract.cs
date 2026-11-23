@@ -51,7 +51,7 @@ public class CheckpointInteract : MonoBehaviour
             if (!playerAlreadyInteracted)
             {
                 playerAlreadyInteracted = true;
-                ParticleManager.SpawnParticles("CheckPointEffect", transform.position, Quaternion.identity);
+                ParticleManager.SpawnParticles("CheckPointEffect", transform);
             }
         }
     }

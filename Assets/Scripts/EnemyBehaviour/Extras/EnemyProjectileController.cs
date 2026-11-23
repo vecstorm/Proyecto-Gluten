@@ -59,6 +59,7 @@ public class EnemyProjectileController : MonoBehaviour
             }
 
             Destroy(gameObject);
+            ParticleManager.SpawnParticles("DebrisExplosionEffect", transform.position, Quaternion.identity);
         }
     }
 
