@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{532ec7bd-6aeb-4f69-9fb5-677e9957ae71}">
+		<property name="name">
+			<value>MiniBossActions</value>
+		</property>
+		<relationship name="folder">
+			<destination>{32fc963c-e670-4a3e-b234-718467b5e0c3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{4b4ae1aa-d4e9-443f-a78e-5d1e18a1c31e}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{4b4ae1aa-d4e9-443f-a78e-5d1e18a1c31e}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>11</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Intro</value>
+			<value>AttackPrepare</value>
+			<value>AttackSwing</value>
+			<value>HeavyAttackPrepare</value>
+			<value>HeavyAttackImpact</value>
+			<value>SpikeSpawn</value>
+			<value>JumpPrepare</value>
+			<value>JumpTakeoff</value>
+			<value>JumpLand</value>
+			<value>Hurt</value>
+			<value>Death</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

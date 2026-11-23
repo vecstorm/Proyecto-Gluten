@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{fc478533-1906-4a5b-9522-b5594d8250e3}">
+		<property name="name">
+			<value>FlyingEnemyActions</value>
+		</property>
+		<relationship name="folder">
+			<destination>{32fc963c-e670-4a3e-b234-718467b5e0c3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{5a5e87a2-118c-40a9-a3e9-79a1a1540e0d}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{5a5e87a2-118c-40a9-a3e9-79a1a1540e0d}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>9</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Flapping</value>
+			<value>Shoot</value>
+			<value>ProjectileMovement</value>
+			<value>ProjectileImpact</value>
+			<value>Transform</value>
+			<value>Charge</value>
+			<value>Explode</value>
+			<value>Hurt</value>
+			<value>Death</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

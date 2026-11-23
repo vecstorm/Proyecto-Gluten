@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{78742d8d-f991-4d18-b0f2-c83198f5a374}">
+		<property name="name">
+			<value>MeleeEnemyActions</value>
+		</property>
+		<relationship name="folder">
+			<destination>{32fc963c-e670-4a3e-b234-718467b5e0c3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{d9a40df3-8282-4035-9472-01913a8815cc}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{d9a40df3-8282-4035-9472-01913a8815cc}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>7</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Footstep</value>
+			<value>FastFootstep</value>
+			<value>Hurt</value>
+			<value>Death</value>
+			<value>Stun</value>
+			<value>AttackPrepare</value>
+			<value>Attack</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{d742fc0c-3605-479e-ba45-00dc430df845}">
+		<property name="name">
+			<value>RangedEnemyActions</value>
+		</property>
+		<relationship name="folder">
+			<destination>{32fc963c-e670-4a3e-b234-718467b5e0c3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{2add1407-1bf2-4624-b4f9-4a8588c7efa4}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{2add1407-1bf2-4624-b4f9-4a8588c7efa4}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>6</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Footstep</value>
+			<value>Shoot</value>
+			<value>ProjectileMovement</value>
+			<value>ProjectileImpact</value>
+			<value>Hurt</value>
+			<value>Death</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

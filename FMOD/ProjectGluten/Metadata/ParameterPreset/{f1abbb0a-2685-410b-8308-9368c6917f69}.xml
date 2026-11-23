@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{f1abbb0a-2685-410b-8308-9368c6917f69}">
+		<property name="name">
+			<value>PlayerInteractionActions</value>
+		</property>
+		<relationship name="folder">
+			<destination>{32fc963c-e670-4a3e-b234-718467b5e0c3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{1aa33622-8a81-410b-8c7b-7d6b84eaa4eb}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{1aa33622-8a81-410b-8c7b-7d6b84eaa4eb}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>6</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>CollectExperience</value>
+			<value>SitAtSavePoint</value>
+			<value>UpgradePoints</value>
+			<value>UnlockAbility</value>
+			<value>OpenDoor</value>
+			<value>CollectKey</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

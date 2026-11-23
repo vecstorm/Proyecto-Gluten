@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{e5c3fb3e-8200-4972-8396-bb08aed1d486}">
+		<property name="name">
+			<value>FinalBossActions</value>
+		</property>
+		<relationship name="folder">
+			<destination>{32fc963c-e670-4a3e-b234-718467b5e0c3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{bc803db0-fd5e-44a0-abbb-129431814fa5}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{bc803db0-fd5e-44a0-abbb-129431814fa5}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>22</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Intro</value>
+			<value>BodyMovement</value>
+			<value>MoveArm</value>
+			<value>PunchSwing</value>
+			<value>PunchImpact</value>
+			<value>SlamSwing</value>
+			<value>SlamImpact</value>
+			<value>DebrisSpawn</value>
+			<value>DebrisFalling</value>
+			<value>DebrisImpact</value>
+			<value>CannonPrepare</value>
+			<value>CannonLoad</value>
+			<value>CannonShoot</value>
+			<value>HelmetOpen</value>
+			<value>HelmetClose</value>
+			<value>ChestOpen</value>
+			<value>ChestClose</value>
+			<value>ArmourBreak</value>
+			<value>ArmHurt</value>
+			<value>HeadHurt</value>
+			<value>Stun</value>
+			<value>Death</value>
+		</property>
+		<property name="initialValue">
+			<value>2</value>
+		</property>
+	</object>
+</objects>

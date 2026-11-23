@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{99e50d36-ba0a-4f4e-9f02-b5dd28936731}">
+		<property name="name">
+			<value>UIActions</value>
+		</property>
+		<relationship name="folder">
+			<destination>{32fc963c-e670-4a3e-b234-718467b5e0c3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{c0915034-c34a-41f9-b9c8-f68722c04a6b}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{c0915034-c34a-41f9-b9c8-f68722c04a6b}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>9</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>ButtonHover</value>
+			<value>ButtonClick</value>
+			<value>SliderMove</value>
+			<value>TabChanged</value>
+			<value>MenuOpen</value>
+			<value>MenuClose</value>
+			<value>Back</value>
+			<value>Confirm</value>
+			<value>Cancel</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

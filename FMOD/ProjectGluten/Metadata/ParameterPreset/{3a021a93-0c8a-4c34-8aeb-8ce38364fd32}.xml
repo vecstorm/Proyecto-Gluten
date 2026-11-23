@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{3a021a93-0c8a-4c34-8aeb-8ce38364fd32}">
+		<property name="name">
+			<value>PlayerCombatSFX</value>
+		</property>
+		<relationship name="folder">
+			<destination>{32fc963c-e670-4a3e-b234-718467b5e0c3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{e34cbc71-6488-4585-8cd6-926b79afb3fd}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{e34cbc71-6488-4585-8cd6-926b79afb3fd}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>4</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>MeleeAttack</value>
+			<value>RangedAttack</value>
+			<value>ParryStart</value>
+			<value>ParrySuccess</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>
