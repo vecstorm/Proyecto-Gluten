@@ -235,7 +235,9 @@ public class ProjectileEnemyAI : TroopAI
                 newProjectile.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                 projectileController.SetContactDamage(chargedProjectileDamage);
             }
-            
+
+            ParticleManager.SpawnParticles("TroopShot", transform.position, transform.right);
+
             timer = attackCooldown;
         }
 
@@ -343,6 +345,8 @@ public class ProjectileEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     protected void ToDead()
     {
+        ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+
         isDead = true;
         state = ENEMY_STATE.DEAD;
         gameObject.SetActive(false);

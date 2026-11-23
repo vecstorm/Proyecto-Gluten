@@ -14935,6 +14935,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FinalBossEnemy2D
       objectReference: {fileID: 0}
+    - target: {fileID: 3410738848797180868, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4739460743048480254, guid: 4c807972a70e40741ab8855cc7eb5d50, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -15010,7 +15014,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7870550453005360677, guid: 95022d6d693645746ba3d3caaa584b1b, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8204671401075562310, guid: 95022d6d693645746ba3d3caaa584b1b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15166,6 +15170,67 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a7875da0a88492343be38690f277047a, type: 3}
+--- !u!1001 &2935986969674201309
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3788236647766217978, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_Name
+      value: TroopShot
+      objectReference: {fileID: 0}
+    - target: {fileID: 3788236647766217978, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 13.86
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6818359722860820692, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 852debb8ed29ba24896833f1e6a3f07b, type: 3}
 --- !u!1001 &3145703184506082268
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15453,3 +15518,4 @@ SceneRoots:
   - {fileID: 790776256}
   - {fileID: 1098167574}
   - {fileID: 136107656}
+  - {fileID: 2935986969674201309}

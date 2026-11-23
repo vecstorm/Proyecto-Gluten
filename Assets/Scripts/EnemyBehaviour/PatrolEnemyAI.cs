@@ -90,6 +90,8 @@ public class PatrolEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     protected void ToDead()
     {
+        ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+
         isDead = true;
         state = ENEMY_STATE.DEAD;
         gameObject.SetActive(false);

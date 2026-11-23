@@ -9,6 +9,8 @@ public class EnemyProjectileController : MonoBehaviour
     [SerializeField] private float speed = 6f;
     [SerializeField] private string[] contactTags;
     [SerializeField] private bool usesGravity = false;
+
+    [Header("Particles:")]
     [SerializeField] private ParticleSystem followParticlesPrefab;
     [SerializeField] private ParticleSystem impactParticlesPrefab;
 

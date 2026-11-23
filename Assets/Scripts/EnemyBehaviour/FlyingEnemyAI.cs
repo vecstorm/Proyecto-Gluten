@@ -271,6 +271,8 @@ public class FlyingEnemyAI : TroopAI
             projectileController.SetMovement(projectileSpeed, targetTransform.position);
             projectileController.SetContactDamage(projectileDamage);
 
+            ParticleManager.SpawnParticles("TroopShot", transform.position, transform.right);
+
             attackTimer = attackCooldown;
         }
 
@@ -428,6 +430,11 @@ public class FlyingEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     private void ToDead()
     {
+        if (state != ENEMY_STATE.RAMMING)
+        {
+            ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+        }
+        
         isDead = true;
         state = ENEMY_STATE.DEAD;
         gameObject.SetActive(false);
