@@ -78,6 +78,7 @@ public class PlayerController : MonoBehaviour
     [Header("Particles")]
     [SerializeField] ParticleSystem walkingDust;
     [SerializeField] ParticleSystem wallSlideDust;
+    [SerializeField] Transform parryPoint;
 
     #endregion
 
@@ -311,6 +312,11 @@ public class PlayerController : MonoBehaviour
         wallDustPos.x = Mathf.Abs(wallDustPos.x) * facingDirection;
 
         wallSlideDust.gameObject.transform.localPosition = wallDustPos;
+
+        Vector3 parryPos = parryPoint.localPosition;
+        parryPos.x = Mathf.Abs(parryPos.x) * -facingDirection;
+
+        parryPoint.localPosition = parryPos;
     }
 
     #endregion
@@ -519,6 +525,7 @@ public class PlayerController : MonoBehaviour
 
             case PlayerState.Parry:
 
+                ParticleManager.SpawnParticles("PlayerParry", parryPoint.position, Quaternion.identity);
                 characterStats.BeginParry();
                 SetSpriteColor(parryColor);
 
@@ -1262,6 +1269,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Parry()
     {
+        playerMovement.ApplyIdleMovement();
+
         // Cuando termina la ventana de parry, abandonamos el estado.
         if (playerCombat == null || !characterStats.IsParrying)
         {
