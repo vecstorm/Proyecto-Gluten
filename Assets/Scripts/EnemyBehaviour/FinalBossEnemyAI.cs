@@ -330,6 +330,8 @@ public class FinalBossEnemyAI : BossAI
 
         ResetArmsOffset();
 
+        // SONIDO ---------> Stun //
+
         rightArm.ResetHand();
         rightArm.SetColliderActive(false);
         leftArm.ResetHand();
@@ -413,6 +415,8 @@ public class FinalBossEnemyAI : BossAI
     {
         isFollowing = true;
 
+        // SONIDO ---------> Move Arm //
+
         primaryBossHand.transform.Rotate(new Vector3(0, 0, 90));
         primaryBossHand.BeginSafeTime();
 
@@ -424,6 +428,8 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(slamDelay);
 
+        // SONIDO ---------> Slam Swing //
+
         anticipation = 0;
 
         isFollowing = false;
@@ -433,6 +439,7 @@ public class FinalBossEnemyAI : BossAI
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
         ParticleManager.SpawnParticlesOnSurface("BossSlamDust", primaryBossHand.transform.position, Vector3.down, groundLayer);
+        // SONIDO ---------> Slam Attack //
 
         if (timesStunned >= knocksToAddDebris)
         {
@@ -452,6 +459,8 @@ public class FinalBossEnemyAI : BossAI
     {
         movementEnabled = false;
 
+        // SONIDO ---------> Move Arm //
+
         yield return new WaitUntil(() => BothArmsOnPosition());
 
         isFollowing = true;
@@ -461,6 +470,8 @@ public class FinalBossEnemyAI : BossAI
         leftArm.transform.Rotate(new Vector3(0, 0, -200f));
 
         yield return new WaitForSeconds(rainDelay);
+
+        // SONIDO ---------> Rain Attack //
 
         yield return new WaitForSeconds(rainWaitDelay);
 
@@ -481,6 +492,8 @@ public class FinalBossEnemyAI : BossAI
     // Seqüencia de ataque shooting del enemigo
     private IEnumerator ShootingProcess()
     {
+        // SONIDO ---------> Move Arm //
+
         isFollowing = true;
 
         bool targetOnLeft = (targetTransform.position.x - chosenCornerPosition.x) < 0;
@@ -516,6 +529,7 @@ public class FinalBossEnemyAI : BossAI
             spawneables.Add(newProjectile);
 
             ParticleManager.SpawnParticles("BossShootingImpact", secondaryBossHand.ProjectileSpawn.position, secondaryBossHand.transform.rotation);
+            // SONIDO ---------> Shoot Attack //
 
             EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
             projectileController.SetLinearDirection(projectileSpeed, projectileDirection);
@@ -567,6 +581,8 @@ public class FinalBossEnemyAI : BossAI
             GameObject newProjectile = Instantiate(fallingDebrisPrefab, new Vector3(horizontalPosition, transform.position.y + debrisVerticalPosition, 0), Quaternion.identity);
             spawneables.Add(newProjectile);
 
+            // SONIDO ---------> Debris Spawn //
+
             EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
             projectileController.SetContactDamage(debrisDamage);
 
@@ -578,6 +594,8 @@ public class FinalBossEnemyAI : BossAI
     private IEnumerator PunchingProcess()
     {
         isFollowing = true;
+
+        // SONIDO ---------> Move Arm //
 
         primaryBossHand.transform.Rotate(new Vector3(0, 0, 180));
         primaryBossHand.BeginSafeTime();
@@ -602,6 +620,8 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(warningDelay);
 
+        // SONIDO ---------> Punch Swing //
+
         primaryBossHand.transform.Rotate(new Vector3(0, 0, -180));
 
         primaryBossHand.MoveTillCollision(targetSlamDirection, punchingSpeed);
@@ -609,6 +629,7 @@ public class FinalBossEnemyAI : BossAI
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
 
         ParticleManager.SpawnParticlesOnSurface("BossPunchDust", primaryBossHand.transform.position, Vector3.down, groundLayer, 8f);
+        // SONIDO ---------> Punch Impact //
 
         if (hitbox != null)
         {
@@ -748,6 +769,7 @@ public class FinalBossEnemyAI : BossAI
         currentArmourHealth -= (int)damage.Amount;
 
         ParticleManager.SpawnParticles("ArmourImpact", damage.HitPoint, Quaternion.identity);
+        // SONIDO ---------> Armour Hurt //
 
         if (currentArmourHealth <= 0)
         {
@@ -821,6 +843,7 @@ public class FinalBossEnemyAI : BossAI
         FlashColor();
 
         ParticleManager.SpawnParticles("AttackImpact", head.transform.position, Quaternion.identity);
+        // SONIDO ---------> Head Hurt //
 
         if (state == BOSS_STATE.STUNNED)
         {
@@ -838,6 +861,8 @@ public class FinalBossEnemyAI : BossAI
     // Inicia el proceso de muerte del enemigo
     private void ToDead()
     {
+        // SONIDO ---------> Death //
+
         isDead = true;
         gameObject.SetActive(false);
         bossArea.DisableDoors();
