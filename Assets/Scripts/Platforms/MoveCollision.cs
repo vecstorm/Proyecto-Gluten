@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class MoveCollision : MonoBehaviour
@@ -132,6 +131,9 @@ public class MoveCollision : MonoBehaviour
         // Movemos la plataforma a la siguiente posición
         rb.position = nextPos;
 
+        // Comprobamos si el jugador colapsa o queda aplastado contra la plataforma para teletransportarlo y dañarlo
+        CheckCollapsedPlayer(movementStep);
+
         // Movemos primero al jugador para evitar que pierda la detección de la plataforma
         HandlePlayerRider(movementStep);
 
@@ -140,6 +142,39 @@ public class MoveCollision : MonoBehaviour
         {
             // Cambiamos el objetivo al otro punto para continuar el movimiento
             target = (target == pointA) ? pointB : pointA;
+        }
+    }
+
+    private void CheckCollapsedPlayer(Vector2 movementStep)
+    {
+        // Si no hay punto de teletransporte o la plataforma no se mueve, no aplicamos colapso
+        if (tpPlayerPoint == null || movementStep.sqrMagnitude < 0.000001f) return;
+
+        // Detectamos jugadores cerca de la plataforma para comprobar si colapsan con ella
+        Bounds b = platformCol.bounds;
+        Vector2 scanSize = new Vector2(b.size.x + 0.4f, b.size.y + 0.4f);
+        int count = Physics2D.OverlapBox(b.center, scanSize, 0f, playerFilter, playerHits);
+
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D hit = playerHits[i];
+            Rigidbody2D body = hit != null ? hit.attachedRigidbody : null;
+
+            // Comprobamos que sea el jugador y no esté ya encima de la plataforma
+            if (hit == null || !hit.CompareTag("Player") || body == null || body == currentRider) continue;
+
+            // Si el jugador está atrapado por el avance de la plataforma, lo teletransportamos y dañamos
+            if (CheckPlayerTrapped(body, movementStep))
+            {
+                body.position = tpPlayerPoint.position;
+
+                // Obtenemos las estadísticas del jugador desde su propio GameObject para aplicar el daño correctamente
+                CharacterStats playerstats = body.GetComponent<CharacterStats>();
+                if (playerstats != null)
+                {
+                    playerstats.TakeDamage(Damage);
+                }
+            }
         }
     }
 
@@ -256,9 +291,10 @@ public class MoveCollision : MonoBehaviour
         // Obtenemos los límites del Collider de la plataforma
         Bounds b = platformCol.bounds;
 
-        // Calculamos el centro y el tamaño de la zona donde detectaremos al jugador
-        Vector2 boxCenter = new Vector2(b.center.x, b.max.y - 0.15f);
-        Vector2 boxSize = new Vector2(b.size.x, 0.5f);
+        // Calculamos el centro y el tamaño enfocando solo la cara superior de la plataforma
+        float checkHeight = 0.25f;
+        Vector2 boxCenter = new Vector2(b.center.x, b.max.y + (checkHeight * 0.5f) - 0.05f);
+        Vector2 boxSize = new Vector2(b.size.x, checkHeight);
 
         // Detectamos todos los objetos que se encuentren dentro de la zona indicada
         int count = Physics2D.OverlapBox(boxCenter, boxSize, 0f, playerFilter, playerHits);
@@ -267,15 +303,19 @@ public class MoveCollision : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Collider2D hit = playerHits[i];
+            Rigidbody2D body = hit != null ? hit.attachedRigidbody : null;
 
             // Comprobamos si el objeto tiene el tag Player y un Rigidbody asociado
-            if (hit == null || !hit.CompareTag("Player") || hit.attachedRigidbody == null) continue;
+            if (hit == null || !hit.CompareTag("Player") || body == null) continue;
 
             // Su centro tiene que estar sobre la plataforma: si esta al lado no cuenta
             Bounds p = hit.bounds;
             if (p.center.x < b.min.x || p.center.x > b.max.x) continue;
 
-            return hit.attachedRigidbody;
+            // Evitamos que se pegue si el jugador está por debajo de la cara superior de la plataforma
+            if (p.min.y < b.max.y - 0.08f) continue;
+
+            return body;
         }
 
         // Devolvemos null si no encontramos ningún jugador
