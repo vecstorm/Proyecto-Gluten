@@ -70,11 +70,15 @@ public class FlyingEnemyAI : TroopAI
     private bool lostTarget = false;
     private bool alreadyUnwrapped = false;
 
+    private Collider2D hitbox;
+
     #region MAIN LOOP
 
     private void Awake()
     {
         InitializeBasicComponents();
+
+        hitbox = GetComponent<Collider2D>();
     }
 
     private void Start()
@@ -102,6 +106,12 @@ public class FlyingEnemyAI : TroopAI
 
     private void FixedUpdate()
     {
+        if (state == ENEMY_STATE.DEAD)
+        {
+            rb.linearVelocityX = 0;
+            return;
+        }
+
         switch (state)
         {
             case ENEMY_STATE.PATROL:
@@ -444,14 +454,32 @@ public class FlyingEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     private void ToDead()
     {
-        if (state != ENEMY_STATE.RAMMING)
+        if (!alreadyUnwrapped)
         {
-            ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+            InvokeAnimationTrigger(ENEMY_STATE.DEAD);
         }
-        
+
+        currentPath?.Clear();
+        currentPathIndex = 0;
+        nodes.Clear();
+
+        if (isRamming)
+        {
+            ParticleManager.SpawnParticles("ExplosionEffect", transform.position, Quaternion.identity);
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            localMovement = new Vector3(rb.linearVelocity.x, -1f);
+            ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+            hitbox.enabled = false;
+            rb.gravityScale = 3f;
+        }
+
         isDead = true;
         state = ENEMY_STATE.DEAD;
-        gameObject.SetActive(false);
+        
+        //gameObject.SetActive(false);
     }
 
     #endregion
@@ -514,7 +542,6 @@ public class FlyingEnemyAI : TroopAI
 
             if (state == ENEMY_STATE.RAMMING && isRamming)
             {
-                ParticleManager.SpawnParticles("ExplosionEffect", transform.position, Quaternion.identity);
                 characterStats.Death();
                 isRamming = false;
             }
@@ -731,15 +758,20 @@ public class FlyingEnemyAI : TroopAI
     {
         if (!canRespawn) return;
 
+        rb.gravityScale = 0;
+
         gameObject.SetActive(true);
 
-        ResetColor();
+        ResetMaterialColor();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
         invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         state = defaultState;
         isDead = false;
         alreadyUnwrapped = false;
+
+        InvokeAnimationTrigger(ENEMY_STATE.PATROL);
+        hitbox.enabled = true;
 
         currentPath?.Clear();
         currentPathIndex = 0;

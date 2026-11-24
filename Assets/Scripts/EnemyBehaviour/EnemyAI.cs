@@ -118,6 +118,11 @@ public abstract class EnemyAI : MonoBehaviour
         }
     }
 
+    protected void ResetMaterialColor()
+    {
+        material.SetFloat("_WhiteAmount", 0);
+    }
+
     protected void ChangeColor(Color newColor)
     {
         SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
