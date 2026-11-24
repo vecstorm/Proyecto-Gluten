@@ -305,11 +305,6 @@ public class FlyingEnemyAI : TroopAI
     // Comportamiento en estado RAMMING
     private void OnRamming()
     {
-        /*if (!colorFlashing)
-        {
-            ChangeColor(Color.red);
-        }*/
-
         timer += Time.fixedDeltaTime;
 
         if (timer >= unwrappingDelay)
@@ -341,6 +336,12 @@ public class FlyingEnemyAI : TroopAI
         {
             rammingDirection = (targetTransform.position - transform.position).normalized;
         }
+
+        float angle = Mathf.Atan2(rammingDirection.y, rammingDirection.x) * Mathf.Rad2Deg;
+
+        Quaternion targetRotation = Quaternion.Euler(0f, 0f, angle);
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rammignTurnSpeed * Time.fixedDeltaTime);
     }
 
     // Comportamiento en estado SEARCHING
