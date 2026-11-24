@@ -25,6 +25,10 @@ public class ShowTutorialUI : MonoBehaviour
     private string tutorialSavePoint = "Pulsa {0} para acceder al punto de guardado. Ahi podras curarte y mejorar";
     [TextArea]
     private string tutorialRangedAttack = "Pulsa {0} para atacar a distancia";
+    [TextArea]
+    private string tutorialMap = "Pulsa {0} para mostrar el mapa";
+    [TextArea]
+    private string tutorialPause = "Pulsa {0} para abrir el menu de pausa";
 
     private GlutenActionControls glutenActionControls;
 
@@ -37,7 +41,9 @@ public class ShowTutorialUI : MonoBehaviour
         Attack,
         Parry,
         Action,
-        RangedAttack
+        RangedAttack,
+        Map,
+        Pause
     }
 
     private const string jumpPath = "Player/Jump";
@@ -48,6 +54,9 @@ public class ShowTutorialUI : MonoBehaviour
     private const string parryPath = "Player/Parry";
     private const string interactPath = "Player/Action";
     private const string rangedPath = "Player/RangedAttack";
+    private const string mapPath = "Player/Map";
+    private const string pausePath = "Player/Pause";
+
 
     public MyEnum accionSeleccionada;
 
@@ -63,6 +72,8 @@ public class ShowTutorialUI : MonoBehaviour
             MyEnum.Parry => parryPath,
             MyEnum.Action => interactPath,
             MyEnum.RangedAttack => rangedPath,
+            MyEnum.Map => mapPath,
+            MyEnum.Pause => pausePath,
             _ => ""
         };
     }
@@ -79,6 +90,8 @@ public class ShowTutorialUI : MonoBehaviour
             MyEnum.Parry => tutorialParry,
             MyEnum.Action => tutorialSavePoint,
             MyEnum.RangedAttack => tutorialRangedAttack,
+            MyEnum.Map => tutorialMap,
+            MyEnum.Pause => tutorialPause,
             _ => "Pulsa {0}"
         };
     }
@@ -106,8 +119,9 @@ public class ShowTutorialUI : MonoBehaviour
     {
         PlayerController player = collision.GetComponent<PlayerController>();
         if (player == null || tutorialUI == null) return;
-
+        Debug.Log(accionSeleccionada);
         var action = glutenActionControls.FindAction(GetActionPath(accionSeleccionada));
+        Debug.Log(action);
         if (action == null) return;
 
         string grupoActual = ObtenerDispositivoActivo();
@@ -120,7 +134,7 @@ public class ShowTutorialUI : MonoBehaviour
 
         tutorialUI.text = string.Format(GetSentenceTemplate(accionSeleccionada), buttonText);
         panelTutorial.SetActive(true);
-        //Debug.Log(buttonText);
+        Debug.Log(buttonText);
     }
 
     private string ObtenerDispositivoActivo()
