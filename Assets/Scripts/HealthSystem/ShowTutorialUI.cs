@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,8 +5,16 @@ using UnityEngine.InputSystem;
 public class ShowTutorialUI : MonoBehaviour
 {
     public TextMeshProUGUI tutorialUI;
+
+    public GameObject panelTutorial;
+
+    [Header("Frases por acción (usa {0} para la tecla/botón)")]
     [TextArea]
-    public string tutorialMovimiento = "Pulsa {0} para moverte";
+    private string tutorialMovimiento = "Pulsa {0} para moverte";
+    [TextArea]
+    private string tutorialSalto = "Pulsa {0} para saltar";
+    [TextArea]
+    private string tutorialDash = "Pulsa {0} para hacer dash";
 
     private GlutenActionControls glutenActionControls;
 
@@ -18,78 +25,97 @@ public class ShowTutorialUI : MonoBehaviour
         Dash
     }
 
-    private string jumpText = "Player/Jump";
-    private string dashText = "Player/Dash";
-    private string moveText = "Player/Move";
+    private const string jumpPath = "Player/Jump";
+    private const string movePath = "Player/Move";
+    private const string dashPath = "Player/Dash";
 
     public MyEnum accionSeleccionada;
 
-    public string GetActionPath(MyEnum action)
+    private string GetActionPath(MyEnum action)
     {
         return action switch
         {
-            MyEnum.Jump => jumpText,
-            MyEnum.Dash => dashText,
-            MyEnum.Move => moveText,
+            MyEnum.Jump => jumpPath,
+            MyEnum.Move => movePath,
+            MyEnum.Dash => dashPath,
             _ => ""
         };
     }
 
-    void Start()
+    private string GetSentenceTemplate(MyEnum action)
+    {
+        return action switch
+        {
+            MyEnum.Jump => tutorialSalto,
+            MyEnum.Move => tutorialMovimiento,
+            MyEnum.Dash => tutorialDash,
+            _ => "Pulsa {0}"
+        };
+    }
+
+    void Awake()
     {
         glutenActionControls = new GlutenActionControls();
+        if (panelTutorial != null)
+        {
+            panelTutorial.SetActive(false);
+        }
+    }
+
+    void OnEnable()
+    {
+        glutenActionControls?.Enable();
+    }
+
+    void OnDisable()
+    {
+        glutenActionControls?.Disable();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         PlayerController player = collision.GetComponent<PlayerController>();
-        if (player)
+        if (player == null || tutorialUI == null) return;
+
+        var action = glutenActionControls.FindAction(GetActionPath(accionSeleccionada));
+        if (action == null) return;
+
+        string grupoActual = ObtenerDispositivoActivo();
+        string buttonText = action.GetBindingDisplayString(InputBinding.MaskByGroup(grupoActual));
+
+        if (string.IsNullOrEmpty(buttonText))
         {
-            tutorialUI.gameObject.SetActive(true);
-
-            var action = glutenActionControls.FindAction(GetActionPath(accionSeleccionada));
-
-            // 1. Detectamos si lo último que tocó el jugador fue el mando o el teclado
-            string grupoActual = ObtenerDispositivoActivo();
-
-            // 2. Pedimos las teclas o botones de ese dispositivo
-            string buttonText = action.GetBindingDisplayString(InputBinding.MaskByGroup(grupoActual));
-
-            if (string.IsNullOrEmpty(buttonText))
-            {
-                buttonText = "No botón asignado";
-            }
-
-            tutorialUI.text = string.Format(tutorialMovimiento, buttonText);
-            Debug.Log(buttonText);
+            buttonText = "No botón asignado";
         }
+
+        tutorialUI.text = string.Format(GetSentenceTemplate(accionSeleccionada), buttonText);
+        panelTutorial.gameObject.SetActive(true);
+        Debug.Log(buttonText);
     }
 
     private string ObtenerDispositivoActivo()
     {
-        // Si hay un mando conectado...
         if (Gamepad.current != null)
         {
-            // ...y no hay teclado, o el mando se usó más recientemente que el teclado y ratón
             double tiempoMando = Gamepad.current.lastUpdateTime;
             double tiempoTeclado = Keyboard.current != null ? Keyboard.current.lastUpdateTime : 0;
             double tiempoRaton = Mouse.current != null ? Mouse.current.lastUpdateTime : 0;
 
             if (tiempoMando > tiempoTeclado && tiempoMando > tiempoRaton)
             {
-                return "Controller"; // Asegúrate de que el grupo en tu InputActions se llame "Gamepad"
+                return "Gamepad"; // Pon aquí el nombre exacto de tu esquema de mando
             }
         }
 
-        return "Keyboard&Mouse"; // Por defecto devuelve teclado y ratón
+        return "Keyboard&Mouse";
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         PlayerController player = collision.GetComponent<PlayerController>();
-        if (player)
+        if (player != null && panelTutorial != null)
         {
-            tutorialUI.gameObject.SetActive(false);
+            panelTutorial.gameObject.SetActive(false);
         }
     }
 }
