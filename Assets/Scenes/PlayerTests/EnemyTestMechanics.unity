@@ -7661,6 +7661,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy2D (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3396738433899943286, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: maxHealth
       value: 5
@@ -11964,6 +11968,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1723131994}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1725060842 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+  m_PrefabInstance: {fileID: 2114147427}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1725060851
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725060842}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 8c4d9a0298dd0f240908402443a727ba, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1725060852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725060842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66412a0b4bb548042936e8f817ebc52a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
+  idleTriggerName: Idle
+  walkTriggerName: Walk
+  runTriggerName: Run
+  attackTriggerName: Attack
+  stunTriggerName: Stun
+  deathTriggerName: Death
+  controller: 0
 --- !u!1 &1734808306
 GameObject:
   m_ObjectHideFlags: 0
@@ -13248,6 +13298,10 @@ PrefabInstance:
     - target: {fileID: 8640931659965205715, guid: c74bbf7766345584d83f69c3ae3cab57, type: 3}
       propertyPath: m_Name
       value: PickUp_Dash
+      objectReference: {fileID: 0}
+    - target: {fileID: 8640931659965205715, guid: c74bbf7766345584d83f69c3ae3cab57, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14691,6 +14745,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 216262737433414208, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 905194069767581323, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_LocalPosition.x
       value: -24.23
@@ -14733,11 +14791,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_Name
-      value: Enemy2D (1)
+      value: MeleeEnemy2D (1)
       objectReference: {fileID: 0}
     - target: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1593993405855345130, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.1
       objectReference: {fileID: 0}
     - target: {fileID: 3396738433899943286, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
       propertyPath: maxHealth
@@ -14747,10 +14809,44 @@ PrefabInstance:
       propertyPath: canRespawn
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8202361865097037976, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_FlipX
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8202361865097037976, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_FlipY
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8202361865097037976, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -118553947982589693, guid: af8be4fbd9b62fe459c1f4324bb207aa, type: 3}
+    - target: {fileID: 8202361865097037976, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8202361865097037976, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8202361865097037976, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8864265950759171639, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1725060851}
+    - targetCorrespondingSourceObject: {fileID: 1131379140982521364, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1725060852}
   m_SourcePrefab: {fileID: 100100000, guid: 453c60b60b521514baf6cc6f95fe2800, type: 3}
 --- !u!1 &2131564748
 GameObject:
@@ -15220,6 +15316,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PickUp_Wall
       objectReference: {fileID: 0}
+    - target: {fileID: 2054167899190400367, guid: 0efd3bb31016e6f4d9697e2ad8048dc8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3544391485375234703, guid: 0efd3bb31016e6f4d9697e2ad8048dc8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4
@@ -15322,6 +15422,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PickUp_DoubleJump
       objectReference: {fileID: 0}
+    - target: {fileID: 7021652143051015279, guid: deeaed1ef04ac5649a75eedc84d9ee34, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -15403,6 +15507,10 @@ PrefabInstance:
     - target: {fileID: 1076704118825009272, guid: ac7683e1d32bcbf479b6e61f90f5956f, type: 3}
       propertyPath: m_Name
       value: PickUp_Hook
+      objectReference: {fileID: 0}
+    - target: {fileID: 1076704118825009272, guid: ac7683e1d32bcbf479b6e61f90f5956f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3422096740664193467, guid: ac7683e1d32bcbf479b6e61f90f5956f, type: 3}
       propertyPath: m_LocalPosition.x

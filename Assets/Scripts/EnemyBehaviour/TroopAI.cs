@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public abstract class TroopAI : EnemyAI
@@ -7,6 +8,17 @@ public abstract class TroopAI : EnemyAI
     [Header("States:")]
     [SerializeField] protected ENEMY_STATE state;
     [SerializeField] protected ENEMY_STATE defaultState;
+
+    public event Action IdleAnimation;
+    public event Action PatrolAnimation;
+    public event Action PreparingChaseAnimation;
+    public event Action ChasingAnimation;
+    public event Action AttackAnimation;
+    public event Action SearchingAnimation;
+    public event Action RammingAnimation;
+    public event Action StunnedAnimation;
+    public event Action RetreatAnimation;
+    public event Action DeadAnimation;
 
     [Header("Ground Detection:")]
     [SerializeField] protected Transform groundDetection;
@@ -28,6 +40,52 @@ public abstract class TroopAI : EnemyAI
         invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         rb = GetComponent<Rigidbody2D>();
         characterStats = GetComponent<CharacterStats>();
+    }
+
+    protected void InvokeAnimationTrigger(ENEMY_STATE state)
+    {
+        switch (state)
+        {
+            case ENEMY_STATE.IDLE:
+                IdleAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.PATROL:
+                PatrolAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.PREPARING_CHASE:
+                PreparingChaseAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.CHASING:
+                ChasingAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.ATTACK:
+                AttackAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.SEARCHING:
+                SearchingAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.RAMMING:
+                RammingAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.STUNNED:
+                StunnedAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.RETREAT:
+                RetreatAnimation?.Invoke();
+                break;
+
+            case ENEMY_STATE.DEAD:
+                DeadAnimation?.Invoke();
+                break;
+        }
     }
 
     protected override void Flip()
@@ -78,5 +136,12 @@ public abstract class TroopAI : EnemyAI
         ParticleManager.SpawnParticles("AttackImpact", transform.position, new Vector3(knockbackDirection.x, 0, 0));
 
         externalMovement = new Vector3(horizontalKnockback ? knockbackDirection.x : 0, verticalKnockback ? knockbackDirection.y : 0, 0) * knockbackForce;
+
+        bool movingBackwards = (invertedDirection && knockbackDirection.x > 0) || (!invertedDirection && knockbackDirection.x < 0);
+
+        if (movingBackwards)
+        {
+            InvokeAnimationTrigger(ENEMY_STATE.IDLE);
+        }
     }
 }
