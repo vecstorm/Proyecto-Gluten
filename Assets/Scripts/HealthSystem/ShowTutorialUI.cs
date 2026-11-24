@@ -15,6 +15,16 @@ public class ShowTutorialUI : MonoBehaviour
     private string tutorialSalto = "Pulsa {0} para saltar";
     [TextArea]
     private string tutorialDash = "Pulsa {0} para hacer dash";
+    [TextArea]
+    private string tutorialHook = "Pulsa {0} para usar el gancho";
+    [TextArea]
+    private string tutorialAttack = "Pulsa {0} para atacar";
+    [TextArea]
+    private string tutorialParry = "Pulsa {0} para usar el parry y stunear enemigos";
+    [TextArea]
+    private string tutorialSavePoint = "Pulsa {0} para acceder al punto de guardado. Ahi podras curarte y mejorar";
+    [TextArea]
+    private string tutorialRangedAttack = "Pulsa {0} para atacar a distancia";
 
     private GlutenActionControls glutenActionControls;
 
@@ -22,12 +32,22 @@ public class ShowTutorialUI : MonoBehaviour
     {
         Jump,
         Move,
-        Dash
+        Dash,
+        Hook,
+        Attack,
+        Parry,
+        Action,
+        RangedAttack
     }
 
     private const string jumpPath = "Player/Jump";
     private const string movePath = "Player/Move";
     private const string dashPath = "Player/Dash";
+    private const string hookPath = "Player/Hook";
+    private const string attackPath = "Player/Attack";
+    private const string parryPath = "Player/Parry";
+    private const string interactPath = "Player/Action";
+    private const string rangedPath = "Player/RangedAttack";
 
     public MyEnum accionSeleccionada;
 
@@ -38,6 +58,11 @@ public class ShowTutorialUI : MonoBehaviour
             MyEnum.Jump => jumpPath,
             MyEnum.Move => movePath,
             MyEnum.Dash => dashPath,
+            MyEnum.Hook => hookPath,
+            MyEnum.Attack => attackPath,
+            MyEnum.Parry => parryPath,
+            MyEnum.Action => interactPath,
+            MyEnum.RangedAttack => rangedPath,
             _ => ""
         };
     }
@@ -49,6 +74,11 @@ public class ShowTutorialUI : MonoBehaviour
             MyEnum.Jump => tutorialSalto,
             MyEnum.Move => tutorialMovimiento,
             MyEnum.Dash => tutorialDash,
+            MyEnum.Hook => tutorialHook,
+            MyEnum.Attack => tutorialAttack,
+            MyEnum.Parry => tutorialParry,
+            MyEnum.Action => tutorialSavePoint,
+            MyEnum.RangedAttack => tutorialRangedAttack,
             _ => "Pulsa {0}"
         };
     }
@@ -89,8 +119,8 @@ public class ShowTutorialUI : MonoBehaviour
         }
 
         tutorialUI.text = string.Format(GetSentenceTemplate(accionSeleccionada), buttonText);
-        panelTutorial.gameObject.SetActive(true);
-        Debug.Log(buttonText);
+        panelTutorial.SetActive(true);
+        //Debug.Log(buttonText);
     }
 
     private string ObtenerDispositivoActivo()
@@ -115,7 +145,7 @@ public class ShowTutorialUI : MonoBehaviour
         PlayerController player = collision.GetComponent<PlayerController>();
         if (player != null && panelTutorial != null)
         {
-            panelTutorial.gameObject.SetActive(false);
+            panelTutorial.SetActive(false);
         }
     }
 }
