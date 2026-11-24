@@ -25,6 +25,7 @@ public class PatrolEnemyAI : TroopAI
     {
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+        material = GetComponent<SpriteRenderer>().material;
     }
 
     private void OnEnable()

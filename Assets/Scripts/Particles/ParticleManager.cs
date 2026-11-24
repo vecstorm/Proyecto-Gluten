@@ -127,6 +127,29 @@ public static class ParticleManager
     }
 
     /// <summary>
+    /// Instancia un prefab de particulas con una posición especifica y flipeado en torno una dirección.
+    /// </summary>
+    /// <param name="name">Nombre del prefab de particulas</param>
+    /// <param name="position">Posición donde instanciar el prefab</param>
+    /// <param name="direction">Dirección en la que rotar el prefab</param>
+    /// <param name="facingDirection">Dirección en la que flipear el prefab</param>
+    public static void SpawnParticles(string name, Vector3 position, Vector3 direction, int facingDirection)
+    {
+        if (!CheckDictionary(name)) return;
+
+        Quaternion rotation = Quaternion.FromToRotation(Vector3.right, direction);
+
+        ParticleSystem particle = Object.Instantiate(particleDictionary[name], position, rotation);
+
+        ParticleSystemRenderer renderer = particle.GetComponent<ParticleSystemRenderer>();
+
+        if (renderer != null)
+        {
+            renderer.flip = new Vector3(facingDirection < 0 ? 1f : 0f, 0f, 0f);
+        }
+    }
+
+    /// <summary>
     /// Crea un raycast en dirección a una superficie e instancia un prefab de particulas como hijo de un padre específico 
     /// posicionado en el punto donde el raycast haya colisionado con la superficie.
     /// </summary>

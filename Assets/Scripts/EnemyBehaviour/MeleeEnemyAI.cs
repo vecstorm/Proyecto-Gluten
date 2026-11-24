@@ -64,6 +64,7 @@ public class MeleeEnemyAI : TroopAI
         detection = GetComponent<VisionCone>();
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+        material = GetComponent<SpriteRenderer>().material;
     }
 
     private void OnEnable()

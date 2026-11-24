@@ -6,6 +6,7 @@ public class EnemyAnimationController : MonoBehaviour
     [SerializeField] private string walkTriggerName = "Walk";
     [SerializeField] private string runTriggerName = "Run";
     [SerializeField] private string attackTriggerName = "Attack";
+    [SerializeField] private string rammingTriggerName = "Ramming";
     [SerializeField] private string stunTriggerName = "Stun";
     [SerializeField] private string deathTriggerName = "Death";
     [SerializeField] private bool controller = false;
@@ -25,6 +26,7 @@ public class EnemyAnimationController : MonoBehaviour
         troopAI.PatrolAnimation += WalkTrigger;
         troopAI.ChasingAnimation += RunTrigger;
         troopAI.AttackAnimation += AttackTrigger;
+        troopAI.RammingAnimation += RammingTrigger;
         troopAI.StunnedAnimation += StunTrigger;
         troopAI.DeadAnimation += DeathTrigger;
     }
@@ -35,6 +37,7 @@ public class EnemyAnimationController : MonoBehaviour
         troopAI.PatrolAnimation -= WalkTrigger;
         troopAI.ChasingAnimation -= RunTrigger;
         troopAI.AttackAnimation -= AttackTrigger;
+        troopAI.RammingAnimation -= RammingTrigger;
         troopAI.StunnedAnimation -= StunTrigger;
         troopAI.DeadAnimation -= DeathTrigger;
     }
@@ -61,6 +64,12 @@ public class EnemyAnimationController : MonoBehaviour
     {
         ResetAllTriggers();
         animator.SetTrigger(attackTriggerName);
+    }
+
+    private void RammingTrigger()
+    {
+        ResetAllTriggers();
+        animator.SetTrigger(rammingTriggerName);
     }
 
     private void StunTrigger()

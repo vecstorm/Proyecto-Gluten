@@ -38,6 +38,7 @@ public class FlyingEnemyAI : TroopAI
     [SerializeField] private string[] collisionTags;
     [SerializeField] private int rammingDamage = 20;
     [SerializeField] private int healthToRam = 3;
+    [SerializeField] private float unwrappingDelay = 0.3f;
     [SerializeField] private float rammingDelay = 1f;
     [SerializeField] private float rammingSpeed = 15f;
     [SerializeField] private float rammignTurnSpeed = 10f;
@@ -67,6 +68,7 @@ public class FlyingEnemyAI : TroopAI
     private bool isRamming = false;
 
     private bool lostTarget = false;
+    private bool alreadyUnwrapped = false;
 
     #region MAIN LOOP
 
@@ -79,6 +81,7 @@ public class FlyingEnemyAI : TroopAI
     {
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+        material = GetComponent<SpriteRenderer>().material;
     }
 
     private void OnEnable()
@@ -273,6 +276,8 @@ public class FlyingEnemyAI : TroopAI
 
             ParticleManager.SpawnParticles("TroopShot", transform.position, transform.right);
 
+            InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
+
             attackTimer = attackCooldown;
         }
 
@@ -290,12 +295,21 @@ public class FlyingEnemyAI : TroopAI
     // Comportamiento en estado RAMMING
     private void OnRamming()
     {
-        if (!colorFlashing)
+        /*if (!colorFlashing)
         {
             ChangeColor(Color.red);
-        }
-        
+        }*/
+
         timer += Time.fixedDeltaTime;
+
+        if (timer >= unwrappingDelay)
+        {
+            if (!alreadyUnwrapped)
+            {
+                alreadyUnwrapped = true;
+                InvokeAnimationTrigger(ENEMY_STATE.RAMMING);
+            }
+        }
 
         Vector3 targetDirection = (targetTransform.position - transform.position).normalized;
 
@@ -303,7 +317,7 @@ public class FlyingEnemyAI : TroopAI
         {
             if (!isRamming)
             {
-                ParticleManager.SpawnParticles("CandyWrapping", transform.position, -transform.right);
+                //ParticleManager.SpawnParticles("CandyWrapping", transform.position, -transform.right);
             }
 
             rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
@@ -701,6 +715,11 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    public void SpawnWrappingParticle()
+    {
+        ParticleManager.SpawnParticles("CandyWrapping", transform.position, -transform.right, invertedDirection ? 1 : -1);
+    }
+
     // Resetea el temporizador general
     private void ResetTimer()
     {
@@ -720,6 +739,7 @@ public class FlyingEnemyAI : TroopAI
         invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         state = defaultState;
         isDead = false;
+        alreadyUnwrapped = false;
 
         currentPath?.Clear();
         currentPathIndex = 0;
