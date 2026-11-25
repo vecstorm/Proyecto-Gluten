@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class ChangeSceneManager : MonoBehaviour
 {
     [SerializeField] private Image fadeImage;
+    [SerializeField] private float fadeTime;
 
     [SerializeField] private List<string> sceneNames = new List<string>();
     [SerializeField] private GameObject player;
@@ -58,7 +59,7 @@ public class ChangeSceneManager : MonoBehaviour
     private IEnumerator FadeCoroutine(int sceneIndex)
     {
         // Fade In: aparece la imagen
-        yield return fadeImage.DOFade(1f, 1f)
+        yield return fadeImage.DOFade(1f, fadeTime)
             .SetEase(Ease.Linear)
             .WaitForCompletion();
 
@@ -78,7 +79,7 @@ public class ChangeSceneManager : MonoBehaviour
             exitsManager.GetSceneExitPosition(destinationExitId).position;
 
         // Fade Out: desaparece la imagen
-        fadeImage.DOFade(0f, 2f);
+        fadeImage.DOFade(0f, fadeTime * 2);
     }
 
     public List<string> GetSceneNames()
