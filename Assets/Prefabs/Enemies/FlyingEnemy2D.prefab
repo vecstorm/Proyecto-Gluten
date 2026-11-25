@@ -47,7 +47,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1609768604292313768
 Transform:
   m_ObjectHideFlags: 0
@@ -205,6 +205,8 @@ GameObject:
   - component: {fileID: 7027607547376839603}
   - component: {fileID: 1231619438327319010}
   - component: {fileID: -8705039332566184324}
+  - component: {fileID: 1306563846690402299}
+  - component: {fileID: 5003552482644948203}
   m_Layer: 0
   m_Name: FlyingEnemy2D
   m_TagString: Untagged
@@ -280,9 +282,9 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0.676051, b: 0.8415094, a: 1}
-  m_FlipX: 0
+  m_Sprite: {fileID: 6207851110993321619, guid: 99deb83f341e97145a9d728d528f2a3e, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 2}
@@ -465,6 +467,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::XpDropEnemy
   xp: {fileID: 11400000, guid: 018b24ae137383d479632294e32594e2, type: 2}
   key: {fileID: 0}
+--- !u!95 &1306563846690402299
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4053497137332864045}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 934312a1d1edbc7468b94e48f4f78c62, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5003552482644948203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4053497137332864045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66412a0b4bb548042936e8f817ebc52a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
+  idleTriggerName: Idle
+  walkTriggerName: Flap
+  runTriggerName: Run
+  attackTriggerName: Shoot
+  rammingTriggerName: Unwrap
+  stunTriggerName: Stun
+  retreatTriggerName: Retreat
+  deathTriggerName: Death
+  controller: 0
 --- !u!1 &5696477644919510054
 GameObject:
   m_ObjectHideFlags: 0
@@ -481,7 +526,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8764332863834786681
 Transform:
   m_ObjectHideFlags: 0

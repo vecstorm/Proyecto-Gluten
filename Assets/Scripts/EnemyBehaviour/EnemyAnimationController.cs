@@ -8,6 +8,7 @@ public class EnemyAnimationController : MonoBehaviour
     [SerializeField] private string attackTriggerName = "Attack";
     [SerializeField] private string rammingTriggerName = "Ramming";
     [SerializeField] private string stunTriggerName = "Stun";
+    [SerializeField] private string retreatTriggerName = "Retreat";
     [SerializeField] private string deathTriggerName = "Death";
     [SerializeField] private bool controller = false;
 
@@ -28,6 +29,7 @@ public class EnemyAnimationController : MonoBehaviour
         troopAI.AttackAnimation += AttackTrigger;
         troopAI.RammingAnimation += RammingTrigger;
         troopAI.StunnedAnimation += StunTrigger;
+        troopAI.RetreatAnimation += RetreatTrigger;
         troopAI.DeadAnimation += DeathTrigger;
     }
 
@@ -39,6 +41,7 @@ public class EnemyAnimationController : MonoBehaviour
         troopAI.AttackAnimation -= AttackTrigger;
         troopAI.RammingAnimation -= RammingTrigger;
         troopAI.StunnedAnimation -= StunTrigger;
+        troopAI.RetreatAnimation -= RetreatTrigger;
         troopAI.DeadAnimation -= DeathTrigger;
     }
 
@@ -78,6 +81,12 @@ public class EnemyAnimationController : MonoBehaviour
         animator.SetTrigger(stunTriggerName);
     }
 
+    private void RetreatTrigger()
+    {
+        ResetAllTriggers();
+        animator.SetTrigger(retreatTriggerName);
+    }
+
     private void DeathTrigger()
     {
         ResetAllTriggers();
@@ -86,11 +95,25 @@ public class EnemyAnimationController : MonoBehaviour
 
     private void ResetAllTriggers()
     {
-        animator.ResetTrigger(idleTriggerName);
-        animator.ResetTrigger(walkTriggerName);
-        animator.ResetTrigger(runTriggerName);
-        animator.ResetTrigger(attackTriggerName);
-        animator.ResetTrigger(stunTriggerName);
-        animator.ResetTrigger(deathTriggerName);
+        if (HasTrigger(idleTriggerName)) animator.ResetTrigger(idleTriggerName);
+        if (HasTrigger(walkTriggerName)) animator.ResetTrigger(walkTriggerName);
+        if (HasTrigger(runTriggerName)) animator.ResetTrigger(runTriggerName);
+        if (HasTrigger(attackTriggerName)) animator.ResetTrigger(attackTriggerName);
+        if (HasTrigger(stunTriggerName)) animator.ResetTrigger(stunTriggerName);
+        if (HasTrigger(retreatTriggerName)) animator.ResetTrigger(retreatTriggerName);
+        if (HasTrigger(deathTriggerName)) animator.ResetTrigger(deathTriggerName);
+    }
+
+    private bool HasTrigger(string triggerName)
+    {
+        foreach (AnimatorControllerParameter parameter in animator.parameters)
+        {
+            if (parameter.type == AnimatorControllerParameterType.Trigger && parameter.name == triggerName)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
