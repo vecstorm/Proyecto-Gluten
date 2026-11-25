@@ -126,7 +126,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     }
     private void Update()
     {
-        if (isPlayer)
+        if (isPlayer && currentHealth > 0f)
         {
             RegenerateStamina();
         }

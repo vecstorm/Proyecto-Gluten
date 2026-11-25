@@ -637,7 +637,8 @@ public class MiniBossEnemyAI : BossAI
     {
         if (isDead) return;
 
-        bossArea.DisableDoors();
+        if (bossArea != null) 
+            bossArea.DisableDoors();
 
         gameObject.SetActive(true);
 

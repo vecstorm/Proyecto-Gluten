@@ -536,6 +536,14 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
     }
 
+    /// <summary>
+    /// Detiene únicamente el movimiento horizontal del jugador.
+    /// </summary>
+    public void StopHorizontalMovement()
+    {
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+    }
+
     #endregion
 
     #region Gizmos

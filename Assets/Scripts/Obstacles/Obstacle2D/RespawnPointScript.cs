@@ -40,7 +40,7 @@ public class RespawnPointScript : MonoBehaviour
         if (characterStats == null) return;
 
         // Cuando el jugador muera, se ejecuta Respawn
-        characterStats.OnDeath += Respawn;
+        //characterStats.OnDeath += Respawn;
     }
 
     private void OnDisable()
@@ -49,7 +49,7 @@ public class RespawnPointScript : MonoBehaviour
         if (characterStats == null) return;
 
         // Nos desuscribimos para no dejar la funcion colgada en el evento
-        characterStats.OnDeath -= Respawn;
+        //characterStats.OnDeath -= Respawn;
     }
 
     public void Respawn()

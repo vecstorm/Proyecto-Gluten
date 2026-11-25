@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,6 +29,8 @@ public class PlayerCombat : MonoBehaviour
     /// Referencia al controlador del jugador, se utiliza para cambiar su estado cuando recibe daño.
     /// </summary>
     private PlayerController playerController;
+
+    public event Action OnRangedAttack;
 
     #endregion
 
@@ -304,6 +307,9 @@ public class PlayerCombat : MonoBehaviour
 
         // Lo inicializa con la dirección actual del jugador
         projectile.Initialize(transform, Vector2.right * facingDirection);
+
+        // Notificamos que se ha realizado el ataque a distancia
+        OnRangedAttack?.Invoke();
 
         // Inicia el cooldown independiente
         rangedAttackCooldownTimer = rangedAttackCooldown;

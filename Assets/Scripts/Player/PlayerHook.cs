@@ -113,6 +113,8 @@ public class PlayerHook : MonoBehaviour
     /// </summary>
     private Transform hookOriginalParent;
 
+    public Vector2 HookDirection => hookDirection;
+
     #endregion
 
     #region Hook Point Tracking
@@ -150,6 +152,11 @@ public class PlayerHook : MonoBehaviour
     /// Indica si el frame actual corresponde al estado Pulling.
     /// </summary>
     public bool WasPullingThisStep { get; private set; }
+
+    /// <summary>
+    /// Estado actual del sistema de gancho.
+    /// </summary>
+    public HookState CurrentState => currentState;
 
     #endregion
 

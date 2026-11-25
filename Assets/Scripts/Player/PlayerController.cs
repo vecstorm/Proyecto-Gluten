@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -37,6 +38,11 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private PlayerState previousState;
 
+    /// <summary>
+    /// Se invoca cuando el jugador cambia de estado, incluye el estado anterior y el nuevo.
+    /// </summary>
+    public event Action<PlayerState, PlayerState> OnStateChanged;
+
     #endregion
 
     #region Components
@@ -70,6 +76,9 @@ public class PlayerController : MonoBehaviour
     /// Referencia al sistema de estadísticas del jugador.
     /// </summary>
     private CharacterStats characterStats;
+
+    private Rigidbody2D rb;
+    private Vector3 initialSpawnPosition;
 
     #endregion
 
@@ -176,7 +185,12 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        rb = GetComponent<Rigidbody2D>();
+        initialSpawnPosition = transform.position;
+
         characterStats = GetComponent<CharacterStats>();
+
+        characterStats.OnDeath += HandleDeath;
 
         if (playerInputs == null)
             playerInputs = GetComponent<PlayerInputs>();
@@ -226,6 +240,12 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (currentState == PlayerState.Dead)
+        {
+            playerMovement.StopMovement();
+            return;
+        }
+
         if (hurtTimer > 0f)
             hurtTimer -= Time.fixedDeltaTime;
 
@@ -245,12 +265,16 @@ public class PlayerController : MonoBehaviour
             hookMomentumTimer = hookMomentumDuration;
         }
 
-        // Mientras el gancho tira del jugador, no ejecutamos el movimiento normal de los estados
-        if (playerHook.IsPulling || hookMomentumTimer > 0f)
+        // Mientras el gancho está activo, bloqueamos el movimiento normal
+        if (playerHook.IsBusy || hookMomentumTimer > 0f)
         {
-            hookMomentumTimer -= Time.fixedDeltaTime;
+            hookMomentumTimer = Mathf.Max(0f, hookMomentumTimer - Time.fixedDeltaTime);
 
-            // Permitimos procesar habilidades sin ejecutar el movimiento normal de Airborne
+            // Si está lanzándose o recogiéndose, detenemos el movimiento horizontal, durante Pulling dejamos que PlayerHook controle la velocidad
+            if (!playerHook.IsPulling)
+                playerMovement.StopHorizontalMovement();
+
+            // Permitimos cancelar el gancho mediante salto o dash
             CheckHookAbilities();
         }
         else
@@ -265,7 +289,10 @@ public class PlayerController : MonoBehaviour
     private void OnDestroy()
     {
         if (characterStats != null)
+        {
+            characterStats.OnDeath -= HandleDeath;
             characterStats.OnParrySuccess -= ShowParryHit;
+        }
     }
 
     #endregion
@@ -277,10 +304,17 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void UpdateFacingDirection()
     {
-        if (playerInputs.MovementDirection > 0)
-            facingDirection = 1;
-        else if (playerInputs.MovementDirection < 0)
-            facingDirection = -1;
+        if (currentState == PlayerState.Dead)
+            return;
+
+        // Mientras el gancho está activo, mantenemos la orientación.
+        if (!playerHook.IsBusy)
+        {
+            if (playerInputs.MovementDirection > 0)
+                facingDirection = 1;
+            else if (playerInputs.MovementDirection < 0)
+                facingDirection = -1;
+        }
 
         UpdateSpriteDirection();
 
@@ -321,11 +355,17 @@ public class PlayerController : MonoBehaviour
             return false;
         }
 
+        // Guardamos el estado anterior
+        PlayerState oldState = currentState;
+
         // Actualizamos el estado
         ExitState(currentState);
         previousState = currentState;
         currentState = newState;
         EnterState(currentState);
+
+        // Notificamos el cambio a los sistemas interesados
+        OnStateChanged?.Invoke(oldState, currentState);
 
         return true;
     }
@@ -384,7 +424,7 @@ public class PlayerController : MonoBehaviour
                 return IsOneOf(to, PlayerState.Airborne, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.WallGrab, PlayerState.Hook, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Hook:
-                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.Attack, PlayerState.Parry);
+                return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Jump, PlayerState.Airborne, PlayerState.WallGrab, PlayerState.Dash, PlayerState.DoubleJump, PlayerState.Attack, PlayerState.Parry);
 
             case PlayerState.Attack:
                 return IsOneOf(to, PlayerState.Idle, PlayerState.Walk, PlayerState.Run, PlayerState.Airborne, PlayerState.Parry, PlayerState.Hook, PlayerState.Dash);
@@ -486,7 +526,22 @@ public class PlayerController : MonoBehaviour
                         direction = Vector2.right * facingDirection;
                 }
 
-                playerHook.FireHook(direction);
+                if (playerHook.FireHook(direction))
+                {
+                    // Actualizamos la orientación según la dirección real del gancho
+                    float hookDirectionX = playerHook.HookDirection.x;
+
+                    if (Mathf.Abs(hookDirectionX) > 0.01f)
+                    {
+                        facingDirection = hookDirectionX > 0f ? 1 : -1;
+
+                        UpdateSpriteDirection();
+
+                        playerCombat?.SetFacingDirection(facingDirection);
+                        characterStats?.SetFacingDirection(facingDirection);
+                    }
+                }
+
                 break;
 
             case PlayerState.Attack:
@@ -506,6 +561,16 @@ public class PlayerController : MonoBehaviour
                 playerMovement.StopMovement();
                 hurtTimer = hurtTimerDuration;
                 StartDamageFlash();
+
+                break;
+
+            case PlayerState.Dead:
+
+                playerMovement.StopMovement();
+                playerMovement.RestoreGravity();
+
+                playerHook.CancelHook();
+                characterStats.SetCanTakeDamage(false);
 
                 break;
         }
@@ -727,6 +792,18 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void CheckHookAbilities()
     {
+        // Salto normal si estamos en el suelo
+        if (playerInputs.JumpPressed && playerMovement.IsGrounded)
+        {
+            playerHook.CancelHook();
+
+            if (ChangeState(PlayerState.Jump))
+            {
+                playerInputs.ConsumeJumpInput();
+                return;
+            }
+        }
+
         // Doble salto
         if (playerInputs.JumpPressed && playerMovement.CanDoubleJump && CanUseSkill("DOUBLE_JUMP"))
         {
@@ -898,6 +975,63 @@ public class PlayerController : MonoBehaviour
 
             RestoreSpriteColor();
         }
+    }
+
+    private void HandleDeath()
+    {
+        if (currentState == PlayerState.Dead)
+            return;
+
+        ChangeState(PlayerState.Dead);
+    }
+
+    /// <summary>
+    /// Reaparece al jugador cuando termina la animación de muerte.
+    /// </summary>
+    public void RespawnPlayer()
+    {
+        if (currentState != PlayerState.Dead)
+            return;
+
+        // Determinamos la posición de reaparición
+        Vector2 respawnPosition = CheckpointZone2D.hasSafePoint
+            ? CheckpointZone2D.lastSafePosition
+            : (Vector2)initialSpawnPosition;
+
+        // Detenemos completamente la física
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        // Restauramos la gravedad por seguridad
+        playerMovement.RestoreGravity();
+
+        // Cancelamos cualquier actividad del gancho
+        playerHook.CancelHook();
+
+        // Recolocamos al jugador
+        transform.position = new Vector3(
+            respawnPosition.x,
+            respawnPosition.y,
+            initialSpawnPosition.z
+        );
+
+        // Recuperamos vida y estamina
+        characterStats.FullHeal();
+
+        // Permitimos volver a recibir daño
+        characterStats.SetCanTakeDamage(true);
+
+        // Restablecemos el temporizador de daño
+        hurtTimer = 0f;
+
+        // Restablecemos los enemigos
+        EnemyManager.ResetEnemies();
+
+        // Volvemos al estado inicial
+        ChangeState(PlayerState.Idle);
     }
 
     #endregion
@@ -1262,7 +1396,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Dead()
     {
-        throw new NotImplementedException();
+        playerMovement.StopMovement();
     }
 
     #endregion
