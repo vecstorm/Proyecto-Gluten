@@ -22,7 +22,7 @@ public class TestZones : MonoBehaviour
             SceneManager.LoadScene("Pasillo_pg");
 
         if (Keyboard.current.digit4Key.wasPressedThisFrame)
-            SceneManager.LoadScene("Tower");
+            SceneManager.LoadScene("OpenField");
 
         if (Keyboard.current.mKey.wasPressedThisFrame && MapManager.Instance != null)
             MapManager.Instance.HabilityMap();

@@ -240,8 +240,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1755780057282232126, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 66580606}
   m_SourcePrefab: {fileID: 100100000, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
+--- !u!1 &66580605 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1755780057282232126, guid: 7bee0321503cc9647a36e1374d1c6c42, type: 3}
+  m_PrefabInstance: {fileID: 60540593}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &66580606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 66580605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 744f8ce482ad9ce48b79d2f72efd9e61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PersistentPlayer
 --- !u!1 &135494167
 GameObject:
   m_ObjectHideFlags: 0
@@ -3007,6 +3027,22 @@ PrefabInstance:
     - target: {fileID: 5284879378559292357, guid: 7522621923bf21c44892c2a092e48d16, type: 3}
       propertyPath: m_Name
       value: CanvaDefeat
+      objectReference: {fileID: 0}
+    - target: {fileID: 7231049853579391875, guid: 7522621923bf21c44892c2a092e48d16, type: 3}
+      propertyPath: imageHide
+      value: 1.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7231049853579391875, guid: 7522621923bf21c44892c2a092e48d16, type: 3}
+      propertyPath: panelHide
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7231049853579391875, guid: 7522621923bf21c44892c2a092e48d16, type: 3}
+      propertyPath: imageStart
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7231049853579391875, guid: 7522621923bf21c44892c2a092e48d16, type: 3}
+      propertyPath: panelStart
+      value: 0.15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

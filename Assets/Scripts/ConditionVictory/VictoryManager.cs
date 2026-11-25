@@ -1,89 +1,121 @@
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class VictoryNabager : MonoBehaviour
 {
-    [Header("Referencias UI")]
-    [SerializeField] private Image panelFondo;
-    [SerializeField] private Image imagenHija;
+    private static VictoryNabager instance;
 
-    [Header("Color del panel")]
-    [SerializeField] private Color colorPanel = new Color(0.357f, 0.188f, 0.188f, 1f);
+    [Header("UI References")]
+    [SerializeField] private Image ControlPanel;
+    [SerializeField] private Image ImageDefeat;
 
-    [Header("Tiempos del panel")]
-    [SerializeField] private float inicioPanel = 0f;
-    [SerializeField] private float desaparicionPanel = 2f;
+    [Header("Panel Color")]
+    [SerializeField] private Color panelColor = new Color(0.357f, 0.188f, 0.188f, 1f);
 
-    [Header("Tiempos de la imagen")]
-    [SerializeField] private float inicioImagen = 0.5f;
-    [SerializeField] private float desaparicionImagen = 2f;
+    [Header("Panel Timings")]
+    [SerializeField] private float panelStart = 0f;
+    [SerializeField] private float panelHide = 2f;
 
-    [Header("Duración del Fade")]
+    [Header("Image Timings")]
+    [SerializeField] private float imageStart = 0.5f;
+    [SerializeField] private float imageHide = 2f;
+
+    [Header("Fade Duration")]
     [SerializeField] private float fadeTime = 1f;
 
     private CharacterStats playerStats;
 
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        transform.SetParent(null);
+        DontDestroyOnLoad(gameObject);
+    }
+
     private void Start()
     {
-        // Asignamos el color elegido y hacemos invisibles los elementos
-        panelFondo.color = new Color(colorPanel.r, colorPanel.g, colorPanel.b, 0f);
-        imagenHija.color = new Color(imagenHija.color.r, imagenHija.color.g, imagenHija.color.b, 0f);
-
-        // Evita que bloqueen clics cuando están invisibles
-        panelFondo.raycastTarget = false;
-        imagenHija.raycastTarget = false;
+        PrepareImage(ControlPanel, panelColor);
+        PrepareImage(ImageDefeat, ImageDefeat.color);
     }
 
     private void OnEnable()
     {
-        playerStats = GameObject.FindGameObjectWithTag("Player")?.GetComponent<CharacterStats>();
-        if (playerStats != null) playerStats.OnDeath += IniciarSecuencia;
+        SearchPlayer();
+    }
+
+    private void Update()
+    {
+        if (playerStats == null)
+            SearchPlayer();
     }
 
     private void OnDisable()
     {
-        if (playerStats != null) playerStats.OnDeath -= IniciarSecuencia;
+        if (playerStats != null)
+            playerStats.OnDeath -= StartSequence;
     }
 
-    private void IniciarSecuencia()
+    private void SearchPlayer()
+    {
+        CharacterStats newPlayer = GameObject.FindGameObjectWithTag("Player")?.GetComponent<CharacterStats>();
+
+        if (newPlayer == null || newPlayer == playerStats) return;
+
+        if (playerStats != null)
+            playerStats.OnDeath -= StartSequence;
+
+        playerStats = newPlayer;
+        playerStats.OnDeath += StartSequence;
+    }
+
+    private void PrepareImage(Image img, Color color)
+    {
+        color.a = 0f;
+        img.color = color;
+        img.raycastTarget = false;
+    }
+
+    private void StartSequence()
     {
         StopAllCoroutines();
-        StartCoroutine(Secuencia());
+        StartCoroutine(ShowSequence());
     }
 
-    private IEnumerator Secuencia()
+    private IEnumerator ShowSequence()
     {
-        // Esperamos y aparece el panel
-        yield return new WaitForSeconds(inicioPanel);
-        yield return Fade(panelFondo, 0f, 1f);
+        yield return ShowElement(ControlPanel, panelStart, 0f, 1f);
+        yield return ShowElement(ImageDefeat, imageStart, 0f, 1f);
 
-        // Esperamos y aparece la imagen
-        yield return new WaitForSeconds(inicioImagen);
-        yield return Fade(imagenHija, 0f, 1f);
-
-        // Esperamos y desaparece la imagen
-        yield return new WaitForSeconds(desaparicionImagen);
-        yield return Fade(imagenHija, 1f, 0f);
-
-        // Esperamos y desaparece el panel
-        yield return new WaitForSeconds(desaparicionPanel);
-        yield return Fade(panelFondo, 1f, 0f);
+        yield return ShowElement(ImageDefeat, imageHide, 1f, 0f);
+        yield return ShowElement(ControlPanel, panelHide, 1f, 0f);
     }
 
-    // Esta función sirve para cualquier Image
-    private IEnumerator Fade(Image img, float inicio, float fin)
+    private IEnumerator ShowElement(Image img, float delay, float startAlpha, float endAlpha)
     {
-        Color c = img.color;
+        yield return new WaitForSeconds(delay);
+        yield return Fade(img, startAlpha, endAlpha);
+    }
 
-        for (float t = 0; t < fadeTime; t += Time.deltaTime)
+    private IEnumerator Fade(Image img, float startAlpha, float endAlpha)
+    {
+        Color color = img.color;
+
+        for (float time = 0; time < fadeTime; time += Time.deltaTime)
         {
-            c.a = Mathf.Lerp(inicio, fin, t / fadeTime);
-            img.color = c;
+            color.a = Mathf.Lerp(startAlpha, endAlpha, time / fadeTime);
+            img.color = color;
             yield return null;
         }
 
-        c.a = fin;
-        img.color = c;
+        color.a = endAlpha;
+        img.color = color;
     }
 }
