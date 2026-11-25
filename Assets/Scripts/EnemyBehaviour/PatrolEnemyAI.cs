@@ -14,11 +14,15 @@ public class PatrolEnemyAI : TroopAI
     [Header("Attack:")]
     [SerializeField] private int contactDamage = 10;
 
+    private Collider2D hitbox;
+
     #region MAIN LOOP
 
     private void Awake()
     {
         InitializeBasicComponents();
+
+        hitbox = GetComponent<Collider2D>();
     }
 
     private void Start()
@@ -33,12 +37,6 @@ public class PatrolEnemyAI : TroopAI
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += FlashColor;
         characterStats.OnDamageTaken += AddKnockback;
-
-        if (isDead)
-        {
-            ResetEnemy();
-            invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
-        }
     }
 
     private void OnDisable()
@@ -91,11 +89,15 @@ public class PatrolEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     protected void ToDead()
     {
+        InvokeAnimationTrigger(ENEMY_STATE.DEAD);
         ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+
+        localMovement = Vector3.zero;
 
         isDead = true;
         state = ENEMY_STATE.DEAD;
-        gameObject.SetActive(false);
+        hitbox.enabled = false;
+        //gameObject.SetActive(false);
     }
 
     #endregion
@@ -135,6 +137,8 @@ public class PatrolEnemyAI : TroopAI
     {
         if (collision.transform.CompareTag("Ground"))
         {
+            if (state == ENEMY_STATE.DEAD) return;
+
             ContactPoint2D contact = collision.GetContact(0);
 
             if (tryiedFlipAirborne && GroundBeneath())
@@ -144,9 +148,14 @@ public class PatrolEnemyAI : TroopAI
                 return;
             }
 
-            if (Mathf.Abs(contact.normal.x) > 0.5f)
+            if (Mathf.Abs(contact.normal.x) > 0.5f)      
             {
-                Flip();
+                bool frontCollision = (invertedDirection && contact.normal.x > 0.5f) || (!invertedDirection && contact.normal.x < -0.5f);
+
+                if (frontCollision)
+                {
+                    Flip();
+                }
             }
         }
     }
@@ -156,8 +165,9 @@ public class PatrolEnemyAI : TroopAI
     {
         if (!canRespawn) return;
 
-        gameObject.SetActive(true);
+        hitbox.enabled = true;
 
+        gameObject.SetActive(true);
         ResetColor();
         localMovement = Vector3.zero;
         externalMovement = Vector3.zero;
@@ -167,6 +177,8 @@ public class PatrolEnemyAI : TroopAI
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
         invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
+
+        InvokeAnimationTrigger(ENEMY_STATE.PATROL);
     }
 
     #endregion
