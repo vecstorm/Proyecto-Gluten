@@ -459,6 +459,10 @@ public class FlyingEnemyAI : TroopAI
         {
             InvokeAnimationTrigger(ENEMY_STATE.DEAD);
         }
+        else
+        {
+            InvokeAnimationTrigger(ENEMY_STATE.STUNNED);
+        }
 
         currentPath?.Clear();
         currentPathIndex = 0;
