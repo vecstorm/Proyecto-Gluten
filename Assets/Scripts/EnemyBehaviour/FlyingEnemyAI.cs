@@ -320,14 +320,8 @@ public class FlyingEnemyAI : TroopAI
 
         if (timer >= rammingDelay)
         {
-            if (!isRamming)
-            {
-                //ParticleManager.SpawnParticles("CandyWrapping", transform.position, -transform.right);
-            }
-
             rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
 
-            //rb.linearVelocity = rammingDirection * rammingSpeed;
             localMovement = rammingDirection * rammingSpeed;
 
             isRamming = true;
@@ -339,9 +333,7 @@ public class FlyingEnemyAI : TroopAI
 
         float angle = Mathf.Atan2(rammingDirection.y, rammingDirection.x) * Mathf.Rad2Deg;
 
-        Quaternion targetRotation = Quaternion.Euler(0f, 0f, angle);
-
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rammignTurnSpeed * Time.fixedDeltaTime);
+        transform.rotation = Quaternion.Euler(invertedDirection ? 180 : 0, 0, angle * (invertedDirection ? -1 : 1));
     }
 
     // Comportamiento en estado SEARCHING
