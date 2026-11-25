@@ -224,8 +224,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 0.94126594, b: 0.08962262, a: 1}
-      maxColor: {r: 1, g: 0.6264583, b: 0.3726415, a: 1}
+      minColor: {r: 0.86072344, g: 0.26808822, b: 0.87169814, a: 1}
+      maxColor: {r: 1, g: 0.9161625, b: 0.390566, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5127,8 +5127,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.9056604, g: 0.8084909, b: 0.6450694, a: 1}
-      maxColor: {r: 0.9245283, g: 0.8621861, b: 0.763172, a: 1}
+      minColor: {r: 1, g: 0.77145636, b: 0.18039215, a: 1}
+      maxColor: {r: 1, g: 0.8521283, b: 0.41176474, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -6229,8 +6229,8 @@ ParticleSystem:
     curve:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.7853982
-      minScalar: -0.17453292
+      scalar: 1.3962634
+      minScalar: -1.3962634
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10039,8 +10039,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.4245283, g: 0.3577807, b: 0.28635636, a: 1}
-      maxColor: {r: 0.18867922, g: 0.15550692, b: 0.11302953, a: 1}
+      minColor: {r: 0.7409239, g: 0.23661795, b: 0.7509433, a: 1}
+      maxColor: {r: 0.8732017, g: 0.4065859, b: 0.8867924, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -10104,8 +10104,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.1
-      minScalar: 0.05
+      scalar: 0.15
+      minScalar: 0.1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10420,7 +10420,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    gravitySource: 0
+    gravitySource: 1
     maxNumParticles: 1000
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
@@ -10481,14 +10481,14 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 6
     enabled: 1
-    type: 0
+    type: 10
     angle: 25
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
-    m_Rotation: {x: 0, y: 0, z: 0}
+    m_Rotation: {x: 0, y: 0, z: -40}
     m_Scale: {x: 1, y: 1, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
@@ -10625,7 +10625,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
     arc:
-      value: 360
+      value: 260
       mode: 0
       spread: 0
       speed:
@@ -13497,7 +13497,7 @@ ParticleSystem:
     enabled: 1
     serializedVersion: 4
     type: 1
-    collisionMode: 0
+    collisionMode: 1
     colliderForce: 0
     multiplyColliderForceByParticleSize: 0
     multiplyColliderForceByParticleSpeed: 0
@@ -13667,7 +13667,7 @@ ParticleSystem:
     radiusScale: 1
     collidesWith:
       serializedVersion: 2
-      m_Bits: 4294967295
+      m_Bits: 8
     maxCollisionShapes: 256
     quality: 0
     voxelSize: 0.5

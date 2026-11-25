@@ -284,7 +284,7 @@ public class FlyingEnemyAI : TroopAI
             projectileController.SetMovement(projectileSpeed, targetTransform.position);
             projectileController.SetContactDamage(projectileDamage);
 
-            ParticleManager.SpawnParticles("TroopShot", transform.position, transform.right);
+            ParticleManager.SpawnParticles("FlyingEnemyShot", transform.position, transform.right);
 
             InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
 
