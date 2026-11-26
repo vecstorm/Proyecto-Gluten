@@ -90,7 +90,7 @@ public class SkillUnlockManager : MonoBehaviour
     }
     private void Awake()
     {
-        GameSave.LoadFromDisk();
+        //GameSave.LoadFromDisk();
 
         if (GameSave.data != null && GameSave.data.hasSave)
         {
