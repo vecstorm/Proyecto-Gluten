@@ -282,24 +282,6 @@ public class ProjectileEnemyAI : TroopAI
         }
     }
 
-    public void ShootProjectile()
-    {
-        GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-
-        EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
-        projectileController.SetMovement(projectileSpeed, targetTransform.position);
-        projectileController.SetContactDamage(projectileDamage);
-
-        if (projectileCount >= ampedProjectileCount)
-        {
-            projectileCount = 0;
-            newProjectile.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            projectileController.SetContactDamage(chargedProjectileDamage);
-        }
-
-        ParticleManager.SpawnParticles("TroopShot", transform.position, transform.right);
-    }
-
     // Comportamiento en estado SEARCHING
     private void OnSearching()
     {
@@ -494,6 +476,24 @@ public class ProjectileEnemyAI : TroopAI
     public void ShootAnimationFinished()
     {
         alreadyWalkingBack = false;
+    }
+
+    public void ShootProjectile()
+    {
+        GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+
+        EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
+        projectileController.SetMovement(projectileSpeed, targetTransform.position);
+        projectileController.SetContactDamage(projectileDamage);
+
+        if (projectileCount >= ampedProjectileCount)
+        {
+            projectileCount = 0;
+            newProjectile.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            projectileController.SetContactDamage(chargedProjectileDamage);
+        }
+
+        ParticleManager.SpawnParticles("ProjectileEnemyShot", transform.position, transform.right);
     }
 
     // Logica de reseteo del enemigo

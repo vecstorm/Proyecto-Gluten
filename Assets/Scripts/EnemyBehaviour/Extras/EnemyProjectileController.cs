@@ -13,6 +13,8 @@ public class EnemyProjectileController : MonoBehaviour
     [Header("Particles:")]
     [SerializeField] private ParticleSystem followParticlesPrefab;
     [SerializeField] private ParticleSystem impactParticlesPrefab;
+    [SerializeField] private bool onSurface = false;
+    [SerializeField] private LayerMask collisionLayer;
 
     private Rigidbody2D rb;
     private Vector3 targetPosition;
@@ -63,7 +65,25 @@ public class EnemyProjectileController : MonoBehaviour
 
             if (impactParticlesPrefab != null)
             {
-                Instantiate(impactParticlesPrefab, transform.position, Quaternion.identity);
+                if (onSurface)
+                {
+                    Vector3 surfaceDirection = ((Vector3) collision.ClosestPoint(transform.position) - transform.position).normalized;
+
+                    RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 1f, collisionLayer);
+
+                    if (hit.collider)
+                    {
+                        Debug.Log("DETECTED GROUND");
+
+                        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+
+                        ParticleSystem particle = Instantiate(impactParticlesPrefab, hit.point, rotation);
+                    }
+                }
+                else
+                {
+                    Instantiate(impactParticlesPrefab, transform.position, Quaternion.identity);
+                }
             }
 
             Destroy(gameObject);        
@@ -101,5 +121,17 @@ public class EnemyProjectileController : MonoBehaviour
     public void SetContactDamage(int contactDamage)
     {
         this.contactDamage = contactDamage;
+    }
+
+    private Vector3 GetCollisionDirection(Vector3 normal)
+    {
+        if (Mathf.Abs(normal.x) > Mathf.Abs(normal.y))
+        {
+            return normal.x > 0 ? Vector3.right : Vector3.left;
+        }
+        else
+        {
+            return normal.y > 0 ? Vector3.up : Vector3.down;
+        }
     }
 }
