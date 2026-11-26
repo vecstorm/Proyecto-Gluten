@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor.Overlays;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -36,6 +37,17 @@ public static class GameSave
         data.hasSave = true;
         data.sceneName = SceneManager.GetActiveScene().name;
         File.WriteAllText(SavePath, JsonUtility.ToJson(data, true));
+    }
+
+    public static void DeleteSave()
+    {
+        if (System.IO.File.Exists(SavePath))
+        {
+            System.IO.File.Delete(SavePath);
+        }
+
+        data = new SaveData();
+        data.hasSave = false;
     }
 
     public static void LoadFromDisk()

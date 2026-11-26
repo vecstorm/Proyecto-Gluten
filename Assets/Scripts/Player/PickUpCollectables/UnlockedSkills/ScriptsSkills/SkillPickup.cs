@@ -40,7 +40,8 @@ public class SkillPickup : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("SkillPickup Start: " + skillToUnlock.skillName);
+        if (GameSave.data != null && GameSave.data.hasSave) { 
+            Debug.Log("SkillPickup Start: " + skillToUnlock.skillName);
         Debug.Log("SkillPickup Start: " + skillToUnlock.skillId);
         Debug.Log("SkillPickup Start: " + GameSave.data.unlockedSkillIds.Count);
         Debug.Log("SkillPickup Start: " + string.Join(", ", GameSave.data.unlockedSkillIds));
@@ -52,6 +53,7 @@ public class SkillPickup : MonoBehaviour
         {
             Debug.Log("Habilidad ya desbloqueada: " + skillToUnlock.skillName);
             Destroy(gameObject);
+        }
         }
     }
 }

@@ -119,7 +119,11 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
 		if (healthUI == null)
 			healthUI = FindFirstObjectByType<HealthUpgradeMenu>();
-	}
+        if (isPlayer && GameSave.data != null && GameSave.data.hasSave)
+        {
+            LoadStats();
+        }
+    }
 
     private void Start()
     {
@@ -549,6 +553,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
     public void LoadStats()
     {
         if (GameSave.data == null || !GameSave.data.hasSave) return;
+        Debug.Log($"LoadStats -> hasSave: {GameSave.data?.hasSave}, savedMaxHealth: {GameSave.data?.maxHealth}, before: {maxHealth}");
 
         maxHealth = GameSave.data.maxHealth > 0f ? GameSave.data.maxHealth : maxHealth;
         currentHealth = Mathf.Clamp(GameSave.data.currentHealth, 0f, maxHealth);
