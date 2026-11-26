@@ -5,6 +5,25 @@ public class OpenDoorManager : MonoBehaviour
 {
     [SerializeField] public KeyData idDoor;
     [SerializeField] public KeyData salida;
+    [SerializeField] private string fallbackDoorId = "Door_01";
+
+    private string GetDoorKey()
+    {
+        if (idDoor != null)
+        {
+            return $"Door_{idDoor.Id}";
+        }
+
+        return fallbackDoorId;
+    }
+
+    private void Start()
+    {
+        if (GameSave.IsUnlocked(GetDoorKey()))
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -25,10 +44,13 @@ public class OpenDoorManager : MonoBehaviour
 
     private void OpenDoor()
     {
+        GameSave.MarkUnlocked(GetDoorKey());
+
         if (idDoor == salida)
         {
             SceneManager.LoadScene("SceneMenus");
-        } 
+        }
+
         Debug.Log("Puerta abierta");
 
         Destroy(gameObject);

@@ -69,4 +69,33 @@ public class SkillUnlockManager : MonoBehaviour
         }
     }
 
+    public void DumpSkillsToSave(SaveData data)
+    {
+        if (data == null) return;
+        data.unlockedSkillIds = new List<string>(unlockSkills);
+    }
+
+    public void LoadSkillsFromSave(SaveData data)
+    {
+        unlockSkills.Clear();
+        if (data == null || data.unlockedSkillIds == null) return;
+
+        foreach (string id in data.unlockedSkillIds)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                unlockSkills.Add(id);
+            }
+        }
+    }
+    private void Awake()
+    {
+        GameSave.LoadFromDisk();
+
+        if (GameSave.data != null && GameSave.data.hasSave)
+        {
+            LoadSkillsFromSave(GameSave.data);
+        }
+    }
+
 }
