@@ -548,6 +548,11 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         GameSave.data.healthUpgradeCost = GetHealthUpgradeCost(initialHealthUpgradeCost, healthUpgradeCostIncrease);
         GameSave.data.bonusAttackPoints = attackUpgradeCount;
         GameSave.data.attackUpgradeCost = GetAttackUpgradeCost(initialAttackUpgradeCost, attackUpgradeCostIncrease);
+        PlayerCombat playerCombat = GetComponent<PlayerCombat>();
+        if (playerCombat != null)
+        {
+            GameSave.data.basicAttackDamage = playerCombat.BasicAttackDamage;
+        }
     }
 
     public void LoadStats()
@@ -572,6 +577,7 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
             {
                 healthUI.Initialize(maxHealth);
             }
+
         }
 
         OnHealthChanged?.Invoke(currentHealth, maxHealth);

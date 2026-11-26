@@ -19,6 +19,7 @@ public class SaveData
     public int healthUpgradeCost;
     public int bonusAttackPoints;
     public int attackUpgradeCost;
+    public float basicAttackDamage;
 
     public List<int> keyIds = new List<int>();
     public List<string> unlockedIds = new List<string>();
