@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineBlenderSettings
   CustomBlends:
   - From: CinemachineCamera
-    To: BossCamera
+    To: SkillCamera
     Blend:
       Style: 1
       Time: 0.7
@@ -24,7 +24,7 @@ MonoBehaviour:
         m_PreInfinity: 0
         m_PostInfinity: 0
         m_RotationOrder: 0
-  - From: BossCamera
+  - From: SkillCamera
     To: CinemachineCamera
     Blend:
       Style: 1

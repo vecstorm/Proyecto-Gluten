@@ -403,6 +403,7 @@ GameObject:
   - component: {fileID: 8403322185117000273}
   - component: {fileID: 4589742280614659763}
   - component: {fileID: 7419132791195727634}
+  - component: {fileID: 6057277424544059527}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -419,7 +420,7 @@ Transform:
   m_GameObject: {fileID: 3135097769664748511}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.0000087072885, w: 1}
-  m_LocalPosition: {x: -7.4556885, y: 6.862179, z: -10.09}
+  m_LocalPosition: {x: -431.67725, y: -50.18354, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -575,6 +576,18 @@ MonoBehaviour:
   FovRange: {x: 1, y: 100}
   DollyRange: {x: -100, y: 100}
   OrthoSizeRange: {x: 1, y: 1000}
+--- !u!114 &6057277424544059527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3135097769664748511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a168a131ad1f78f4e84e24865116ff47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraTargetFinder
 --- !u!1 &4456728497016439383
 GameObject:
   m_ObjectHideFlags: 0
@@ -637,7 +650,7 @@ Transform:
   m_GameObject: {fileID: 7313510372346166317}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.0000087072885, w: 1}
-  m_LocalPosition: {x: -7.455719, y: 7.862179, z: -10.09}
+  m_LocalPosition: {x: -23.435883, y: -38.61562, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

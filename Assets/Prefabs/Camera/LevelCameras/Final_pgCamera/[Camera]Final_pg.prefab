@@ -140,6 +140,7 @@ GameObject:
   - component: {fileID: 3396640906503489077}
   - component: {fileID: 7772511358408009489}
   - component: {fileID: 6293874628402340688}
+  - component: {fileID: 24880899532118675}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -312,6 +313,18 @@ MonoBehaviour:
   FovRange: {x: 1, y: 100}
   DollyRange: {x: -100, y: 100}
   OrthoSizeRange: {x: 1, y: 1000}
+--- !u!114 &24880899532118675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706577621107890355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a168a131ad1f78f4e84e24865116ff47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraTargetFinder
 --- !u!1 &1971118319443858638
 GameObject:
   m_ObjectHideFlags: 0
