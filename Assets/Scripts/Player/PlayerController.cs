@@ -344,7 +344,6 @@ public class PlayerController : MonoBehaviour
         walkingDust.gameObject.transform.localScale = scale;
 
         Vector3 wallDustPos = wallSlideDust.transform.localPosition;
-        wallDustPos.x = Mathf.Abs(wallDustPos.x) * facingDirection;
 
         wallSlideDust.gameObject.transform.localPosition = wallDustPos;
 
