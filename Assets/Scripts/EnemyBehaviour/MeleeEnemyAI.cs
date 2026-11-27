@@ -50,8 +50,6 @@ public class MeleeEnemyAI : TroopAI
 
     private float timer;
 
-    private bool collidedWhileSearching = false;
-
     #region MAIN LOOP
 
     private void Awake()
@@ -282,8 +280,10 @@ public class MeleeEnemyAI : TroopAI
         }
         
         Vector3 movementPosition = new Vector3(lastTargetPos.x, transform.position.y, transform.position.z);
-        
-        if (!DetectedEdge())
+
+        bool hasDetectedWall = DetectedWall();
+
+        if (!DetectedEdge() || hasDetectedWall)
         {
             if (!alreadyStopped)
             {
@@ -291,18 +291,6 @@ public class MeleeEnemyAI : TroopAI
                 InvokeAnimationTrigger(ENEMY_STATE.IDLE);
             }
             
-            movementPosition = transform.position;
-        } 
-        else if (collidedWhileSearching)
-        {
-            collidedWhileSearching = false;
-
-            if (!alreadyStopped)
-            {
-                alreadyStopped = true;
-                InvokeAnimationTrigger(ENEMY_STATE.IDLE);
-            }
-
             movementPosition = transform.position;
         }
 
@@ -314,6 +302,11 @@ public class MeleeEnemyAI : TroopAI
 
             if (timer <= 0)
             {
+                if (hasDetectedWall)
+                {
+                    Flip();
+                }
+
                 ToPatrol();
             }
         }
@@ -597,15 +590,14 @@ public class MeleeEnemyAI : TroopAI
 
             if (Mathf.Abs(contact.normal.x) > 0.5f)
             {
-                if (state == ENEMY_STATE.SEARCHING)
-                {
-                    collidedWhileSearching = true;
-                    return;
-                }
-
                 Flip();
             }
         }
+    }
+
+    private bool DetectedWall()
+    {
+        return Physics2D.Raycast(groundDetection.position, Vector3.right, 1f, groundLayer);
     }
 
     private void DamageReaction()
