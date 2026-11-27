@@ -9,17 +9,17 @@ public class MapManager : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     [Header("Configuración MapCanva")]
     [SerializeField] private GameObject MapCanva;
 
-    // NUEVO: Zona visible del mapa
+    // Zona visible del mapa
     [Header("Movimiento del mapa")]
     [SerializeField] private RectTransform MapViewport;
 
-    // NUEVO: Mapa completo que se podrá arrastrar
+    // Mapa completo que se podrá arrastrar
     [SerializeField] private RectTransform MapContent;
 
-    // NUEVO: Posición inicial del click
+    // Posición inicial del click
     private Vector2 startMousePosition;
 
-    // NUEVO: Posición inicial del mapa
+    // Posición inicial del mapa
     private Vector2 startMapPosition;
 
     // Array de escenas, lo creamos para poner el ID más alto de las imagenes
