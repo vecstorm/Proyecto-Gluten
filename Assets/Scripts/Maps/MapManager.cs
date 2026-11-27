@@ -1,12 +1,28 @@
-using UnityEngine;
-using System.Linq;
 
-public class MapManager : MonoBehaviour
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class MapManager : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("Configuración MapCanva")]
     [SerializeField] private GameObject MapCanva;
 
-    // Array de escenas, lo creamos para poner el ID más alto  de las imagenes
+    // NUEVO: Zona visible del mapa
+    [Header("Movimiento del mapa")]
+    [SerializeField] private RectTransform MapViewport;
+
+    // NUEVO: Mapa completo que se podrá arrastrar
+    [SerializeField] private RectTransform MapContent;
+
+    // NUEVO: Posición inicial del click
+    private Vector2 startMousePosition;
+
+    // NUEVO: Posición inicial del mapa
+    private Vector2 startMapPosition;
+
+    // Array de escenas, lo creamos para poner el ID más alto de las imagenes
     private bool[] unlockedZones;
 
     private MapZoneImage[] mapZoneImages;
@@ -23,6 +39,7 @@ public class MapManager : MonoBehaviour
             {
                 Destroy(MapCanva);
             }
+
             Destroy(gameObject);
             return;
         }
@@ -50,6 +67,7 @@ public class MapManager : MonoBehaviour
             DontDestroyOnLoad(MapCanva);
 
             RectTransform rect = MapCanva.GetComponent<RectTransform>();
+
             if (rect != null && rect.localScale == Vector3.zero)
             {
                 rect.localScale = Vector3.one;
@@ -70,6 +88,85 @@ public class MapManager : MonoBehaviour
         if (MapCanva != null)
         {
             MapCanva.SetActive(false);
+        }
+    }
+
+    // Guardamos la posición inicial al pulsar el click
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            MapViewport,
+            eventData.position,
+            eventData.pressEventCamera,
+            out startMousePosition
+        );
+
+        startMapPosition = MapContent.anchoredPosition;
+    }
+
+    // Movemos el mapa mientras arrastramos
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+
+        Vector2 currentMousePosition;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            MapViewport,
+            eventData.position,
+            eventData.pressEventCamera,
+            out currentMousePosition
+        );
+
+        // Calculamos cuánto se ha movido el ratón
+        Vector2 difference = currentMousePosition - startMousePosition;
+
+        // Movemos el mapa siguiendo el ratón
+        MapContent.anchoredPosition = startMapPosition + difference;
+
+        // Comprobamos que el mapa no salga del panel
+        ClampMapPosition();
+    }
+
+    // Al soltar el click el mapa se queda donde está
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+    }
+
+    // Evitamos que el mapa se salga del panel visible
+    private void ClampMapPosition()
+    {
+        // Comprobamos los límites del mapa dentro del panel
+        Bounds mapBounds = RectTransformUtility.CalculateRelativeRectTransformBounds(
+            MapViewport,
+            MapContent
+        );
+
+        // Comprobamos si el mapa se sale por la izquierda o derecha
+        if (mapBounds.min.x > MapViewport.rect.min.x)
+        {
+            MapContent.anchoredPosition += Vector2.right *
+                (MapViewport.rect.min.x - mapBounds.min.x);
+        }
+        else if (mapBounds.max.x < MapViewport.rect.max.x)
+        {
+            MapContent.anchoredPosition += Vector2.right *
+                (MapViewport.rect.max.x - mapBounds.max.x);
+        }
+
+        // Comprobamos si el mapa se sale por arriba o abajo
+        if (mapBounds.min.y > MapViewport.rect.min.y)
+        {
+            MapContent.anchoredPosition += Vector2.up *
+                (MapViewport.rect.min.y - mapBounds.min.y);
+        }
+        else if (mapBounds.max.y < MapViewport.rect.max.y)
+        {
+            MapContent.anchoredPosition += Vector2.up *
+                (MapViewport.rect.max.y - mapBounds.max.y);
         }
     }
 
