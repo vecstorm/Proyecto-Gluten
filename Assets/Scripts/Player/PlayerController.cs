@@ -651,15 +651,12 @@ public class PlayerController : MonoBehaviour
                     return;
 
                 AudioController.Instance.StopSFX(ref wallSlideInstance);
+                wallSlideDust.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                 break;
 
             case PlayerState.WallGrab:
 
                 playerMovement.RestoreGravity();
-                break;
-
-            case PlayerState.WallSlide:
-                wallSlideDust.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                 break;
 
             case PlayerState.Parry:
