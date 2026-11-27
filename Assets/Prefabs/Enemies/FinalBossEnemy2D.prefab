@@ -735,7 +735,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
   team: 2
-  maxHealth: 12
+  maxHealth: 35
   currentHealth: 0
   healthUI: {fileID: 0}
   maxStamina: 100
@@ -893,6 +893,7 @@ MonoBehaviour:
   projectileSpawn: {fileID: 1269871319300838667}
   returningSpeed: 20
   offsetSpeed: 3
+  hitbox: {fileID: 3086678447228106135}
 --- !u!70 &389605795144714910
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1330,6 +1331,7 @@ MonoBehaviour:
   projectileSpawn: {fileID: 1091853228937854755}
   returningSpeed: 20
   offsetSpeed: 3
+  hitbox: {fileID: 1772621718381393498}
 --- !u!70 &3069411904712472253
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

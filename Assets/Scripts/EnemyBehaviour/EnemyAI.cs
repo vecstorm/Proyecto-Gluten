@@ -64,25 +64,14 @@ public abstract class EnemyAI : MonoBehaviour
     {
         colorFlashing = true;
 
-        /*SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
-
-        foreach (SpriteRenderer renderer in renderers)
+        if (material != null)
         {
-            renderer.color = Color.white;
+            material.SetFloat("_WhiteAmount", 1);
+
+            yield return new WaitForSeconds(flashTimer);
+
+            material.SetFloat("_WhiteAmount", 0);
         }
-
-        yield return new WaitForSeconds(flashTimer);
-
-        foreach (SpriteRenderer renderer in renderers)
-        {
-            renderer.color = rendererColor;
-        }*/
-
-        material.SetFloat("_WhiteAmount", 1);
-
-        yield return new WaitForSeconds(flashTimer);
-
-        material.SetFloat("_WhiteAmount", 0);
 
         colorFlashing = false;
     }

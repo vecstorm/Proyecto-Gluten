@@ -7,6 +7,7 @@ public class FinalBossHand : MonoBehaviour
     [SerializeField] private Transform projectileSpawn;
     [SerializeField] private float returningSpeed = 20f;
     [SerializeField] private float offsetSpeed = 3f;
+    [SerializeField] private Collider2D hitbox;
     
     private float movementOffset;
     private float incomingOffset;
@@ -139,6 +140,10 @@ public class FinalBossHand : MonoBehaviour
     public void SetColliderActive(bool value)
     {
         damageCollider.enabled = value;
+
+        if (hitbox == null) return;
+
+        hitbox.enabled = value;
     }
 
     // Da valor al offset de movimiento del brazo
