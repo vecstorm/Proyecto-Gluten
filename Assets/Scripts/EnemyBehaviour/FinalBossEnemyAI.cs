@@ -768,7 +768,9 @@ public class FinalBossEnemyAI : BossAI
     {
         currentArmourHealth -= (int)damage.Amount;
 
-        ParticleManager.SpawnParticles("ArmourImpact", damage.HitPoint, Quaternion.identity);
+        Vector3 damageDirection = ((Vector3)damage.HitPoint - targetTransform.position).normalized;
+
+        ParticleManager.SpawnParticles("ArmourImpact", damage.HitPoint, new Vector3(damageDirection.x, 0, 0));
         // SONIDO ---------> Armour Hurt //
 
         if (currentArmourHealth <= 0)
