@@ -15297,6 +15297,87 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1034522108180695280, guid: afa4ae2fa61621f4089d063fad460298, type: 3}
   m_PrefabInstance: {fileID: 313870215}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &315244697
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 679525992309455521, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -9.552307
+      objectReference: {fileID: 0}
+    - target: {fileID: 679525992309455521, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.3875923
+      objectReference: {fileID: 0}
+    - target: {fileID: 679525992309455521, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2956103305447846963, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_Name
+      value: '[Camera]Pasillo_2'
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 489.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 70.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7532904459554822503, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9198582562281686849, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -489.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9198582562281686849, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -70.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9198582562281686849, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8bdba7fa9d946f14bbc8e6d31f3f1f77, type: 3}
 --- !u!1001 &317094656
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103760,3 +103841,4 @@ SceneRoots:
   - {fileID: 175366876}
   - {fileID: 1024377898}
   - {fileID: 1510520946}
+  - {fileID: 315244697}

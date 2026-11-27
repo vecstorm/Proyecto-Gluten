@@ -524508,6 +524508,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 917674313220503196, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -43.273987
+      objectReference: {fileID: 0}
+    - target: {fileID: 917674313220503196, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.6473694
+      objectReference: {fileID: 0}
+    - target: {fileID: 917674313220503196, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -10.09
+      objectReference: {fileID: 0}
     - target: {fileID: 3604176046564908803, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 384.17392
@@ -524548,6 +524560,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3759101886303671230, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -43.358276
+      objectReference: {fileID: 0}
+    - target: {fileID: 3759101886303671230, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.3649445
+      objectReference: {fileID: 0}
+    - target: {fileID: 3759101886303671230, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -10.09
+      objectReference: {fileID: 0}
     - target: {fileID: 4141539086077166350, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
       propertyPath: m_Name
       value: '[Camera]FirstBossZone'
@@ -524556,6 +524580,22 @@ PrefabInstance:
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 1523516420}
+    - target: {fileID: 6698642642059175727, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: field of view
+      value: 84.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6698642642059175727, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: far clip plane
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6698642642059175727, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: near clip plane
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6698642642059175727, guid: 4a980f717375ccd47bd0b7af9e4353f6, type: 3}
+      propertyPath: orthographic size
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -524572,6 +524612,10 @@ PrefabInstance:
     - target: {fileID: 3535798718208434008, guid: 2abadf20be8331d4c9de3285481e9910, type: 3}
       propertyPath: m_Name
       value: BossCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 3535798718208434008, guid: 2abadf20be8331d4c9de3285481e9910, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4998430230761277603, guid: 2abadf20be8331d4c9de3285481e9910, type: 3}
       propertyPath: Target.TrackingTarget
