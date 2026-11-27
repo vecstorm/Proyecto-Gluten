@@ -119,7 +119,11 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
 
 		if (healthUI == null)
 			healthUI = FindFirstObjectByType<HealthUpgradeMenu>();
-	}
+        if (isPlayer && GameSave.data != null && GameSave.data.hasSave)
+        {
+            LoadStats();
+        }
+    }
 
     private void Start()
     {
@@ -534,5 +538,49 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
             lastDamageCollider = null;
             lastCombatDamage = default;
         }
+    }
+    public void SaveStats()
+    {
+        GameSave.data.currentHealth = currentHealth;
+        GameSave.data.maxHealth = maxHealth;
+        GameSave.data.experience = currentXp;
+        GameSave.data.bonusHealthPoints = healthUpgradeCount;
+        GameSave.data.healthUpgradeCost = GetHealthUpgradeCost(initialHealthUpgradeCost, healthUpgradeCostIncrease);
+        GameSave.data.bonusAttackPoints = attackUpgradeCount;
+        GameSave.data.attackUpgradeCost = GetAttackUpgradeCost(initialAttackUpgradeCost, attackUpgradeCostIncrease);
+        PlayerCombat playerCombat = GetComponent<PlayerCombat>();
+        if (playerCombat != null)
+        {
+            GameSave.data.basicAttackDamage = playerCombat.BasicAttackDamage;
+        }
+    }
+
+    public void LoadStats()
+    {
+        if (GameSave.data == null || !GameSave.data.hasSave) return;
+        Debug.Log($"LoadStats -> hasSave: {GameSave.data?.hasSave}, savedMaxHealth: {GameSave.data?.maxHealth}, before: {maxHealth}");
+
+        maxHealth = GameSave.data.maxHealth > 0f ? GameSave.data.maxHealth : maxHealth;
+        currentHealth = Mathf.Clamp(GameSave.data.currentHealth, 0f, maxHealth);
+        currentXp = GameSave.data.experience;
+        healthUpgradeCount = GameSave.data.bonusHealthPoints;
+        attackUpgradeCount = GameSave.data.bonusAttackPoints;
+        healthUpgradeTokens = 0;
+        currentStamina = maxStamina;
+
+        if (isPlayer)
+        {
+            if (healthUI == null)
+                healthUI = FindFirstObjectByType<HealthUpgradeMenu>();
+
+            if (healthUI != null)
+            {
+                healthUI.Initialize(maxHealth);
+            }
+
+        }
+
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnStaminaChanged?.Invoke(currentStamina, maxStamina);
     }
 }

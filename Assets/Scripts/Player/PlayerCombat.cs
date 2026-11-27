@@ -152,6 +152,10 @@ public class PlayerCombat : MonoBehaviour
     private void Awake()
     {
         characterStats = GetComponent<CharacterStats>();
+        if (GameSave.data != null && GameSave.data.hasSave && GameSave.data.basicAttackDamage > 0f)
+        {
+            basicAttackDamage = GameSave.data.basicAttackDamage;
+        }
 
         playerController = GetComponent<PlayerController>();
 

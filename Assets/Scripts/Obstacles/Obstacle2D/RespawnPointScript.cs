@@ -19,6 +19,13 @@ public class RespawnPointScript : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         characterStats = GetComponent<CharacterStats>();
 
+        if (GameSave.data!=null) {
+            if (GameSave.data.hasSave)
+            {
+                loadSavePoint();
+            }
+        }
+
         // Buscamos el objeto con la etiqueta SpawnCube
         GameObject spawnCube = GameObject.FindWithTag("SpawnCube");
 
@@ -106,5 +113,13 @@ public class RespawnPointScript : MonoBehaviour
         //characterStats.FullHeal();
 
         Debug.Log("The player respawn worked, woohoo!!!!");
+    }
+
+    private void loadSavePoint()
+    {
+        if (rb != null) {
+        respawnPointPlayer = GameSave.data.playerPosition;
+        transform.position = new Vector3(respawnPointPlayer.x, respawnPointPlayer.y, transform.position.z);
+        }
     }
 }

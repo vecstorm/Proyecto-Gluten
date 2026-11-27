@@ -37,4 +37,23 @@ public class SkillPickup : MonoBehaviour
         //Animaciones sonidos y particulas
         Destroy(gameObject);
     }
+
+    private void Start()
+    {
+        if (GameSave.data != null && GameSave.data.hasSave) { 
+            Debug.Log("SkillPickup Start: " + skillToUnlock.skillName);
+        Debug.Log("SkillPickup Start: " + skillToUnlock.skillId);
+        Debug.Log("SkillPickup Start: " + GameSave.data.unlockedSkillIds.Count);
+        Debug.Log("SkillPickup Start: " + string.Join(", ", GameSave.data.unlockedSkillIds));
+        if (skillToUnlock != null &&
+            !string.IsNullOrEmpty(skillToUnlock.skillId) &&
+            GameSave.data != null &&
+            GameSave.data.unlockedSkillIds != null &&
+            GameSave.data.unlockedSkillIds.Contains(skillToUnlock.skillId))
+        {
+            Debug.Log("Habilidad ya desbloqueada: " + skillToUnlock.skillName);
+            Destroy(gameObject);
+        }
+        }
+    }
 }

@@ -23,14 +23,30 @@ public class CheckpointInteract : MonoBehaviour
         {
             CharacterStats stats = player.GetComponent<CharacterStats>();
             RespawnPointScript respawn = player.GetComponent<RespawnPointScript>();
+            KeyDoorManager keyDoorManager = player.GetComponent<KeyDoorManager>();
             if (stats != null)
             {
                 // Asegúrate de tener este método en tu CharacterStats o ajusta la lógica aquí
                 stats.FullHeal();
+                stats.SaveStats(); // Guarda el estado del jugador
+                
                 if (respawn != null)
                 {
                     respawn.respawnPointPlayer = transform.position; // Actualiza el punto de respawn
+                    GameSave.data.playerPosition = transform.position; // Guarda el punto de respawn en GameSave
                 }
+                if (keyDoorManager != null)
+                {
+                    keyDoorManager.DumpKeysToSave(GameSave.data); // Guarda las llaves en GameSave
+                }
+                SkillUnlockManager skillManager = FindFirstObjectByType<SkillUnlockManager>();
+
+                if (skillManager != null)
+                {
+                    skillManager.DumpSkillsToSave(GameSave.data);
+                }
+
+                GameSave.Save();
             }
         }
 
