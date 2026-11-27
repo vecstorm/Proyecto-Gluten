@@ -14,7 +14,9 @@ public class EnemyProjectileController : MonoBehaviour
     [SerializeField] private ParticleSystem followParticlesPrefab;
     [SerializeField] private ParticleSystem impactParticlesPrefab;
     [SerializeField] private bool onSurface = false;
+    [SerializeField] private float rayDistance = 1f;
     [SerializeField] private LayerMask collisionLayer;
+    [SerializeField] private bool scaleWithLocalScale = false;
 
     private Rigidbody2D rb;
     private Vector3 targetPosition;
@@ -69,15 +71,21 @@ public class EnemyProjectileController : MonoBehaviour
                 {
                     Vector3 surfaceDirection = ((Vector3) collision.ClosestPoint(transform.position) - transform.position).normalized;
 
-                    RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, 1f, collisionLayer);
+                    RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, rayDistance, collisionLayer);
 
                     if (hit.collider)
                     {
-                        Debug.Log("DETECTED GROUND");
-
                         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
 
                         ParticleSystem particle = Instantiate(impactParticlesPrefab, hit.point, rotation);
+
+                        if (scaleWithLocalScale)
+                        {
+                            Vector3 scale = particle.transform.localScale;
+                            scale = scale * transform.localScale.y;
+                            particle.transform.localScale = scale;
+                        }
+
                     }
                 }
                 else

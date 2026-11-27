@@ -22,6 +22,7 @@ public class ProjectileEnemyAI : TroopAI
     [SerializeField] private int chargedProjectileDamage = 20;
     [SerializeField] private float projectileSpeed = 6;
     [SerializeField] private int ampedProjectileCount = 4;
+    [SerializeField] private float ampedProjectileScale = 1f;
     [SerializeField] private float attackCooldown = 1.5f;
     [SerializeField] private LayerMask shootDetectionLayer;
 
@@ -251,6 +252,12 @@ public class ProjectileEnemyAI : TroopAI
             timer = attackCooldown;
         }
 
+        if (!CanShootTarget())
+        {
+            MoveToFindShootAngle();
+            return;
+        }
+
         localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
         if (TargetDetectedOnArea(personalBubbleRadius))
@@ -467,7 +474,9 @@ public class ProjectileEnemyAI : TroopAI
 
         float distance = Vector2.Distance(transform.position, targetTransform.position);
 
-        RaycastHit2D hit = Physics2D.CircleCast(transform.position, 0.27f, direction, distance, shootDetectionLayer);
+        float radius = (projectilePrefab.GetComponent<CircleCollider2D>().radius + 0.2f) * projectileCount >= ampedProjectileCount ? ampedProjectileScale : projectilePrefab.transform.localScale.y;
+
+        RaycastHit2D hit = Physics2D.CircleCast(transform.position, radius, direction, distance, shootDetectionLayer);
 
         return hit.collider != null && hit.collider.CompareTag("Player");
     }
@@ -489,11 +498,24 @@ public class ProjectileEnemyAI : TroopAI
         if (projectileCount >= ampedProjectileCount)
         {
             projectileCount = 0;
-            newProjectile.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            newProjectile.transform.localScale = new Vector3(ampedProjectileScale, ampedProjectileScale, ampedProjectileScale);
             projectileController.SetContactDamage(chargedProjectileDamage);
         }
 
         ParticleManager.SpawnParticles("ProjectileEnemyShot", transform.position, transform.right);
+    }
+
+    private void MoveToFindShootAngle()
+    {
+        if (!DetectedEdge(edgeCheck.position))
+        {
+            localMovement = Vector3.zero;
+            return;
+        }
+
+        float direction = Mathf.Sign(targetTransform.position.x - transform.position.x);
+
+        localMovement = new Vector2(direction * speed, rb.linearVelocity.y);
     }
 
     // Logica de reseteo del enemigo
