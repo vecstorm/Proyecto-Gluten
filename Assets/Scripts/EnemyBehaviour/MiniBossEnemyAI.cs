@@ -655,6 +655,10 @@ public class MiniBossEnemyAI : BossAI
     private void DamageReaction()
     {
         // SONIDO ---------> Hurt //
+
+        Vector3 damageDirection = (transform.position - characterStats.LastDamagePosition).normalized;
+        ParticleManager.SpawnParticles("AttackImpact", transform.position, new Vector3(damageDirection.x, 0, 0));
+
         FlashColor();
     }
 
