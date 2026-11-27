@@ -324,13 +324,21 @@ MonoBehaviour:
   team: 1
   maxHealth: 100
   currentHealth: 0
+  healthUI: {fileID: 0}
   maxStamina: 100
   staminaRegenRate: 15
+  healthUpgradeTokens: 0
   canTakeDamage: 1
   parryWindow: 0.3
   parryCooldown: 1
   currentXp: 0
   knockbackForce: 12
+  healthUpgradeCount: 0
+  attackUpgradeCount: 0
+  initialHealthUpgradeCost: 30
+  healthUpgradeCostIncrease: 20
+  initialAttackUpgradeCost: 30
+  attackUpgradeCostIncrease: 20
 --- !u!114 &1393423254232799740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343,6 +351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e4782ff42d05c245981a7142a8e2eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RespawnPointScript
+  respawnPointPlayer: {x: 0, y: 0}
 --- !u!114 &6673116204880292418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,6 +419,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1941af1b8abaa8d4fa1205bd1bb3da2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputs
+  inputActionsAsset: {fileID: -944628639613478452, guid: 703a8f92b282ad146ac8749cd88d63bc, type: 3}
   jumpBufferDuration: 0.12
   dashBufferDuration: 0.12
   hookBufferDuration: 0.12
