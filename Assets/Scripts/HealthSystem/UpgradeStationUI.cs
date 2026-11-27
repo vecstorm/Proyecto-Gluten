@@ -22,11 +22,10 @@ public class UpgradeStationUI : MonoBehaviour
     {
         if (playerNearby && playerInputs.ActionPressed)
         {
+            AudioController.Instance.PlayPlayerInteraction(PlayerInteractionSFX.SitAtSavePoint);
             playerInputs.ConsumeActionPressed();
             Debug.Log("Has interactuado con la estación");
             SetPanel(true, healUpgradePanel);
-
-
         }
     }
 

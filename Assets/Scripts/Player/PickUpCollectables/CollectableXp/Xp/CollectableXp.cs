@@ -16,6 +16,7 @@ public class CollectableXp : MonoBehaviour
             if (player != null)
             {
                 player.AddXp(xpValue);
+                AudioController.Instance.PlayPlayerInteraction(PlayerInteractionSFX.CollectExperience);
                 Destroy(gameObject);
             }
         }

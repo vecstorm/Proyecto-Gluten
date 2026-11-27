@@ -25,6 +25,7 @@ public class SkillPickup : MonoBehaviour
 
         if (manager.UnlockSkill(skillToUnlock))
         {
+            AudioController.Instance.PlayPlayerInteraction(PlayerInteractionSFX.UnlockAbility);
             collected = true;
             Debug.Log("Habilidad desbloqueada: " + skillToUnlock.skillName);
             DestroyPickeable();

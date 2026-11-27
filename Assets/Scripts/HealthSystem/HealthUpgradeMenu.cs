@@ -102,9 +102,10 @@ public class HealthUpgradeMenu : MonoBehaviour
     characterStats.IncreaseMaxHealth(1f);
     characterStats.RegisterHealthUpgrade();
 
-    Instantiate(healthPointPrefab, healthContainer, false);
+        Instantiate(healthPointPrefab, healthContainer, false);
 
     RefreshUpgradeButtons();
+        AudioController.Instance.PlayPlayerInteraction(PlayerInteractionSFX.UpgradePoints);
     healthUpgradeButton.transform.SetAsLastSibling();
 }
 
@@ -126,11 +127,12 @@ public class HealthUpgradeMenu : MonoBehaviour
 
 		playerCombat.IncreaseBasicAttackDamage(1f);
 
-		characterStats.RegisterAttackUpgrade();
+        characterStats.RegisterAttackUpgrade();
 
 		Instantiate(attackPointPrefab, attackContainer, false);
 
 		RefreshUpgradeButtons();
+        AudioController.Instance.PlayPlayerInteraction(PlayerInteractionSFX.UpgradePoints);
 		attackUpgradeButton.transform.SetAsLastSibling();
 	}
 

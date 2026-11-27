@@ -184,7 +184,6 @@ public class AudioController : MonoBehaviour
 
     [Header("Player")]
     [SerializeField] private FMODUnity.EventReference playerMovementSFX;
-    [SerializeField] private FMODUnity.EventReference playerFootstepSFX;
     [SerializeField] private FMODUnity.EventReference playerCombatSFX;
     [SerializeField] private FMODUnity.EventReference playerStatusSFX;
     [SerializeField] private FMODUnity.EventReference playerInteractionSFX;

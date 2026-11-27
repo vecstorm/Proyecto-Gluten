@@ -12,6 +12,8 @@ public class KeyPickUp : MonoBehaviour
 
         if (keyManager == null ) return;
 
+        AudioController.Instance.PlayPlayerInteraction(PlayerInteractionSFX.CollectKey);
+
         keyManager.SaveKey(key);
 
         Destroy(gameObject);
