@@ -104,6 +104,8 @@ public class MiniBossEnemyAI : BossAI
         originalScale = transform.localScale;
 
         healthModule = characterStats.MaxHealth / (float)healthToDivideDifficulty;
+
+        material = GetComponent<SpriteRenderer>().material;
     }
 
     private void OnEnable()

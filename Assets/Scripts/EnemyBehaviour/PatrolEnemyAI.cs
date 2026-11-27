@@ -48,6 +48,12 @@ public class PatrolEnemyAI : TroopAI
 
     private void FixedUpdate()
     {
+        if (state == ENEMY_STATE.DEAD || !GroundBeneath())
+        {
+            rb.linearVelocityX = 0;
+            return;
+        }
+
         switch (state)
         {
             case ENEMY_STATE.PATROL:
@@ -61,6 +67,14 @@ public class PatrolEnemyAI : TroopAI
         externalMovement = Vector3.Lerp(externalMovement, Vector3.zero, externalMovementDecay * Time.fixedDeltaTime);
 
         rb.linearVelocity = localMovement + externalMovement;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!showGizmos) return;
+
+        Gizmos.color = Color.purple;
+        Gizmos.DrawWireSphere(groundDetection.position, groundDetectionRadius);
     }
 
     #endregion

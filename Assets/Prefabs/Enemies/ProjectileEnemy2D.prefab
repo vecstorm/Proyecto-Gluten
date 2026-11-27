@@ -514,7 +514,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 6200000, guid: 4f3a392e601dda8478468e16b70fcc49, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -550,6 +550,7 @@ MonoBehaviour:
   state: 1
   defaultState: 0
   groundDetection: {fileID: 5589942049983994211}
+  groundDetectionRadius: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -569,6 +570,7 @@ MonoBehaviour:
   chargedProjectileDamage: 2
   projectileSpeed: 8
   ampedProjectileCount: 4
+  ampedProjectileScale: 1
   attackCooldown: 1.5
   shootDetectionLayer:
     serializedVersion: 2

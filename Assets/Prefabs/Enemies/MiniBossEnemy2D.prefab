@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7282066891537555557
 Transform:
   m_ObjectHideFlags: 0
@@ -123,7 +123,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6179244667027126684}
@@ -182,9 +182,9 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
-  m_Color: {r: 0.78113204, g: 0, b: 0.40088278, a: 1}
-  m_FlipX: 0
+  m_Sprite: {fileID: -1561506823443474166, guid: cccd00d400d3cf943961cc64a213c8b4, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 2}
@@ -226,8 +226,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1.1, y: 2.1}
+  m_Offset: {x: 0, y: 0.1}
+  m_Size: {x: 2.1, y: 4.1}
   m_Direction: 0
 --- !u!50 &239062962909842925
 Rigidbody2D:
@@ -381,7 +381,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
   team: 2
-  maxHealth: 30
+  maxHealth: 100
   currentHealth: 0
   healthUI: {fileID: 0}
   maxStamina: 100
@@ -391,7 +391,7 @@ MonoBehaviour:
   parryWindow: 0.15
   parryCooldown: 0.5
   currentXp: 0
-  knockbackForce: 3
+  knockbackForce: 0
   healthUpgradeCount: 0
   attackUpgradeCount: 0
   initialHealthUpgradeCost: 30
@@ -411,7 +411,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XpDropEnemy
   xp: {fileID: 11400000, guid: 9176ec461dd75c942ba53da31aadde20, type: 2}
-  key: {fileID: 11400000, guid: ca70f711892bd98409a6e296246e8c7c, type: 2}
+  key: {fileID: 11400000, guid: 5d24b0409a64e1d40b95701b59fb5f8b, type: 2}
 --- !u!1 &4185391795003541766
 GameObject:
   m_ObjectHideFlags: 0
@@ -428,7 +428,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4377583167175872901
 Transform:
   m_ObjectHideFlags: 0
@@ -569,8 +569,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 2}
+  m_Offset: {x: 0, y: 0.1}
+  m_Size: {x: 2, y: 4}
   m_Direction: 0
 --- !u!1 &6929310242858998794
 GameObject:
@@ -588,7 +588,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4577101107620095615
 Transform:
   m_ObjectHideFlags: 0

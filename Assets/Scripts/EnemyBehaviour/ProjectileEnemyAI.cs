@@ -81,6 +81,12 @@ public class ProjectileEnemyAI : TroopAI
 
     private void FixedUpdate()
     {
+        if (state == ENEMY_STATE.DEAD || !GroundBeneath())
+        {
+            rb.linearVelocityX = 0;
+            return;
+        }
+
         switch (state)
         {
             case ENEMY_STATE.PATROL:
@@ -111,6 +117,9 @@ public class ProjectileEnemyAI : TroopAI
     private void OnDrawGizmos()
     {
         if (!showGizmos) return;
+
+        Gizmos.color = Color.purple;
+        Gizmos.DrawWireSphere(groundDetection.position, groundDetectionRadius);
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, areaRadius);

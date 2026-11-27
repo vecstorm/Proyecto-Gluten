@@ -22,6 +22,7 @@ public abstract class TroopAI : EnemyAI
 
     [Header("Ground Detection:")]
     [SerializeField] protected Transform groundDetection;
+    [SerializeField] protected float groundDetectionRadius = 1f;
     [SerializeField] protected LayerMask groundLayer;
 
     [Header("Knockback:")]
@@ -106,8 +107,7 @@ public abstract class TroopAI : EnemyAI
     {
         if (isAerial) return true;
 
-        Debug.DrawRay(groundDetection.position, Vector3.down, Color.red);
-        return Physics2D.Raycast(groundDetection.position, Vector3.down, 1f, groundLayer);
+        return Physics2D.OverlapCircle(groundDetection.position, groundDetectionRadius, groundLayer);
     }
 
     protected bool ObstacleBlocksTarget(Vector3 targetPosition, float distance)

@@ -85,6 +85,12 @@ public class MeleeEnemyAI : TroopAI
 
     private void FixedUpdate()
     {
+        if (state == ENEMY_STATE.DEAD || !GroundBeneath())
+        {
+            rb.linearVelocityX = 0;
+            return;
+        }
+
         switch (state)
         {
             case ENEMY_STATE.IDLE:
@@ -127,6 +133,9 @@ public class MeleeEnemyAI : TroopAI
     private void OnDrawGizmos()
     {
         if (!showGizmos) return;
+
+        Gizmos.color = Color.purple;
+        Gizmos.DrawWireSphere(groundDetection.position, groundDetectionRadius);
 
         if (hitboxCreated)
         {
