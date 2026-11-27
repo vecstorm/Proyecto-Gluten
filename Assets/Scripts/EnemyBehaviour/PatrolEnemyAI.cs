@@ -35,14 +35,14 @@ public class PatrolEnemyAI : TroopAI
     private void OnEnable()
     {
         characterStats.OnDeath += ToDead;
-        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += DamageReaction;
         characterStats.OnDamageTaken += AddKnockback;
     }
 
     private void OnDisable()
     {
         characterStats.OnDeath -= ToDead;
-        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= DamageReaction;
         characterStats.OnDamageTaken -= AddKnockback;
     }
 
@@ -94,10 +94,11 @@ public class PatrolEnemyAI : TroopAI
 
         localMovement = Vector3.zero;
 
+        // SONIDO ---------> Death //
+
         isDead = true;
         state = ENEMY_STATE.DEAD;
         hitbox.enabled = false;
-        //gameObject.SetActive(false);
     }
 
     #endregion
@@ -158,6 +159,13 @@ public class PatrolEnemyAI : TroopAI
                 }
             }
         }
+    }
+
+    // Como reacciona el enemigo al recibir daño
+    private void DamageReaction()
+    {
+        // SONIDO ---------> Hurt //
+        FlashColor();
     }
 
     // Logica de reseteo del enemigo

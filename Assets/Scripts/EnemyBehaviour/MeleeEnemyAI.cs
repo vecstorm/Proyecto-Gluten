@@ -421,6 +421,7 @@ public class MeleeEnemyAI : TroopAI
         timer = stunnedTimerDuration;
         stunnedIcon.SetActive(true);
 
+        // SONIDO ---------> Stun //
         InvokeAnimationTrigger(ENEMY_STATE.STUNNED);
 
         state = ENEMY_STATE.STUNNED;
@@ -447,8 +448,7 @@ public class MeleeEnemyAI : TroopAI
         localMovement = Vector3.zero;
 
         InvokeAnimationTrigger(ENEMY_STATE.DEAD);
-
-        //gameObject.SetActive(false);
+        // SONIDO ---------> Death //
     }
 
     #endregion
@@ -462,32 +462,23 @@ public class MeleeEnemyAI : TroopAI
     {
         alreadyAttacking = true;
 
-        //transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 20));
-
+        // SONIDO ---------> Attack Prepare //
         InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
-
-        //Debug.Log("PREPARING ATTACK");
 
         yield return new WaitForSeconds(attackPreparationTime);
 
-        //transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0));
+        // SONIDO ---------> Attack //
 
         hitboxCreated = true;
 
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
 
-        //Debug.Log("ATTACKING");
-
         yield return new WaitForSeconds(attackDuration);
-
-        //Debug.Log("STOPPED ATTACKING");
 
         hitboxCreated = false;
 
         yield return new WaitForSeconds(attackCooldown);
-
-        //Debug.Log("ATTACK ON COOLDOWN");
 
         alreadyAttacking = false;
     }
@@ -590,6 +581,7 @@ public class MeleeEnemyAI : TroopAI
 
     private void DamageReaction()
     {
+        // SONIDO ---------> Hurt //
         FlashColor();
         ToChasing();
     }

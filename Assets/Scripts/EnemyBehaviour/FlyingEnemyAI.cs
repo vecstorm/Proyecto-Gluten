@@ -92,7 +92,7 @@ public class FlyingEnemyAI : TroopAI
     {
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
-        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += DamageReaction;
         characterStats.OnDamageTaken += AddKnockback;
     }
 
@@ -100,7 +100,7 @@ public class FlyingEnemyAI : TroopAI
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
-        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= DamageReaction;
         characterStats.OnDamageTaken -= AddKnockback;
     }
 
@@ -284,6 +284,7 @@ public class FlyingEnemyAI : TroopAI
             projectileController.SetMovement(projectileSpeed, targetTransform.position);
             projectileController.SetContactDamage(projectileDamage);
 
+            // SONIDO ---------> Shoot //
             ParticleManager.SpawnParticles("FlyingEnemyShot", transform.position, transform.right);
 
             InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
@@ -312,6 +313,7 @@ public class FlyingEnemyAI : TroopAI
             if (!alreadyUnwrapped)
             {
                 alreadyUnwrapped = true;
+                // SONIDO ---------> Transform //
                 InvokeAnimationTrigger(ENEMY_STATE.RAMMING);
             }
         }
@@ -320,6 +322,7 @@ public class FlyingEnemyAI : TroopAI
 
         if (timer >= rammingDelay)
         {
+            // SONIDO ---------> Charge //
             rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
 
             localMovement = rammingDirection * rammingSpeed;
@@ -462,12 +465,14 @@ public class FlyingEnemyAI : TroopAI
 
         if (isRamming)
         {
+            // SONIDO ---------> Explode //
             ParticleManager.SpawnParticles("ExplosionEffect", transform.position, Quaternion.identity);
             gameObject.SetActive(false);
         }
         else
         {
             localMovement = new Vector3(rb.linearVelocity.x, -1f);
+            // SONIDO ---------> Death //
             ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
             hitbox.enabled = false;
             rb.gravityScale = 3f;
@@ -748,6 +753,12 @@ public class FlyingEnemyAI : TroopAI
     private void ResetTimer()
     {
         timer = 0;
+    }
+
+    private void DamageReaction()
+    {
+        // SONIDO ---------> Hurt //
+        FlashColor();
     }
 
     // Logica de reseteo del enemigo

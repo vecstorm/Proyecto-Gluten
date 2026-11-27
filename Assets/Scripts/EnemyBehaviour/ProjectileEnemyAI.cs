@@ -68,14 +68,14 @@ public class ProjectileEnemyAI : TroopAI
     {
         dynamicSpawnPosition = spawnPosition;
         characterStats.OnDeath += ToDead;
-        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += DamageReaction;
         characterStats.OnDamageTaken += AddKnockback;
     }
 
     private void OnDisable()
     {
         characterStats.OnDeath -= ToDead;
-        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= DamageReaction;
         characterStats.OnDamageTaken -= AddKnockback;
     }
 
@@ -394,13 +394,13 @@ public class ProjectileEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     protected void ToDead()
     {
+        // SONIDO ---------> Death //
         ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
 
         isDead = true;
         state = ENEMY_STATE.DEAD;
         hitbox.enabled = false;
         InvokeAnimationTrigger(ENEMY_STATE.DEAD);
-        //gameObject.SetActive(false);
     }
 
     #endregion
@@ -502,6 +502,7 @@ public class ProjectileEnemyAI : TroopAI
             projectileController.SetContactDamage(chargedProjectileDamage);
         }
 
+        // SONIDO ---------> Shoot //
         ParticleManager.SpawnParticles("ProjectileEnemyShot", transform.position, transform.right);
     }
 
@@ -516,6 +517,13 @@ public class ProjectileEnemyAI : TroopAI
         float direction = Mathf.Sign(targetTransform.position.x - transform.position.x);
 
         localMovement = new Vector2(direction * speed, rb.linearVelocity.y);
+    }
+
+    // Como reacciona el enemigo al recibir daño
+    private void DamageReaction()
+    {
+        // SONIDO ---------> Hurt //
+        FlashColor();
     }
 
     // Logica de reseteo del enemigo
