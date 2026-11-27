@@ -126,4 +126,9 @@ public class EnemyAnimationController : MonoBehaviour
     {
         AudioController.Instance.PlayMeleeEnemy(MeleeEnemySFX.Footstep);
     }
+
+    public void OnFlyingFlap()
+    {
+        AudioController.Instance.PlayFlyingEnemy(FlyingEnemySFX.Flapping);
+    }
 }

@@ -284,7 +284,7 @@ public class FlyingEnemyAI : TroopAI
             projectileController.SetMovement(projectileSpeed, targetTransform.position);
             projectileController.SetContactDamage(projectileDamage);
 
-            // SONIDO ---------> Shoot //
+            AudioController.Instance.PlayFlyingEnemy(FlyingEnemySFX.Shoot);
             ParticleManager.SpawnParticles("FlyingEnemyShot", transform.position, transform.right);
 
             InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
@@ -313,7 +313,7 @@ public class FlyingEnemyAI : TroopAI
             if (!alreadyUnwrapped)
             {
                 alreadyUnwrapped = true;
-                // SONIDO ---------> Transform //
+                AudioController.Instance.PlayFlyingEnemy(FlyingEnemySFX.Transform);
                 InvokeAnimationTrigger(ENEMY_STATE.RAMMING);
             }
         }
@@ -322,7 +322,7 @@ public class FlyingEnemyAI : TroopAI
 
         if (timer >= rammingDelay)
         {
-            // SONIDO ---------> Charge //
+            AudioController.Instance.PlayFlyingEnemy(FlyingEnemySFX.Charge);
             rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
 
             localMovement = rammingDirection * rammingSpeed;
@@ -465,14 +465,14 @@ public class FlyingEnemyAI : TroopAI
 
         if (isRamming)
         {
-            // SONIDO ---------> Explode //
+            AudioController.Instance.PlayFlyingEnemy(FlyingEnemySFX.Explode);
             ParticleManager.SpawnParticles("ExplosionEffect", transform.position, Quaternion.identity);
             gameObject.SetActive(false);
         }
         else
         {
             localMovement = new Vector3(rb.linearVelocity.x, -1f);
-            // SONIDO ---------> Death //
+            AudioController.Instance.PlayFlyingEnemy(FlyingEnemySFX.Death);
             ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
             hitbox.enabled = false;
             rb.gravityScale = 3f;
@@ -757,7 +757,7 @@ public class FlyingEnemyAI : TroopAI
 
     private void DamageReaction()
     {
-        // SONIDO ---------> Hurt //
+        AudioController.Instance.PlayFlyingEnemy(FlyingEnemySFX.Hurt);
         FlashColor();
     }
 
