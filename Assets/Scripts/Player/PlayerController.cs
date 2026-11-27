@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D rb;
     private Vector3 initialSpawnPosition;
+    private FMOD.Studio.EventInstance wallSlideInstance;
 
     #endregion
 
@@ -476,6 +477,12 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Jump:
 
                 playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
+                AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.Jump);
+                break;
+
+            case PlayerState.DoubleJump:
+
+                AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.DoubleJump);
                 break;
 
             case PlayerState.Airborne:
@@ -490,11 +497,15 @@ public class PlayerController : MonoBehaviour
             // Definimos timer, dirección y desactivamos la gravedad
             case PlayerState.Dash:
 
+                AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.Dash);
+
                 playerMovement.EnterDash(IsWallState(previousState), facingDirection, playerInputs.MovementDirection);
                 break;
 
             // Definimos timer y desactivamos la gravedad
             case PlayerState.WallGrab:
+
+                AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.WallGrab);
 
                 playerMovement.EnterWallGrab();
                 break;
@@ -502,7 +513,14 @@ public class PlayerController : MonoBehaviour
             // Definimos velocidad y reactivamos la gravedad
             case PlayerState.WallSlide:
 
+                wallSlideInstance = AudioController.Instance.StartPlayerMovementLoop(PlayerMovementSFX.WallSlide);
+
                 playerMovement.EnterWallSlide();
+                break;
+
+            case PlayerState.WallJump:
+
+                AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.WallJump);
                 break;
 
             case PlayerState.Hook:
@@ -590,6 +608,14 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Dash:
 
                 playerMovement.RestoreGravity();
+                break;
+
+            case PlayerState.WallSlide:
+
+                if (!wallSlideInstance.isValid())
+                    return;
+
+                AudioController.Instance.StopSFX(ref wallSlideInstance);
                 break;
 
             case PlayerState.WallGrab:
@@ -694,6 +720,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void ChangeToGroundState()
     {
+        AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.Land);
+
         if (Mathf.Abs(playerInputs.MovementDirection) > 0.01f)
         {
             if (playerInputs.RunPressed)

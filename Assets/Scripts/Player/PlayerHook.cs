@@ -27,6 +27,8 @@ public class PlayerHook : MonoBehaviour
     [Tooltip("Representación visual del gancho")]
     [SerializeField] private Transform hookVisual;
 
+    private FMOD.Studio.EventInstance hookPullInstance;
+
     #endregion
 
     #region Hook Settings
@@ -209,6 +211,8 @@ public class PlayerHook : MonoBehaviour
         currentState = HookState.Shooting;
         hookTravelTimer = 0f;
 
+        AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.HookLaunch);
+
         UpdateHookVisual();
         hookVisual.SetParent(null, true);
 
@@ -248,6 +252,9 @@ public class PlayerHook : MonoBehaviour
     /// </summary>
     public void CancelHook()
     {
+        if (currentState == HookState.Pulling)
+            StopPullingSound();
+
         if (currentState == HookState.Ready)
             return;
 
@@ -268,7 +275,7 @@ public class PlayerHook : MonoBehaviour
         // Si está mucho rato viajando, retraemos
         if (hookTravelTimer >= maxHookTravelTime)
         {
-            currentState = HookState.Retracting;
+            StartRetracting();
             return;
         }
 
@@ -293,11 +300,13 @@ public class PlayerHook : MonoBehaviour
             if (validHook)
             {
                 targetPosition = point.transform.position;
+                AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.HookAttach);
+                hookPullInstance = AudioController.Instance.StartPlayerMovementLoop(PlayerMovementSFX.HookPull);
                 currentState = HookState.Pulling;
             }
             else
             {
-                currentState = HookState.Retracting;
+                StartRetracting();
             }
 
             UpdateHookVisual();
@@ -310,7 +319,7 @@ public class PlayerHook : MonoBehaviour
         UpdateHookVisual();
 
         if (travelledDistance >= maxDistance)
-            currentState = HookState.Retracting;
+            StartRetracting();
     }
 
     /// <summary>
@@ -318,7 +327,7 @@ public class PlayerHook : MonoBehaviour
     /// </summary>
     private void Retract()
     {
-        hookPosition = Vector2.MoveTowards( hookPosition, hookOrigin.position, hookSpeed * Time.fixedDeltaTime);
+        hookPosition = Vector2.MoveTowards(hookPosition, hookOrigin.position, hookSpeed * Time.fixedDeltaTime);
 
         UpdateHookVisual();
 
@@ -336,7 +345,8 @@ public class PlayerHook : MonoBehaviour
         // Si está mucho rato intentando atraer, retraemos
         if (hookTravelTimer >= maxHookTravelTime)
         {
-            currentState = HookState.Retracting;
+            StopPullingSound();
+            StartRetracting();
             return;
         }
 
@@ -354,6 +364,7 @@ public class PlayerHook : MonoBehaviour
             // Conservamos la velocidad de llegada.
             playerRb.linearVelocity = direction * pullSpeed;
 
+            StopPullingSound();
             FinishHook();
             return;
         }
@@ -377,6 +388,30 @@ public class PlayerHook : MonoBehaviour
 
         hookPosition = hookOrigin.position;
         UpdateHookVisual();
+    }
+
+    private void StartRetracting()
+    {
+        if (currentState == HookState.Retracting)
+            return;
+
+        currentState = HookState.Retracting;
+
+        AudioController.Instance.PlayPlayerMovement(
+            PlayerMovementSFX.HookRetract
+        );
+    }
+
+    private void StopPullingSound()
+    {
+        if (!hookPullInstance.isValid())
+            return;
+
+        AudioController.Instance.StopSFX(ref hookPullInstance);
+
+        AudioController.Instance.PlayPlayerMovement(
+            PlayerMovementSFX.HookRelease
+        );
     }
 
     #endregion

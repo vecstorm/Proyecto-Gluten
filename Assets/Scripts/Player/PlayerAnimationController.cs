@@ -285,5 +285,10 @@ public class PlayerAnimationController : MonoBehaviour
         playerController.RespawnPlayer();
     }
 
+    public void OnStep()
+    {
+        AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.Footstep);
+    }
+
     #endregion
 }
