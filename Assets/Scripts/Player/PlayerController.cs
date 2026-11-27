@@ -552,6 +552,7 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Parry:
 
                 characterStats.BeginParry();
+                AudioController.Instance.PlayPlayerCombat(PlayerCombatSFX.ParryStart);
                 SetSpriteColor(parryColor);
 
                 break;

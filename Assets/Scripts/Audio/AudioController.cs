@@ -21,16 +21,8 @@ public enum PlayerMovementSFX
     HookAttach,
     HookRetract,
     HookPull,
-    HookRelease
-}
-
-/// <summary>
-/// Tipos de desplazamiento para los sonidos de pasos.
-/// </summary>
-public enum PlayerFootstepType
-{
-    Walk,
-    Run
+    HookRelease,
+    Footstep
 }
 
 /// <summary>
@@ -378,11 +370,6 @@ public class AudioController : MonoBehaviour
     public FMOD.Studio.EventInstance StartPlayerMovementLoop(PlayerMovementSFX action)
     {
         return StartLoopEvent(playerMovementSFX, "PlayerMovementActions", (int)action);
-    }
-
-    public void PlayPlayerFootstep(PlayerFootstepType action)
-    {
-        PlayEvent(playerFootstepSFX, "PlayerFootstepActions", (int)action);
     }
 
     public void PlayPlayerCombat(PlayerCombatSFX action)

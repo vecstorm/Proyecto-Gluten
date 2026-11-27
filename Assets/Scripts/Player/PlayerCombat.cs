@@ -278,6 +278,8 @@ public class PlayerCombat : MonoBehaviour
         if (!CanAttack || characterStats == null || characterStats.CurrentHealth <= 0f)
             return false;
 
+        AudioController.Instance.PlayPlayerCombat(PlayerCombatSFX.MeleeAttack);
+
         // Activa el temporizador que controla la detección del ataque y la visualización de su gizmo
         basicAttackTimer = basicAttackDuration;
 
@@ -298,6 +300,8 @@ public class PlayerCombat : MonoBehaviour
     {
         if (!CanRangedAttack || projectilePrefab == null || characterStats == null || characterStats.CurrentHealth <= 0f)
             return false;
+
+        AudioController.Instance.PlayPlayerCombat(PlayerCombatSFX.RangedAttack);
 
         // Utiliza el punto configurado o la posición del jugador como alternativa
         Vector3 spawnPosition = projectileSpawnPoint != null ? projectileSpawnPoint.position : transform.position;

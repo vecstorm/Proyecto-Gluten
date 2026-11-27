@@ -340,6 +340,8 @@ public class CharacterStats : MonoBehaviour, IDamageable, IStunnable
         // Notifica que el parry se ha realizado correctamente
         OnParrySuccess?.Invoke();
 
+        AudioController.Instance.PlayPlayerCombat(PlayerCombatSFX.ParrySuccess);
+
         // Parry contra proyectiles:
         // intenta localizar un componente que implemente IReflectableProjectile
         // y le solicita cambiar de propietario y equipo.
