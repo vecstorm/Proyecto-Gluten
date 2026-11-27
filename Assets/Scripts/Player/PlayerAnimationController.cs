@@ -1,4 +1,5 @@
 
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -20,6 +21,9 @@ public class PlayerAnimationController : MonoBehaviour
     private PlayerCombat playerCombat;
     private PlayerHook playerHook;
     private HookState previousHookState;
+
+    private FMOD.Studio.EventInstance deathSoundInstance;
+    private bool deathSoundStarted;
 
     #endregion
 
@@ -223,8 +227,16 @@ public class PlayerAnimationController : MonoBehaviour
                 break;
 
             case PlayerState.Dead:
-                Debug.Log("Entrando en animación de muerte");
                 animator.SetBool(IsDeadHash, true);
+
+                if (!deathSoundStarted)
+                {
+                    deathSoundInstance =
+                        AudioController.Instance.PlayPlayerStatus(PlayerStatusSFX.Death);
+
+                    deathSoundStarted = true;
+                }
+
                 break;
 
             case PlayerState.Idle:
@@ -245,10 +257,31 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnDeathAnimationFinished()
     {
-        if (playerController.CurrentState != PlayerState.Dead)
-            return;
+        StartCoroutine(WaitForDeathSound());
+    }
 
-        Debug.Log("Animación de muerte terminada. Ejecutando respawn.");
+    private IEnumerator WaitForDeathSound()
+    {
+        FMOD.Studio.PLAYBACK_STATE playbackState;
+
+        while (deathSoundInstance.isValid())
+        {
+            deathSoundInstance.getPlaybackState(out playbackState);
+
+            if (playbackState == FMOD.Studio.PLAYBACK_STATE.STOPPED)
+                break;
+
+            yield return null;
+        }
+
+        if (deathSoundInstance.isValid())
+        {
+            deathSoundInstance.release();
+            deathSoundInstance.clearHandle();
+        }
+
+        deathSoundStarted = false;
+
         playerController.RespawnPlayer();
     }
 

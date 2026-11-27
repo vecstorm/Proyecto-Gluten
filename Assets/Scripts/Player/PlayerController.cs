@@ -562,6 +562,7 @@ public class PlayerController : MonoBehaviour
                 playerMovement.StopMovement();
                 hurtTimer = hurtTimerDuration;
                 StartDamageFlash();
+                AudioController.Instance.PlayPlayerStatus(PlayerStatusSFX.Hurt);
 
                 break;
 
@@ -993,6 +994,8 @@ public class PlayerController : MonoBehaviour
     {
         if (currentState != PlayerState.Dead)
             return;
+
+        AudioController.Instance.PlayPlayerStatus(PlayerStatusSFX.Respawn);
 
         // Determinamos la posición de reaparición
         Vector2 respawnPosition = CheckpointZone2D.hasSafePoint

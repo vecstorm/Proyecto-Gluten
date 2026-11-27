@@ -377,9 +377,15 @@ public class AudioController : MonoBehaviour
         PlayEvent(playerCombatSFX, "PlayerCombatActions", (int)action);
     }
 
-    public void PlayPlayerStatus(PlayerStatusSFX action)
+    public FMOD.Studio.EventInstance PlayPlayerStatus(PlayerStatusSFX action)
     {
-        PlayEvent(playerStatusSFX, "PlayerStatusActions", (int)action);
+        FMOD.Studio.EventInstance instance =
+            FMODUnity.RuntimeManager.CreateInstance(playerStatusSFX);
+
+        instance.setParameterByName("PlayerStatusActions", (int)action);
+        instance.start();
+
+        return instance;
     }
 
     public void PlayPlayerInteraction(PlayerInteractionSFX action)
