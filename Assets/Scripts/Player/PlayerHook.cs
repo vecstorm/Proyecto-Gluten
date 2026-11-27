@@ -303,6 +303,7 @@ public class PlayerHook : MonoBehaviour
                 AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.HookAttach);
                 hookPullInstance = AudioController.Instance.StartPlayerMovementLoop(PlayerMovementSFX.HookPull);
                 currentState = HookState.Pulling;
+                ParticleManager.SpawnParticles("HookContact", targetPosition, Quaternion.identity);
             }
             else
             {

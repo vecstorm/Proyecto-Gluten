@@ -67,6 +67,8 @@ public class PlayerMovement : MonoBehaviour
 
     public bool CanDoubleJump => canDoubleJump;
 
+    private int facingDirection = 1;
+
     #endregion
 
     #region Coyote Time
@@ -105,6 +107,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.2f;
 
     public bool IsGrounded => isGrounded;
+
+    public LayerMask GroundLayer => groundLayer;
 
     #endregion
 
@@ -163,6 +167,27 @@ public class PlayerMovement : MonoBehaviour
     /// Determina si el jugador puede utilizar el dash.
     /// </summary>
     public bool CanDash => canDash && dashCooldownTimer <= 0f;
+
+    #endregion
+
+    #region Direction
+
+    /// <summary>
+    /// Actualiza la dirección hacia la que mira el jugador.
+    /// </summary>
+    /// <param name="direction">Dirección del jugador: 1 para derecha y -1 para izquierda</param>
+    public void SetFacingDirection(int direction)
+    {
+        if (direction == 0)
+            return;
+
+        int newDirection = direction > 0 ? 1 : -1;
+
+        if (newDirection == facingDirection)
+            return;
+
+        facingDirection = newDirection;
+    }
 
     #endregion
 
@@ -357,6 +382,8 @@ public class PlayerMovement : MonoBehaviour
 
         // Actualizamos velocidad lineal a jumpForce en Y
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+        ParticleManager.SpawnParticlesOnSurface("JumpingSmoke", transform.position, Vector3.down, groundLayer);
     }
 
     /// <summary>
@@ -434,6 +461,8 @@ public class PlayerMovement : MonoBehaviour
         if (startedFromWall)
         {
             dashDirection = -facingDirection;
+
+            ParticleManager.SpawnParticlesOnSurface("JumpingSmoke", transform.position, Vector3.right * facingDirection, groundLayer);
         }
         else
         {
@@ -441,7 +470,11 @@ public class PlayerMovement : MonoBehaviour
 
             if (Mathf.Abs(dashDirection) < 0.01f)
                 dashDirection = facingDirection;
+
+            ParticleManager.SpawnParticlesOnSurface("DashSmoke", transform.position, Vector3.down, transform.right * facingDirection, groundLayer);
         }
+
+        ParticleManager.SpawnParticles("SpeedTrail", transform, transform.right * facingDirection);
 
         rb.gravityScale = 0f;
     }
@@ -514,6 +547,7 @@ public class PlayerMovement : MonoBehaviour
     public void ApplyWallJump(int facingDirection)
     {
         rb.linearVelocity = new Vector2(-facingDirection * wallJumpForceX, wallJumpForceY);
+        ParticleManager.SpawnParticlesOnSurface("JumpingSmoke", transform.position, Vector3.right * facingDirection, groundLayer);
     }
 
     #endregion

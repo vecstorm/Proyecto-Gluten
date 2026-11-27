@@ -8,7 +8,7 @@ using UnityEngine;
 public enum PlayerState { Idle, Walk, Run, Jump, Airborne, DoubleJump, Dash, WallGrab, WallSlide, WallJump, Hook, Attack, Parry, Hurt, Dead }
 
 /// <summary>
-/// Gestiona todo el control del jugador mediante una máquina de estados.
+/// Gestiona todo el control del jugador mediante una mï¿½quina de estados.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(PlayerMovement))]
@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("State")]
 
-    [Tooltip("Estado actual de la máquina de estados del jugador")]
+    [Tooltip("Estado actual de la mï¿½quina de estados del jugador")]
     [SerializeField] private PlayerState currentState = PlayerState.Idle;
 
     /// <summary>
@@ -49,7 +49,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("References")]
 
-    [Tooltip("Gestor encargado de comprobar qué habilidades tiene desbloqueadas el jugador")]
+    [Tooltip("Gestor encargado de comprobar quï¿½ habilidades tiene desbloqueadas el jugador")]
     [SerializeField] private SkillUnlockManager skillManager;
 
     /// <summary>
@@ -73,7 +73,7 @@ public class PlayerController : MonoBehaviour
     private PlayerCombat playerCombat;
 
     /// <summary>
-    /// Referencia al sistema de estadísticas del jugador.
+    /// Referencia al sistema de estadï¿½sticas del jugador.
     /// </summary>
     private CharacterStats characterStats;
 
@@ -83,15 +83,24 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    #region Particles
+
+    [Header("Particles")]
+    [SerializeField] ParticleSystem walkingDust;
+    [SerializeField] ParticleSystem wallSlideDust;
+    [SerializeField] Transform parryPoint;
+
+    #endregion
+
     #region Hurt
 
     [Header("Damage")]
 
-    [Tooltip("Tiempo que dura el estado de daño recibido")]
+    [Tooltip("Tiempo que dura el estado de daï¿½o recibido")]
     [SerializeField] float hurtTimerDuration = 1f;
 
     /// <summary>
-    /// Tiempo que queda de estado de daño recibido.
+    /// Tiempo que queda de estado de daï¿½o recibido.
     /// </summary>
     private float hurtTimer;
 
@@ -99,11 +108,11 @@ public class PlayerController : MonoBehaviour
 
     #region Hook
 
-    [Tooltip("Duración de la inercia tras engancharse")]
+    [Tooltip("Duraciï¿½n de la inercia tras engancharse")]
     [SerializeField] private float hookMomentumDuration = 0.1f;
 
     /// <summary>
-    /// Tiempo restante de duración de la inercia tras engancharse actual.
+    /// Tiempo restante de duraciï¿½n de la inercia tras engancharse actual.
     /// </summary>
     private float hookMomentumTimer;
 
@@ -112,7 +121,7 @@ public class PlayerController : MonoBehaviour
     #region Orientation and Sprite
 
     /// <summary>
-    /// Dirección hacia la que mira el personaje. 1 = derecha, -1 = izquierda. 
+    /// Direcciï¿½n hacia la que mira el personaje. 1 = derecha, -1 = izquierda. 
     /// </summary>
     private int facingDirection = 1;
 
@@ -139,25 +148,25 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Prefab que aparece cuando se realiza un parry exitoso")]
     [SerializeField] private GameObject parryHitPrefab;
 
-    [Tooltip("Posición del indicador respecto al jugador")]
+    [Tooltip("Posiciï¿½n del indicador respecto al jugador")]
     [SerializeField] private Vector3 parryHitOffset = new Vector3(0.5f, 1f, 0f);
 
     [Tooltip("Tiempo que permanece visible el indicador")]
     [SerializeField, Min(0f)] private float parryHitDuration = 0.5f;
 
     /// <summary>
-    /// Instancia de la representación visual del parry exitoso.
+    /// Instancia de la representaciï¿½n visual del parry exitoso.
     /// </summary>
     private GameObject parryHitInstance;
 
     /// <summary>
-    /// Temporizador de la representación visual del parry exitoso.
+    /// Temporizador de la representaciï¿½n visual del parry exitoso.
     /// </summary>
     private float parryHitTimer;
 
     [Header("Damage Visual")]
 
-    [Tooltip("Color que adquiere el personaje al recibir daño")]
+    [Tooltip("Color que adquiere el personaje al recibir daï¿½o")]
     [SerializeField] private Color damageFlashColor = Color.red;
 
     [Tooltip("Intervalo entre cambios de color")]
@@ -174,7 +183,7 @@ public class PlayerController : MonoBehaviour
     private float damageFlashIntervalTimer;
 
     /// <summary>
-    /// Indica si el personaje debe mostrar el color de daño.
+    /// Indica si el personaje debe mostrar el color de daï¿½o.
     /// </summary>
     private bool damageFlashActive;
 
@@ -266,12 +275,12 @@ public class PlayerController : MonoBehaviour
             hookMomentumTimer = hookMomentumDuration;
         }
 
-        // Mientras el gancho está activo, bloqueamos el movimiento normal
+        // Mientras el gancho estï¿½ activo, bloqueamos el movimiento normal
         if (playerHook.IsBusy || hookMomentumTimer > 0f)
         {
             hookMomentumTimer = Mathf.Max(0f, hookMomentumTimer - Time.fixedDeltaTime);
 
-            // Si está lanzándose o recogiéndose, detenemos el movimiento horizontal, durante Pulling dejamos que PlayerHook controle la velocidad
+            // Si estï¿½ lanzï¿½ndose o recogiï¿½ndose, detenemos el movimiento horizontal, durante Pulling dejamos que PlayerHook controle la velocidad
             if (!playerHook.IsPulling)
                 playerMovement.StopHorizontalMovement();
 
@@ -301,14 +310,14 @@ public class PlayerController : MonoBehaviour
     #region Direction
 
     /// <summary>
-    /// Actualiza la dirección hacia la que mira el personaje.
+    /// Actualiza la direcciï¿½n hacia la que mira el personaje.
     /// </summary>
     private void UpdateFacingDirection()
     {
         if (currentState == PlayerState.Dead)
             return;
 
-        // Mientras el gancho está activo, mantenemos la orientación.
+        // Mientras el gancho estï¿½ activo, mantenemos la orientaciï¿½n.
         if (!playerHook.IsBusy)
         {
             if (playerInputs.MovementDirection > 0)
@@ -320,6 +329,7 @@ public class PlayerController : MonoBehaviour
         UpdateSpriteDirection();
 
         playerCombat?.SetFacingDirection(facingDirection);
+        playerMovement?.SetFacingDirection(facingDirection);
         characterStats?.SetFacingDirection(facingDirection);
     }
 
@@ -330,6 +340,18 @@ public class PlayerController : MonoBehaviour
         scale.x = Mathf.Abs(scale.x) * facingDirection;
 
         spriteTransform.localScale = scale;
+
+        walkingDust.gameObject.transform.localScale = scale;
+
+        Vector3 wallDustPos = wallSlideDust.transform.localPosition;
+        wallDustPos.x = Mathf.Abs(wallDustPos.x) * facingDirection;
+
+        wallSlideDust.gameObject.transform.localPosition = wallDustPos;
+
+        Vector3 parryPos = parryPoint.localPosition;
+        parryPos.x = Mathf.Abs(parryPos.x) * -facingDirection;
+
+        parryPoint.localPosition = parryPos;
     }
 
     #endregion
@@ -337,11 +359,11 @@ public class PlayerController : MonoBehaviour
     #region State Machine
 
     /// <summary>
-    /// Intenta realizar una transición al estado indicado si está permitida.
+    /// Intenta realizar una transiciï¿½n al estado indicado si estï¿½ permitida.
     /// </summary>
     /// <param name="newState">Estado al que se desea cambiar</param>
     /// <returns>
-    /// True si la transición se ha realizado correctamente.
+    /// True si la transiciï¿½n se ha realizado correctamente.
     /// </returns>
     public bool ChangeState(PlayerState newState)
     {
@@ -349,10 +371,10 @@ public class PlayerController : MonoBehaviour
         if (newState == currentState)
             return false;
 
-        //Si la transición no está permitida, avisamos
+        //Si la transiciï¿½n no estï¿½ permitida, avisamos
         if (!IsTransitionAllowed(currentState, newState))
         {
-            Debug.LogWarning($"Transición no permitida: {currentState} -> {newState}", this);
+            Debug.LogWarning($"Transiciï¿½n no permitida: {currentState} -> {newState}", this);
             return false;
         }
 
@@ -372,13 +394,13 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Comprueba si una transición entre dos estados es válida según
-    /// las reglas definidas por la máquina de estados.
+    /// Comprueba si una transiciï¿½n entre dos estados es vï¿½lida segï¿½n
+    /// las reglas definidas por la mï¿½quina de estados.
     /// </summary>
     /// <param name="from">Estado de origen</param>
     /// <param name="to">Estado de destino</param>
     /// <returns>
-    /// True si la transición está permitida.
+    /// True si la transiciï¿½n estï¿½ permitida.
     /// </returns> 
     public bool IsTransitionAllowed(PlayerState from, PlayerState to)
     {
@@ -387,7 +409,7 @@ public class PlayerController : MonoBehaviour
             return false;
 
         // Desde cualquier estado excepto Hurt y Dead, el jugador puede pasar a Hurt o Dead
-        // Ejemplo: no puede pasar de dead a hurt porque en esta condición no está permitido
+        // Ejemplo: no puede pasar de dead a hurt porque en esta condiciï¿½n no estï¿½ permitido
         if (from != PlayerState.Hurt && from != PlayerState.Dead && (to == PlayerState.Hurt || to == PlayerState.Dead))
             return true;
 
@@ -449,13 +471,13 @@ public class PlayerController : MonoBehaviour
     /// Comprueba si un estado pertenece a una lista de estados permitidos.
     /// </summary>
     /// <param name="value">Estado a comprobar</param>
-    /// <param name="options">Lista de estados válidos</param>
+    /// <param name="options">Lista de estados vï¿½lidos</param>
     /// <returns>
     /// True si el estado se encuentra dentro de la lista.
     /// </returns>
     private bool IsOneOf(PlayerState value, params PlayerState[] options)
     {
-        // Devuelve true siempre que los estados que se escojan estén dentro de la lista
+        // Devuelve true siempre que los estados que se escojan estï¿½n dentro de la lista
         foreach (PlayerState option in options)
         {
             if (value == option)
@@ -466,14 +488,21 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Ejecuta la lógica necesaria al entrar en un nuevo estado.
+    /// Ejecuta la lï¿½gica necesaria al entrar en un nuevo estado.
     /// </summary>
     /// <param name="state">Estado al que se accede</param>
     private void EnterState(PlayerState state)
     {
         switch (state)
         {
-            // Aplicamos velocidad en el aire según de que estado vengamos
+            case PlayerState.Idle:
+                break;
+
+            case PlayerState.Walk:
+                walkingDust.gameObject.SetActive(true);
+                break;
+
+            // Aplicamos velocidad en el aire segï¿½n de que estado vengamos
             case PlayerState.Jump:
 
                 playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
@@ -487,14 +516,14 @@ public class PlayerController : MonoBehaviour
 
             case PlayerState.Airborne:
 
-                // Si hemos caído directamente desde Walk o Run, conservamos la velocidad del estado anterior
+                // Si hemos caï¿½do directamente desde Walk o Run, conservamos la velocidad del estado anterior
                 if (previousState == PlayerState.Walk || previousState == PlayerState.Run)
                 {
                     playerMovement.SetAirborneSpeed(previousState == PlayerState.Run ? playerMovement.RunSpeed : playerMovement.WalkSpeed);
                 }
                 break;
 
-            // Definimos timer, dirección y desactivamos la gravedad
+            // Definimos timer, direcciï¿½n y desactivamos la gravedad
             case PlayerState.Dash:
 
                 AudioController.Instance.PlayPlayerMovement(PlayerMovementSFX.Dash);
@@ -516,6 +545,7 @@ public class PlayerController : MonoBehaviour
                 wallSlideInstance = AudioController.Instance.StartPlayerMovementLoop(PlayerMovementSFX.WallSlide);
 
                 playerMovement.EnterWallSlide();
+                wallSlideDust.gameObject.SetActive(true);
                 break;
 
             case PlayerState.WallJump:
@@ -539,14 +569,14 @@ public class PlayerController : MonoBehaviour
                     // Evitamos lanzar hacia abajo
                     direction.y = Mathf.Max(0f, direction.y);
 
-                    // Si no hay dirección, utilizamos la orientación del jugador
+                    // Si no hay direcciï¿½n, utilizamos la orientaciï¿½n del jugador
                     if (direction.sqrMagnitude < 0.01f)
                         direction = Vector2.right * facingDirection;
                 }
 
                 if (playerHook.FireHook(direction))
                 {
-                    // Actualizamos la orientación según la dirección real del gancho
+                    // Actualizamos la orientaciï¿½n segï¿½n la direcciï¿½n real del gancho
                     float hookDirectionX = playerHook.HookDirection.x;
 
                     if (Mathf.Abs(hookDirectionX) > 0.01f)
@@ -569,6 +599,7 @@ public class PlayerController : MonoBehaviour
 
             case PlayerState.Parry:
 
+                ParticleManager.SpawnParticles("PlayerParry", parryPoint.position, Quaternion.identity);
                 characterStats.BeginParry();
                 AudioController.Instance.PlayPlayerCombat(PlayerCombatSFX.ParryStart);
                 SetSpriteColor(parryColor);
@@ -597,13 +628,17 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Ejecuta la lógica necesaria al abandonar un estado.
+    /// Ejecuta la lï¿½gica necesaria al abandonar un estado.
     /// </summary>
     /// <param name="state">Estado que se abandona</param>
     private void ExitState(PlayerState state)
     {
         switch (state)
         {
+            case PlayerState.Walk:
+                walkingDust.gameObject.SetActive(false);
+                break;
+
             // Reiniciamos la gravedad en los estados necesarios
             case PlayerState.Dash:
 
@@ -623,6 +658,10 @@ public class PlayerController : MonoBehaviour
                 playerMovement.RestoreGravity();
                 break;
 
+            case PlayerState.WallSlide:
+                wallSlideDust.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                break;
+
             case PlayerState.Parry:
 
                 characterStats.EndParry();
@@ -637,17 +676,17 @@ public class PlayerController : MonoBehaviour
     #region Utility Methods
 
     /// <summary>
-    /// Comprueba si una habilidad está desbloqueada.
+    /// Comprueba si una habilidad estï¿½ desbloqueada.
     /// </summary>
     /// <param name="skill">Nombre de la habilidad</param>
-    /// <returns>True si la habilidad está desbloqueada.</returns>
+    /// <returns>True si la habilidad estï¿½ desbloqueada.</returns>
     private bool CanUseSkill(string skill)
     {
         return skillManager.IsSkillUnlocked(skill);
     }
 
     /// <summary>
-    /// Ejecuta la lógica correspondiente al estado actual.
+    /// Ejecuta la lï¿½gica correspondiente al estado actual.
     /// </summary>
     private void UpdateState()
     {
@@ -716,7 +755,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Cambia al estado Idle, Walk o Run dependiendo de la dirección de movimiento y del estado de carrera.
+    /// Cambia al estado Idle, Walk o Run dependiendo de la direcciï¿½n de movimiento y del estado de carrera.
     /// </summary>
     private void ChangeToGroundState()
     {
@@ -746,7 +785,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Intenta iniciar un salto si el jugador está en el suelo y se ha detectado una entrada de salto.
+    /// Intenta iniciar un salto si el jugador estï¿½ en el suelo y se ha detectado una entrada de salto.
     /// </summary>
     /// <returns>
     /// True si el salto se ha iniciado correctamente.
@@ -857,7 +896,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Comprueba si se puede ejecutar alguna acción de combate, el parry tiene prioridad sobre el ataque.
+    /// Comprueba si se puede ejecutar alguna acciï¿½n de combate, el parry tiene prioridad sobre el ataque.
     /// </summary>
     private bool TryCombatActions()
     {
@@ -877,7 +916,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Ataque básico
+        // Ataque bï¿½sico
         if (playerInputs.AttackPressed && playerCombat.CanAttack)
         {
             if (ChangeState(PlayerState.Attack))
@@ -944,7 +983,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Controla cuánto tiempo permanece visible el indicador.
+    /// Controla cuï¿½nto tiempo permanece visible el indicador.
     /// </summary>
     private void UpdateParryHit()
     {
@@ -961,7 +1000,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Inicia el parpadeo visual cuando el jugador recibe daño.
+    /// Inicia el parpadeo visual cuando el jugador recibe daï¿½o.
     /// </summary>
     private void StartDamageFlash()
     {
@@ -971,7 +1010,7 @@ public class PlayerController : MonoBehaviour
         damageFlashTimer = hurtTimerDuration;
         damageFlashIntervalTimer = 0f;
 
-        // Comenzamos mostrando el color de daño.
+        // Comenzamos mostrando el color de daï¿½o.
         damageFlashActive = true;
         SetSpriteColor(damageFlashColor);
     }
@@ -987,7 +1026,7 @@ public class PlayerController : MonoBehaviour
         damageFlashTimer -= Time.deltaTime;
         damageFlashIntervalTimer -= Time.deltaTime;
 
-        // Cambiamos entre el color original y el color de daño.
+        // Cambiamos entre el color original y el color de daï¿½o.
         if (damageFlashIntervalTimer <= 0f)
         {
             damageFlashActive = !damageFlashActive;
@@ -1016,7 +1055,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Reaparece al jugador cuando termina la animación de muerte.
+    /// Reaparece al jugador cuando termina la animaciï¿½n de muerte.
     /// </summary>
     public void RespawnPlayer()
     {
@@ -1025,12 +1064,12 @@ public class PlayerController : MonoBehaviour
 
         AudioController.Instance.PlayPlayerStatus(PlayerStatusSFX.Respawn);
 
-        // Determinamos la posición de reaparición
+        // Determinamos la posiciï¿½n de reapariciï¿½n
         Vector2 respawnPosition = CheckpointZone2D.hasSafePoint
             ? CheckpointZone2D.lastSafePosition
             : (Vector2)initialSpawnPosition;
 
-        // Detenemos completamente la física
+        // Detenemos completamente la fï¿½sica
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
@@ -1053,10 +1092,10 @@ public class PlayerController : MonoBehaviour
         // Recuperamos vida y estamina
         characterStats.FullHeal();
 
-        // Permitimos volver a recibir daño
+        // Permitimos volver a recibir daï¿½o
         characterStats.SetCanTakeDamage(true);
 
-        // Restablecemos el temporizador de daño
+        // Restablecemos el temporizador de daï¿½o
         hurtTimer = 0f;
 
         // Restablecemos los enemigos
@@ -1105,7 +1144,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Estado de desplazamiento básico.
+    /// Estado de desplazamiento bï¿½sico.
     /// </summary>
     private void Walk()
     {
@@ -1126,7 +1165,7 @@ public class PlayerController : MonoBehaviour
 
         if (!playerMovement.IsGrounded)
         {
-            ChangeState(PlayerState.Airborne);
+            ChangeState(PlayerState.Airborne);            
             return;
         }
 
@@ -1141,7 +1180,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Estado de movimiento rápido en suelo.
+    /// Estado de movimiento rï¿½pido en suelo.
     /// </summary>
     private void Run()
     {
@@ -1214,6 +1253,7 @@ public class PlayerController : MonoBehaviour
             {
                 playerMovement.ConsumeDoubleJump();
                 playerInputs.ConsumeJumpInput();
+                ParticleManager.SpawnParticles("DoubleJumpSmoke", transform.position, Quaternion.identity);
                 return;
             }
         }
@@ -1229,6 +1269,7 @@ public class PlayerController : MonoBehaviour
         if (playerMovement.IsGrounded && playerMovement.Velocity.y <= 0)
         {
             ChangeToGroundState();
+            ParticleManager.SpawnParticlesOnSurface("LandingSmoke", transform.position, Vector3.down, playerMovement.GroundLayer);
             return;
         }
 
@@ -1339,7 +1380,7 @@ public class PlayerController : MonoBehaviour
     #region Special States
 
     /// <summary>
-    /// Estado de movimiento rápido horizontal que ignora la gravedad temporalmente.
+    /// Estado de movimiento rï¿½pido horizontal que ignora la gravedad temporalmente.
     /// </summary>
     private void Dash()
     {
@@ -1395,6 +1436,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Parry()
     {
+        playerMovement.ApplyIdleMovement();
+
         // Cuando termina la ventana de parry, abandonamos el estado.
         if (playerCombat == null || !characterStats.IsParrying)
         {
@@ -1410,7 +1453,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Estado de daño recibido.
+    /// Estado de daï¿½o recibido.
     /// </summary>
     private void Hurt()
     {

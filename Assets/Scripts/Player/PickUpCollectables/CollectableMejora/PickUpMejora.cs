@@ -16,6 +16,7 @@ public class PickUpMejora : MonoBehaviour
 
         stats.AddHealthUpgradeToken();
 
+        ParticleManager.SpawnParticles("PickObject", transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 

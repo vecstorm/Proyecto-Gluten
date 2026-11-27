@@ -10,15 +10,33 @@ public class EnemyProjectileController : MonoBehaviour
     [SerializeField] private string[] contactTags;
     [SerializeField] private bool usesGravity = false;
 
+    [Header("Particles:")]
+    [SerializeField] private ParticleSystem followParticlesPrefab;
+    [SerializeField] private ParticleSystem impactParticlesPrefab;
+    [SerializeField] private bool onSurface = false;
+    [SerializeField] private float rayDistance = 1f;
+    [SerializeField] private LayerMask collisionLayer;
+    [SerializeField] private bool scaleWithLocalScale = false;
+
     private Rigidbody2D rb;
     private Vector3 targetPosition;
     private Vector3 direction;
+    private ParticleSystem followParticles;
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void Start()
+    {
+        if (followParticlesPrefab != null)
+        {
+            followParticles = Instantiate(followParticlesPrefab, transform);
+            followParticles.transform.localScale = Vector3.one;
+        }
     }
 
     private void FixedUpdate()
@@ -40,7 +58,43 @@ public class EnemyProjectileController : MonoBehaviour
 
         if (contactTags.Contains(collision.tag))
         {
-            Destroy(gameObject);
+            if (followParticles != null)
+            {
+                followParticles.transform.SetParent(null);
+                followParticles.transform.localScale = Vector3.one;
+                followParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+
+            if (impactParticlesPrefab != null)
+            {
+                if (onSurface)
+                {
+                    Vector3 surfaceDirection = ((Vector3) collision.ClosestPoint(transform.position) - transform.position).normalized;
+
+                    RaycastHit2D hit = Physics2D.Raycast(transform.position, surfaceDirection, rayDistance, collisionLayer);
+
+                    if (hit.collider)
+                    {
+                        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+
+                        ParticleSystem particle = Instantiate(impactParticlesPrefab, hit.point, rotation);
+
+                        if (scaleWithLocalScale)
+                        {
+                            Vector3 scale = particle.transform.localScale;
+                            scale = scale * transform.localScale.y;
+                            particle.transform.localScale = scale;
+                        }
+
+                    }
+                }
+                else
+                {
+                    Instantiate(impactParticlesPrefab, transform.position, Quaternion.identity);
+                }
+            }
+
+            Destroy(gameObject);        
         }
     }
 
@@ -75,5 +129,17 @@ public class EnemyProjectileController : MonoBehaviour
     public void SetContactDamage(int contactDamage)
     {
         this.contactDamage = contactDamage;
+    }
+
+    private Vector3 GetCollisionDirection(Vector3 normal)
+    {
+        if (Mathf.Abs(normal.x) > Mathf.Abs(normal.y))
+        {
+            return normal.x > 0 ? Vector3.right : Vector3.left;
+        }
+        else
+        {
+            return normal.y > 0 ? Vector3.up : Vector3.down;
+        }
     }
 }

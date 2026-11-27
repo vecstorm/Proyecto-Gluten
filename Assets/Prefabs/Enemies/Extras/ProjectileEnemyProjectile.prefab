@@ -14,8 +14,10 @@ GameObject:
   - component: {fileID: 3032731212209944352}
   - component: {fileID: 2525675545425566065}
   - component: {fileID: 6466342410616007357}
+  - component: {fileID: 2991618991544980957}
+  - component: {fileID: 1692138672296607469}
   m_Layer: 9
-  m_Name: EnemyProjectile
+  m_Name: ProjectileEnemyProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -85,12 +87,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.93333334, g: 0.6862745, b: 0.20784314, a: 1}
+  m_Sprite: {fileID: -7940894904593763282, guid: 2667a3498d3469741922894dbce775a3, type: 3}
+  m_Color: {r: 1, g: 0.6839622, b: 0.8306941, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.81, y: 0.81}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -129,8 +131,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Offset: {x: -0.4, y: 0}
+  m_Radius: 0.8
 --- !u!50 &3032731212209944352
 Rigidbody2D:
   serializedVersion: 5
@@ -176,6 +178,14 @@ MonoBehaviour:
   - Player
   - Ground
   usesGravity: 0
+  followParticlesPrefab: {fileID: 4456599969128602532, guid: 07028cdca1c130c4d8c87d268561e2a9, type: 3}
+  impactParticlesPrefab: {fileID: 3865445661941537655, guid: 6f505ce1f3db601428b2c7a5973c6f3b, type: 3}
+  onSurface: 1
+  rayDistance: 3
+  collisionLayer:
+    serializedVersion: 2
+    m_Bits: 136
+  scaleWithLocalScale: 1
 --- !u!114 &6466342410616007357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,3 +200,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AutoDestroy
   lifeTime: 10
   disableAutoDestruction: 0
+--- !u!114 &2991618991544980957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8800497664785079264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c252df42a26275b4498fb1e90e931dc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RotateTowardsDirection
+--- !u!95 &1692138672296607469
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8800497664785079264}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e228ddaf7787da647a41b9e5dd8d45c1, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

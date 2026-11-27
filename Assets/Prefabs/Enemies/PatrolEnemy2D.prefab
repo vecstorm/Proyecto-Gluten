@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5288463032603208598
 Transform:
   m_ObjectHideFlags: 0
@@ -157,8 +157,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 2}
+  m_Offset: {x: 0, y: -0.15}
+  m_Size: {x: 0.8, y: 0.5}
   m_Direction: 0
 --- !u!1 &6831953556411054844
 GameObject:
@@ -175,6 +175,8 @@ GameObject:
   - component: {fileID: 8692649148323337908}
   - component: {fileID: 1626098131391707273}
   - component: {fileID: 1878078336183355084}
+  - component: {fileID: 1764297852629478113}
+  - component: {fileID: 8774595226767012664}
   m_Layer: 0
   m_Name: PatrolEnemy2D
   m_TagString: Untagged
@@ -192,8 +194,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.6, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8359697859429855696}
   - {fileID: 1942774061149538162}
@@ -227,7 +229,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 0052b9315876207438ba7456f8f04599, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -250,9 +252,9 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
-  m_Color: {r: 0.9098039, g: 0.7136825, b: 0.09411764, a: 1}
-  m_FlipX: 0
+  m_Sprite: {fileID: -7401127203204449694, guid: 7cdc70770930d7a4399bbbc1985aa8d1, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 1, y: 2}
@@ -294,8 +296,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1.1, y: 2.1}
+  m_Offset: {x: 0, y: -0.15}
+  m_Size: {x: 0.9, y: 0.5}
   m_Direction: 0
 --- !u!50 &1447932522752577167
 Rigidbody2D:
@@ -402,6 +404,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::XpDropEnemy
   xp: {fileID: 11400000, guid: 512648b147aa83742805f9607e58ca27, type: 2}
   key: {fileID: 0}
+--- !u!114 &1764297852629478113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6831953556411054844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66412a0b4bb548042936e8f817ebc52a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
+  idleTriggerName: Idle
+  walkTriggerName: Walk
+  runTriggerName: Run
+  attackTriggerName: Attack
+  rammingTriggerName: Ramming
+  stunTriggerName: Stun
+  retreatTriggerName: Retreat
+  deathTriggerName: Death
+  controller: 0
+--- !u!95 &8774595226767012664
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6831953556411054844}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: beef0ed4dc2a8a94d9d5e254aca034fe, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &8699973852793500170
 GameObject:
   m_ObjectHideFlags: 0

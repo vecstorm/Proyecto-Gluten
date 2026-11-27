@@ -1,4 +1,4 @@
-using UnityEngine;
+    using UnityEngine;
 
 public class CollectableXp : MonoBehaviour
 {
@@ -17,6 +17,7 @@ public class CollectableXp : MonoBehaviour
             {
                 player.AddXp(xpValue);
                 AudioController.Instance.PlayPlayerInteraction(PlayerInteractionSFX.CollectExperience);
+                ParticleManager.SpawnParticles("PickObject", transform.position, Quaternion.identity);
                 Destroy(gameObject);
             }
         }

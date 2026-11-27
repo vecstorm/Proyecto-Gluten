@@ -42,7 +42,11 @@ public class MeleeEnemyAI : TroopAI
     private bool alreadyAttacking = false;
     private bool hitboxCreated = false;
 
+    private bool alreadyStopped = false; 
+
     private Vector3 lastTargetPos;
+
+    private Collider2D hitbox;
 
     private float timer;
 
@@ -51,6 +55,8 @@ public class MeleeEnemyAI : TroopAI
     private void Awake()
     {
         InitializeBasicComponents();
+
+        hitbox = GetComponent<Collider2D>();
     }
 
     private void Start()
@@ -58,13 +64,14 @@ public class MeleeEnemyAI : TroopAI
         detection = GetComponent<VisionCone>();
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+        material = GetComponent<SpriteRenderer>().material;
     }
 
     private void OnEnable()
     {
         characterStats.OnDeath += ToDead;
         characterStats.OnStunApplied += ToStunned;
-        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += DamageReaction;
         characterStats.OnDamageTaken += AddKnockback;
     }
 
@@ -72,7 +79,7 @@ public class MeleeEnemyAI : TroopAI
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnStunApplied -= ToStunned;
-        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= DamageReaction;
         characterStats.OnDamageTaken -= AddKnockback;
     }
 
@@ -154,6 +161,12 @@ public class MeleeEnemyAI : TroopAI
     {
         if (TargetDetected() || TargetDetectedOnArea(areaRadius)) 
         {
+            if (OnAttackRange(targetTransform.position))
+            {
+                ToAttack();
+                return;
+            }
+
             ToPreparingChase();
             return;
         }
@@ -171,6 +184,11 @@ public class MeleeEnemyAI : TroopAI
     // Comportamiento en estado PATROL
     protected virtual void OnPatrol()
     {
+        if (!DetectedEdge())
+        {
+            Flip();
+        }
+
         if (TargetDetected() || TargetDetectedOnArea(areaRadius))
         {
             ToPreparingChase();
@@ -186,11 +204,6 @@ public class MeleeEnemyAI : TroopAI
         }
 
         localMovement = new Vector3((invertedDirection ? -1 : 1) * speed, rb.linearVelocity.y);
-
-        if (!DetectedEdge())
-        {
-            Flip();
-        }
     }
 
     // Comportamiento en estado PREPARING_CHASE
@@ -199,6 +212,11 @@ public class MeleeEnemyAI : TroopAI
         timer -= Time.fixedDeltaTime;
 
         rb.linearVelocity = rb.linearVelocity;
+
+        if (!DetectedEdge())
+        {
+            localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+        }
 
         if (timer <= 0)
         {
@@ -233,6 +251,12 @@ public class MeleeEnemyAI : TroopAI
 
         if (!DetectedEdge())
         {
+            if (!alreadyStopped)
+            {
+                alreadyStopped = true;
+                InvokeAnimationTrigger(ENEMY_STATE.IDLE);
+            }
+
             localMovement = new Vector3(0, rb.linearVelocity.y, 0);
         }
     }
@@ -242,7 +266,7 @@ public class MeleeEnemyAI : TroopAI
     {
         if (TargetDetectedOnArea(detectedAreaRadius)) 
         {
-            ToPreparingChase();
+            ToChasing();
             return;
         }
         
@@ -250,6 +274,12 @@ public class MeleeEnemyAI : TroopAI
         
         if (!DetectedEdge())
         {
+            if (!alreadyStopped)
+            {
+                alreadyStopped = true;
+                InvokeAnimationTrigger(ENEMY_STATE.IDLE);
+            }
+            
             movementPosition = transform.position;
         }
 
@@ -277,7 +307,7 @@ public class MeleeEnemyAI : TroopAI
         if (timer <= 0f)
         {
             stunnedIcon.SetActive(false);
-            ToPatrol();
+            ToIdle();
         }
     }
 
@@ -338,6 +368,8 @@ public class MeleeEnemyAI : TroopAI
         localMovement = Vector3.zero;
         detection.EnableVision();
 
+        InvokeAnimationTrigger(ENEMY_STATE.IDLE);
+
         state = ENEMY_STATE.IDLE;
     }
 
@@ -347,6 +379,8 @@ public class MeleeEnemyAI : TroopAI
         lastTargetPos = Vector3.zero;
         timer = Random.Range(minIdleDelay, maxIdleDelay);
         detection.EnableVision();
+
+        InvokeAnimationTrigger(ENEMY_STATE.PATROL);
 
         state = ENEMY_STATE.PATROL;
     }
@@ -362,7 +396,11 @@ public class MeleeEnemyAI : TroopAI
     // Comportamiento de transición a CHASING
     private void ToChasing()
     {
+        alreadyStopped = false;
+
         detection.DisableVision();
+
+        InvokeAnimationTrigger(ENEMY_STATE.CHASING);
 
         state = ENEMY_STATE.CHASING;
     }
@@ -370,6 +408,8 @@ public class MeleeEnemyAI : TroopAI
     // Comportamiento de transición a SEARCHING
     private void ToSearching()
     {
+        alreadyStopped = false;
+
         timer = Random.Range(minSearchingDelay, maxSearchingDelay);
 
         state = ENEMY_STATE.SEARCHING;
@@ -380,6 +420,10 @@ public class MeleeEnemyAI : TroopAI
     {
         timer = stunnedTimerDuration;
         stunnedIcon.SetActive(true);
+
+        // SONIDO ---------> Stun //
+        InvokeAnimationTrigger(ENEMY_STATE.STUNNED);
+
         state = ENEMY_STATE.STUNNED;
     }
 
@@ -396,9 +440,15 @@ public class MeleeEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     protected void ToDead()
     {
+        ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+
+        hitbox.enabled = false;
         isDead = true;
         state = ENEMY_STATE.DEAD;
-        gameObject.SetActive(false);
+        localMovement = Vector3.zero;
+
+        InvokeAnimationTrigger(ENEMY_STATE.DEAD);
+        // SONIDO ---------> Death //
     }
 
     #endregion
@@ -412,30 +462,23 @@ public class MeleeEnemyAI : TroopAI
     {
         alreadyAttacking = true;
 
-        transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 20));
-
-        //Debug.Log("PREPARING ATTACK");
+        // SONIDO ---------> Attack Prepare //
+        InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
 
         yield return new WaitForSeconds(attackPreparationTime);
 
-        transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0));
+        // SONIDO ---------> Attack //
 
         hitboxCreated = true;
 
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
 
-        //Debug.Log("ATTACKING");
-
         yield return new WaitForSeconds(attackDuration);
-
-        //Debug.Log("STOPPED ATTACKING");
 
         hitboxCreated = false;
 
         yield return new WaitForSeconds(attackCooldown);
-
-        //Debug.Log("ATTACK ON COOLDOWN");
 
         alreadyAttacking = false;
     }
@@ -536,6 +579,13 @@ public class MeleeEnemyAI : TroopAI
         }
     }
 
+    private void DamageReaction()
+    {
+        // SONIDO ---------> Hurt //
+        FlashColor();
+        ToChasing();
+    }
+
     // Logica de reseteo del enemigo
     public override void ResetEnemy()
     {
@@ -550,7 +600,9 @@ public class MeleeEnemyAI : TroopAI
         localMovement = Vector3.zero;
         externalMovement = Vector3.zero;
         isDead = false;
+        hitbox.enabled = true;
         state = defaultState;
+        InvokeAnimationTrigger(state);
         characterStats.FullHeal();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);

@@ -330,6 +330,8 @@ public class FinalBossEnemyAI : BossAI
 
         ResetArmsOffset();
 
+        // SONIDO ---------> Stun //
+
         rightArm.ResetHand();
         rightArm.SetColliderActive(false);
         leftArm.ResetHand();
@@ -413,6 +415,8 @@ public class FinalBossEnemyAI : BossAI
     {
         isFollowing = true;
 
+        // SONIDO ---------> Move Arm //
+
         primaryBossHand.transform.Rotate(new Vector3(0, 0, 90));
         primaryBossHand.BeginSafeTime();
 
@@ -424,6 +428,8 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(slamDelay);
 
+        // SONIDO ---------> Slam Swing //
+
         anticipation = 0;
 
         isFollowing = false;
@@ -431,6 +437,9 @@ public class FinalBossEnemyAI : BossAI
         primaryBossHand.MoveTillCollision(targetSlamDirection, slammingSpeed);
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
+
+        ParticleManager.SpawnParticlesOnSurface("BossSlamDust", primaryBossHand.transform.position, Vector3.down, groundLayer);
+        // SONIDO ---------> Slam Attack //
 
         if (timesStunned >= knocksToAddDebris)
         {
@@ -450,6 +459,8 @@ public class FinalBossEnemyAI : BossAI
     {
         movementEnabled = false;
 
+        // SONIDO ---------> Move Arm //
+
         yield return new WaitUntil(() => BothArmsOnPosition());
 
         isFollowing = true;
@@ -459,6 +470,8 @@ public class FinalBossEnemyAI : BossAI
         leftArm.transform.Rotate(new Vector3(0, 0, -200f));
 
         yield return new WaitForSeconds(rainDelay);
+
+        // SONIDO ---------> Rain Attack //
 
         yield return new WaitForSeconds(rainWaitDelay);
 
@@ -479,12 +492,14 @@ public class FinalBossEnemyAI : BossAI
     // Seqüencia de ataque shooting del enemigo
     private IEnumerator ShootingProcess()
     {
+        // SONIDO ---------> Move Arm //
+
         isFollowing = true;
 
         bool targetOnLeft = (targetTransform.position.x - chosenCornerPosition.x) < 0;
 
         secondaryBossHand.transform.Rotate(new Vector3(0, 0, targetOnLeft ? -90 : 90));
-        primaryBossHand.BeginSafeTime();
+        secondaryBossHand.BeginSafeTime();
 
         yield return new WaitForSeconds(shootingPreparationDelay);
 
@@ -509,9 +524,12 @@ public class FinalBossEnemyAI : BossAI
 
         for (int i = 0; i < projectileQuantity; i++)
         {
-            GameObject newProjectile = Instantiate(projectilePrefab, secondaryBossHand.transform.position, Quaternion.identity);
+            GameObject newProjectile = Instantiate(projectilePrefab, secondaryBossHand.ProjectileSpawn.position, Quaternion.identity);
             newProjectile.transform.localScale = new Vector3(2, 2, 2);
             spawneables.Add(newProjectile);
+
+            ParticleManager.SpawnParticles("BossShootingImpact", secondaryBossHand.ProjectileSpawn.position, secondaryBossHand.transform.rotation);
+            // SONIDO ---------> Shoot Attack //
 
             EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
             projectileController.SetLinearDirection(projectileSpeed, projectileDirection);
@@ -563,6 +581,8 @@ public class FinalBossEnemyAI : BossAI
             GameObject newProjectile = Instantiate(fallingDebrisPrefab, new Vector3(horizontalPosition, transform.position.y + debrisVerticalPosition, 0), Quaternion.identity);
             spawneables.Add(newProjectile);
 
+            // SONIDO ---------> Debris Spawn //
+
             EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
             projectileController.SetContactDamage(debrisDamage);
 
@@ -574,6 +594,8 @@ public class FinalBossEnemyAI : BossAI
     private IEnumerator PunchingProcess()
     {
         isFollowing = true;
+
+        // SONIDO ---------> Move Arm //
 
         primaryBossHand.transform.Rotate(new Vector3(0, 0, 180));
         primaryBossHand.BeginSafeTime();
@@ -598,11 +620,16 @@ public class FinalBossEnemyAI : BossAI
 
         yield return new WaitForSeconds(warningDelay);
 
+        // SONIDO ---------> Punch Swing //
+
         primaryBossHand.transform.Rotate(new Vector3(0, 0, -180));
 
         primaryBossHand.MoveTillCollision(targetSlamDirection, punchingSpeed);
 
         yield return new WaitUntil(() => primaryBossHand.ArmCollided);
+
+        ParticleManager.SpawnParticlesOnSurface("BossPunchDust", primaryBossHand.transform.position, Vector3.down, groundLayer, 8f);
+        // SONIDO ---------> Punch Impact //
 
         if (hitbox != null)
         {
@@ -741,6 +768,11 @@ public class FinalBossEnemyAI : BossAI
     {
         currentArmourHealth -= (int)damage.Amount;
 
+        Vector3 damageDirection = ((Vector3)damage.HitPoint - targetTransform.position).normalized;
+
+        ParticleManager.SpawnParticles("ArmourImpact", damage.HitPoint, new Vector3(damageDirection.x, 0, 0));
+        // SONIDO ---------> Armour Hurt //
+
         if (currentArmourHealth <= 0)
         {
             currentArmourHealth = 0;
@@ -812,6 +844,11 @@ public class FinalBossEnemyAI : BossAI
     {
         FlashColor();
 
+        Vector3 damageDirection = (head.transform.position - characterStats.LastDamagePosition).normalized;
+
+        ParticleManager.SpawnParticles("AttackImpact", head.transform.position, new Vector3(damageDirection.x, 0, 0));
+        // SONIDO ---------> Head Hurt //
+
         if (state == BOSS_STATE.STUNNED)
         {
             if (damagedWhileStunned) return;
@@ -828,6 +865,8 @@ public class FinalBossEnemyAI : BossAI
     // Inicia el proceso de muerte del enemigo
     private void ToDead()
     {
+        // SONIDO ---------> Death //
+
         isDead = true;
         gameObject.SetActive(false);
         bossArea.DisableDoors();

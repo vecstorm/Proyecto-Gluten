@@ -22,7 +22,9 @@ public class ProjectileEnemyAI : TroopAI
     [SerializeField] private int chargedProjectileDamage = 20;
     [SerializeField] private float projectileSpeed = 6;
     [SerializeField] private int ampedProjectileCount = 4;
+    [SerializeField] private float ampedProjectileScale = 1f;
     [SerializeField] private float attackCooldown = 1.5f;
+    [SerializeField] private LayerMask shootDetectionLayer;
 
     [Header("Delays:")]
     [SerializeField] private float minSearchingDelay = 3f;
@@ -37,14 +39,20 @@ public class ProjectileEnemyAI : TroopAI
     private int projectileCount;
 
     private bool spawnInvertedDirection;
+    private bool alreadyStopped = false;
+    private bool alreadyWalkingBack = false;
 
     private float timer;
+
+    private Collider2D hitbox;
 
     #region MAIN LOOP
 
     private void Awake()
     {
         InitializeBasicComponents();
+
+        hitbox = GetComponent<Collider2D>();
     }
 
     private void Start()
@@ -52,20 +60,22 @@ public class ProjectileEnemyAI : TroopAI
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
         spawnInvertedDirection = invertedDirection;
+
+        material = GetComponent<SpriteRenderer>().material;
     }
 
     private void OnEnable()
     {
         dynamicSpawnPosition = spawnPosition;
         characterStats.OnDeath += ToDead;
-        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += DamageReaction;
         characterStats.OnDamageTaken += AddKnockback;
     }
 
     private void OnDisable()
     {
         characterStats.OnDeath -= ToDead;
-        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= DamageReaction;
         characterStats.OnDamageTaken -= AddKnockback;
     }
 
@@ -113,6 +123,9 @@ public class ProjectileEnemyAI : TroopAI
 
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(dynamicSpawnPosition, 0.1f);
+
+        Gizmos.color = Color.purple;
+        Gizmos.DrawSphere(lastTargetPos, 0.1f);
     }
 
     #endregion
@@ -202,6 +215,12 @@ public class ProjectileEnemyAI : TroopAI
 
         if (!DetectedEdge(edgeCheck.position))
         {
+            if (!alreadyStopped)
+            {
+                alreadyStopped = true;
+                InvokeAnimationTrigger(ENEMY_STATE.IDLE);
+            }
+
             localMovement = new Vector3(0, rb.linearVelocity.y, 0);
         }
     }
@@ -221,22 +240,22 @@ public class ProjectileEnemyAI : TroopAI
 
         if (timer <= 0)
         {
-            projectileCount++;
-
-            GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-
-            EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
-            projectileController.SetMovement(projectileSpeed, targetTransform.position);
-            projectileController.SetContactDamage(projectileDamage);
-
-            if (projectileCount >= ampedProjectileCount)
+            if (CanShootTarget())
             {
-                projectileCount = 0;
-                newProjectile.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-                projectileController.SetContactDamage(chargedProjectileDamage);
+                projectileCount++;
+
+                InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
             }
             
+            //ShootProjectile();
+
             timer = attackCooldown;
+        }
+
+        if (!CanShootTarget())
+        {
+            MoveToFindShootAngle();
+            return;
         }
 
         localMovement = new Vector3(0, rb.linearVelocity.y, 0);
@@ -248,7 +267,19 @@ public class ProjectileEnemyAI : TroopAI
 
             if (!DetectedEdge(backEdgeCheck.position))
             {
+                if (!alreadyStopped)
+                {
+                    alreadyStopped = true;
+                    InvokeAnimationTrigger(ENEMY_STATE.IDLE);
+                }
+
                 localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+            }
+
+            if (!alreadyWalkingBack)
+            {
+                alreadyWalkingBack = true;
+                InvokeAnimationTrigger(ENEMY_STATE.RETREAT);
             }
         }
 
@@ -271,14 +302,20 @@ public class ProjectileEnemyAI : TroopAI
 
         if (!DetectedEdge(edgeCheck.position))
         {
+            InvokeAnimationTrigger(ENEMY_STATE.IDLE);
             movementPosition = transform.position;
         }
 
-        timer -= Time.fixedDeltaTime;
+        rb.MovePosition(Vector3.MoveTowards(transform.position, movementPosition, speed * Time.fixedDeltaTime));
 
-        if (timer <= 0)
+        if (Vector3.Distance(transform.position, movementPosition) < 0.1f)
         {
-            ToPatrol();
+            timer -= Time.fixedDeltaTime;
+
+            if (timer <= 0)
+            {
+                ToPatrol();
+            }
         }
     }
 
@@ -291,6 +328,8 @@ public class ProjectileEnemyAI : TroopAI
     // Comportamiento de transición a PATROL
     private void ToPatrol()
     {
+        InvokeAnimationTrigger(ENEMY_STATE.IDLE);
+
         Debug.Log("Changed to PATROL");
 
         timer = newSpawnPositionDelay;
@@ -305,6 +344,8 @@ public class ProjectileEnemyAI : TroopAI
     // Comportamiento de transición a CHASING
     private void ToChasing()
     {
+        alreadyStopped = false;
+
         Debug.Log("Changed to CHASING");
 
         projectileCount--;
@@ -313,17 +354,23 @@ public class ProjectileEnemyAI : TroopAI
 
         localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
+        InvokeAnimationTrigger(ENEMY_STATE.CHASING);
+
         state = ENEMY_STATE.CHASING;
     }
 
     // Comportamiento de transición a ATTACK
     private void ToAttack()
     {
+        alreadyStopped = false;
+
         Debug.Log("Changed to ATTACK");
 
         timer = attackCooldown;
 
         localMovement = new Vector3(0, rb.linearVelocity.y, 0);
+
+        InvokeAnimationTrigger(ENEMY_STATE.IDLE);
 
         state = ENEMY_STATE.ATTACK;
     }
@@ -331,11 +378,15 @@ public class ProjectileEnemyAI : TroopAI
     // Comportamiento de transición a SEARCHING
     private void ToSearching()
     {
+        alreadyStopped = false;
+
         Debug.Log("Changed to SEARCHING");
 
         localMovement = new Vector3(0, rb.linearVelocity.y, 0);
 
         timer = Random.Range(minSearchingDelay, maxSearchingDelay);
+
+        InvokeAnimationTrigger(ENEMY_STATE.PATROL);
 
         state = ENEMY_STATE.SEARCHING;
     }
@@ -343,9 +394,13 @@ public class ProjectileEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     protected void ToDead()
     {
+        // SONIDO ---------> Death //
+        ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+
         isDead = true;
         state = ENEMY_STATE.DEAD;
-        gameObject.SetActive(false);
+        hitbox.enabled = false;
+        InvokeAnimationTrigger(ENEMY_STATE.DEAD);
     }
 
     #endregion
@@ -412,6 +467,65 @@ public class ProjectileEnemyAI : TroopAI
         return targetDirection.normalized;
     }
 
+    // Devuelve si el enemigo detecta que el proyectil chocara contra el player o algo del escenario
+    private bool CanShootTarget()
+    {
+        Vector2 direction = (targetTransform.position - transform.position).normalized;
+
+        float distance = Vector2.Distance(transform.position, targetTransform.position);
+
+        float radius = (projectilePrefab.GetComponent<CircleCollider2D>().radius + 0.2f) * projectileCount >= ampedProjectileCount ? ampedProjectileScale : projectilePrefab.transform.localScale.y;
+
+        RaycastHit2D hit = Physics2D.CircleCast(transform.position, radius, direction, distance, shootDetectionLayer);
+
+        return hit.collider != null && hit.collider.CompareTag("Player");
+    }
+
+    // Reinicia la variable alreadyWalkingBack
+    public void ShootAnimationFinished()
+    {
+        alreadyWalkingBack = false;
+    }
+
+    public void ShootProjectile()
+    {
+        GameObject newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+
+        EnemyProjectileController projectileController = newProjectile.GetComponent<EnemyProjectileController>();
+        projectileController.SetMovement(projectileSpeed, targetTransform.position);
+        projectileController.SetContactDamage(projectileDamage);
+
+        if (projectileCount >= ampedProjectileCount)
+        {
+            projectileCount = 0;
+            newProjectile.transform.localScale = new Vector3(ampedProjectileScale, ampedProjectileScale, ampedProjectileScale);
+            projectileController.SetContactDamage(chargedProjectileDamage);
+        }
+
+        // SONIDO ---------> Shoot //
+        ParticleManager.SpawnParticles("ProjectileEnemyShot", transform.position, transform.right);
+    }
+
+    private void MoveToFindShootAngle()
+    {
+        if (!DetectedEdge(edgeCheck.position))
+        {
+            localMovement = Vector3.zero;
+            return;
+        }
+
+        float direction = Mathf.Sign(targetTransform.position.x - transform.position.x);
+
+        localMovement = new Vector2(direction * speed, rb.linearVelocity.y);
+    }
+
+    // Como reacciona el enemigo al recibir daño
+    private void DamageReaction()
+    {
+        // SONIDO ---------> Hurt //
+        FlashColor();
+    }
+
     // Logica de reseteo del enemigo
     public override void ResetEnemy()
     {
@@ -424,6 +538,9 @@ public class ProjectileEnemyAI : TroopAI
         invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         state = defaultState;
         isDead = false;
+        alreadyStopped = false;
+        hitbox.enabled = true;
+        InvokeAnimationTrigger(ENEMY_STATE.IDLE);
 
         localMovement = Vector3.zero;
         externalMovement = Vector3.zero;

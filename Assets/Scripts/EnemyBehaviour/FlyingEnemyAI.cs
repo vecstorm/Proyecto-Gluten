@@ -38,6 +38,7 @@ public class FlyingEnemyAI : TroopAI
     [SerializeField] private string[] collisionTags;
     [SerializeField] private int rammingDamage = 20;
     [SerializeField] private int healthToRam = 3;
+    [SerializeField] private float unwrappingDelay = 0.3f;
     [SerializeField] private float rammingDelay = 1f;
     [SerializeField] private float rammingSpeed = 15f;
     [SerializeField] private float rammignTurnSpeed = 10f;
@@ -67,25 +68,31 @@ public class FlyingEnemyAI : TroopAI
     private bool isRamming = false;
 
     private bool lostTarget = false;
+    private bool alreadyUnwrapped = false;
+
+    private Collider2D hitbox;
 
     #region MAIN LOOP
 
     private void Awake()
     {
         InitializeBasicComponents();
+
+        hitbox = GetComponent<Collider2D>();
     }
 
     private void Start()
     {
         spawnPosition = transform.position;
         spawnRotation = transform.rotation.eulerAngles;
+        material = GetComponent<SpriteRenderer>().material;
     }
 
     private void OnEnable()
     {
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
-        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += DamageReaction;
         characterStats.OnDamageTaken += AddKnockback;
     }
 
@@ -93,12 +100,18 @@ public class FlyingEnemyAI : TroopAI
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
-        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= DamageReaction;
         characterStats.OnDamageTaken -= AddKnockback;
     }
 
     private void FixedUpdate()
     {
+        if (state == ENEMY_STATE.DEAD)
+        {
+            rb.linearVelocityX = 0;
+            return;
+        }
+
         switch (state)
         {
             case ENEMY_STATE.PATROL:
@@ -271,6 +284,11 @@ public class FlyingEnemyAI : TroopAI
             projectileController.SetMovement(projectileSpeed, targetTransform.position);
             projectileController.SetContactDamage(projectileDamage);
 
+            // SONIDO ---------> Shoot //
+            ParticleManager.SpawnParticles("FlyingEnemyShot", transform.position, transform.right);
+
+            InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
+
             attackTimer = attackCooldown;
         }
 
@@ -288,20 +306,25 @@ public class FlyingEnemyAI : TroopAI
     // Comportamiento en estado RAMMING
     private void OnRamming()
     {
-        if (!colorFlashing)
-        {
-            ChangeColor(Color.red);
-        }
-        
         timer += Time.fixedDeltaTime;
+
+        if (timer >= unwrappingDelay)
+        {
+            if (!alreadyUnwrapped)
+            {
+                alreadyUnwrapped = true;
+                // SONIDO ---------> Transform //
+                InvokeAnimationTrigger(ENEMY_STATE.RAMMING);
+            }
+        }
 
         Vector3 targetDirection = (targetTransform.position - transform.position).normalized;
 
         if (timer >= rammingDelay)
         {
+            // SONIDO ---------> Charge //
             rammingDirection = Vector3.Lerp(rammingDirection, targetDirection, rammignTurnSpeed * Time.fixedDeltaTime).normalized;
 
-            //rb.linearVelocity = rammingDirection * rammingSpeed;
             localMovement = rammingDirection * rammingSpeed;
 
             isRamming = true;
@@ -310,6 +333,10 @@ public class FlyingEnemyAI : TroopAI
         {
             rammingDirection = (targetTransform.position - transform.position).normalized;
         }
+
+        float angle = Mathf.Atan2(rammingDirection.y, rammingDirection.x) * Mathf.Rad2Deg;
+
+        transform.rotation = Quaternion.Euler(invertedDirection ? 180 : 0, 0, angle * (invertedDirection ? -1 : 1));
     }
 
     // Comportamiento en estado SEARCHING
@@ -423,9 +450,38 @@ public class FlyingEnemyAI : TroopAI
     // Comportamiento de transición a DEAD
     private void ToDead()
     {
+        if (!alreadyUnwrapped)
+        {
+            InvokeAnimationTrigger(ENEMY_STATE.DEAD);
+        }
+        else
+        {
+            InvokeAnimationTrigger(ENEMY_STATE.STUNNED);
+        }
+
+        currentPath?.Clear();
+        currentPathIndex = 0;
+        nodes.Clear();
+
+        if (isRamming)
+        {
+            // SONIDO ---------> Explode //
+            ParticleManager.SpawnParticles("ExplosionEffect", transform.position, Quaternion.identity);
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            localMovement = new Vector3(rb.linearVelocity.x, -1f);
+            // SONIDO ---------> Death //
+            ParticleManager.SpawnParticles("DeathImpact", transform.position, Quaternion.identity);
+            hitbox.enabled = false;
+            rb.gravityScale = 3f;
+        }
+
         isDead = true;
         state = ENEMY_STATE.DEAD;
-        gameObject.SetActive(false);
+        
+        //gameObject.SetActive(false);
     }
 
     #endregion
@@ -688,10 +744,21 @@ public class FlyingEnemyAI : TroopAI
         }
     }
 
+    public void SpawnWrappingParticle()
+    {
+        ParticleManager.SpawnParticles("CandyWrapping", transform.position, -transform.right, invertedDirection ? 1 : -1);
+    }
+
     // Resetea el temporizador general
     private void ResetTimer()
     {
         timer = 0;
+    }
+
+    private void DamageReaction()
+    {
+        // SONIDO ---------> Hurt //
+        FlashColor();
     }
 
     // Logica de reseteo del enemigo
@@ -699,14 +766,20 @@ public class FlyingEnemyAI : TroopAI
     {
         if (!canRespawn) return;
 
+        rb.gravityScale = 0;
+
         gameObject.SetActive(true);
 
-        ResetColor();
+        ResetMaterialColor();
         transform.position = spawnPosition;
         transform.rotation = Quaternion.Euler(spawnRotation);
         invertedDirection = transform.rotation == Quaternion.Euler(0, 180, 0);
         state = defaultState;
         isDead = false;
+        alreadyUnwrapped = false;
+
+        InvokeAnimationTrigger(ENEMY_STATE.PATROL);
+        hitbox.enabled = true;
 
         currentPath?.Clear();
         currentPathIndex = 0;

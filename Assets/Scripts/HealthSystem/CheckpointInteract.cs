@@ -8,6 +8,7 @@ public class CheckpointInteract : MonoBehaviour
     [SerializeField] private GameObject indicadorUI;
 
     private bool jugadorEnRango = false;
+    private bool playerAlreadyInteracted = false;
 
     private void Start()
     {
@@ -46,6 +47,12 @@ public class CheckpointInteract : MonoBehaviour
             jugadorEnRango = true;
             if (indicadorUI != null)
                 indicadorUI.SetActive(true);
+
+            if (!playerAlreadyInteracted)
+            {
+                playerAlreadyInteracted = true;
+                ParticleManager.SpawnParticles("CheckPointEffect", transform);
+            }
         }
     }
 

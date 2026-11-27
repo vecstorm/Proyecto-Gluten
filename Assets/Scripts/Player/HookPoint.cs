@@ -22,6 +22,8 @@ public class HookPoint : MonoBehaviour
     [Tooltip("Color mostrado cuando el punto está dentro del rango de enganche")]
     [SerializeField] private Color inRangeColor = Color.green;
 
+    [SerializeField] ParticleSystem proximityParticles;
+
     #endregion
 
     #endregion
@@ -52,6 +54,15 @@ public class HookPoint : MonoBehaviour
             return;
 
         spriteRenderer.color = inRange ? inRangeColor : normalColor;
+
+        if (inRange)
+        {
+            proximityParticles.Play();
+        }
+        else
+        {
+            proximityParticles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        }
     }
 
     #endregion

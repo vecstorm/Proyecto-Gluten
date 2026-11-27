@@ -110,14 +110,14 @@ public class MiniBossEnemyAI : BossAI
     {
         characterStats.OnDeath += ToDead;
         characterStats.OnDamageTaken += CheckHealthLeft;
-        characterStats.OnDamageTaken += FlashColor;
+        characterStats.OnDamageTaken += DamageReaction;
     }
 
     private void OnDisable()
     {
         characterStats.OnDeath -= ToDead;
         characterStats.OnDamageTaken -= CheckHealthLeft;
-        characterStats.OnDamageTaken -= FlashColor;
+        characterStats.OnDamageTaken -= DamageReaction;
     }
 
     private void FixedUpdate()
@@ -280,6 +280,9 @@ public class MiniBossEnemyAI : BossAI
             timer = 0f;
             alreadyJumpAttacking = false;
 
+            ParticleManager.SpawnParticlesOnSurface("MiniBossJumpDust", transform.position, Vector3.down, groundLayer);
+            // SONIDO ---------> Jump Land //
+
             if (alreadyMultiJumpAttacking)
             {
                 ToConsecutiveJump();
@@ -323,6 +326,9 @@ public class MiniBossEnemyAI : BossAI
     // Comportamiento de transición a JUMP_ATTACK
     private void ToJump()
     {
+        ParticleManager.SpawnParticlesOnSurface("LandingSmoke", transform.position, Vector3.down, groundLayer, 5f);
+        // SONIDO ---------> Jump TakeOff //
+
         transform.localScale = originalScale;
 
         jumpStartPosition = transform.position;
@@ -453,12 +459,15 @@ public class MiniBossEnemyAI : BossAI
     {
         alreadyAttacking = true;
         rb.AddForce(-transform.right * attackAnticipationForce, ForceMode2D.Impulse);
+        // SONIDO ---------> Attack Prepare //
 
         yield return new WaitForSeconds(StatWithMultiplier(attackDelay, delayMultiplier));
 
         attackHitboxActive = true;
 
         rb.linearVelocity = transform.right * attackMovementSpeed;
+
+        // SONIDO ---------> Attack Swing //
 
         // Limpia los objetivos del ataque anterior
         hitTargets.Clear();
@@ -482,6 +491,7 @@ public class MiniBossEnemyAI : BossAI
     {
         alreadyHeavyAttacking = true;
         transform.localScale = new Vector3(originalScale.x, originalScale.y + 0.2f, originalScale.z);
+        // SONIDO ---------> Heavy Attack Prepare //
 
         yield return new WaitForSeconds(StatWithMultiplier(heavyAttackDelay, delayMultiplier));
 
@@ -493,6 +503,9 @@ public class MiniBossEnemyAI : BossAI
         transform.localScale = originalScale;
 
         StartCoroutine(SpawnSpikes());
+
+        ParticleManager.SpawnParticlesOnSurface("MiniBossHeavyDust", transform.position, Vector3.down, groundLayer, 5f);
+        // SONIDO ---------> Heavy Attack Impact //
 
         yield return new WaitForSeconds(StatWithMultiplier(heavyAttackRecoverDuration, recoverDurationMultiplier));
 
@@ -510,6 +523,8 @@ public class MiniBossEnemyAI : BossAI
         alreadyJumpAttacking = true;
 
         transform.localScale = new Vector3(originalScale.x, originalScale.y - 0.2f, originalScale.z);
+
+        // SONIDO ---------> Jump Prepare //
 
         yield return new WaitForSeconds(StatWithMultiplier(jumpPreparationTime, delayMultiplier));
 
@@ -545,6 +560,9 @@ public class MiniBossEnemyAI : BossAI
 
             GameObject spike = Instantiate(spikePrefab, spikeSpawnPoint, Quaternion.identity);
             spike.transform.localScale = new Vector3(scaleMultiplier, scaleMultiplier, scaleMultiplier);
+
+            ParticleManager.SpawnParticlesOnSurface("SpikeSpawn", hit.point, Vector3.down, groundLayer);
+            // SONIDO ---------> Spike Spawn //
 
             spike.GetComponent<AutoDestroy>().SetLifeTime(spikeLifeTime);
             spike.GetComponent<SpikeController>().SetContactDamage(spikeDamage);
@@ -630,6 +648,14 @@ public class MiniBossEnemyAI : BossAI
         isDead = true;
         gameObject.SetActive(false);
         bossArea.DisableDoors();
+        // SONIDO ---------> Death //
+    }
+
+    // Como reacciona el enemigo al recibir daño
+    private void DamageReaction()
+    {
+        // SONIDO ---------> Hurt //
+        FlashColor();
     }
 
     // Logica de reseteo del enemigo

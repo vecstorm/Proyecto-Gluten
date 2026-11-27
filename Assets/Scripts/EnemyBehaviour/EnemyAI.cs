@@ -30,6 +30,9 @@ public abstract class EnemyAI : MonoBehaviour
     protected CharacterStats characterStats;
     protected readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
 
+    private SpriteRenderer spriteRenderer;
+    protected Material material;
+
     protected virtual void InitializeBasicComponents()
     {
         EnemyManager.EnemiesOnMap.Add(this);
@@ -61,18 +64,13 @@ public abstract class EnemyAI : MonoBehaviour
     {
         colorFlashing = true;
 
-        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
-
-        foreach (SpriteRenderer renderer in renderers)
+        if (material != null)
         {
-            renderer.color = Color.white;
-        }
+            material.SetFloat("_WhiteAmount", 1);
 
-        yield return new WaitForSeconds(flashTimer);
+            yield return new WaitForSeconds(flashTimer);
 
-        foreach (SpriteRenderer renderer in renderers)
-        {
-            renderer.color = rendererColor;
+            material.SetFloat("_WhiteAmount", 0);
         }
 
         colorFlashing = false;
@@ -107,6 +105,11 @@ public abstract class EnemyAI : MonoBehaviour
         {
             renderer.color = rendererColor;
         }
+    }
+
+    protected void ResetMaterialColor()
+    {
+        material.SetFloat("_WhiteAmount", 0);
     }
 
     protected void ChangeColor(Color newColor)

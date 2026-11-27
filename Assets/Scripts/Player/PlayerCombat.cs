@@ -218,7 +218,11 @@ public class PlayerCombat : MonoBehaviour
                 attackIndicatorInstance.transform.position = center;
 
                 if (!attackIndicatorInstance.activeSelf)
+                {
+                    ParticleManager.SpawnParticles("SlashTrail", transform, new Vector3(attackIndicatorInstance.transform.position.x + facingDirection, attackIndicatorInstance.transform.position.y, attackIndicatorInstance.transform.position.z), transform.right * facingDirection);
+                    ParticleManager.SpawnParticles("SlashEffect", attackIndicatorInstance.transform, -facingDirection);
                     attackIndicatorInstance.SetActive(true);
+                }
             }
 
             // Detecta todos los colliders que se encuentren dentro de la esfera
@@ -318,6 +322,8 @@ public class PlayerCombat : MonoBehaviour
         // Inicia el cooldown independiente
         rangedAttackCooldownTimer = rangedAttackCooldown;
 
+        ParticleManager.SpawnParticles("MagicShot", transform.position, Quaternion.identity);
+
         return true;
     }
 
@@ -341,6 +347,8 @@ public class PlayerCombat : MonoBehaviour
 
         // Activa el temporizador de invulnerabilidad
         invulnerabilityTimer = invulnerabilityDuration;
+
+        ParticleManager.SpawnParticles("PlayerHurt", transform.position, Quaternion.identity);
     }
 
     #endregion

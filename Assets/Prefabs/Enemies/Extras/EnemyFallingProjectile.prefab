@@ -177,6 +177,8 @@ MonoBehaviour:
   - Player
   - Ground
   usesGravity: 1
+  followParticlesPrefab: {fileID: 4966588660452353403, guid: fe2c69b5eda1b00438039bbece9eb034, type: 3}
+  impactParticlesPrefab: {fileID: 6721436458339215072, guid: 219d2edb7dd7db443b4d5be967967362, type: 3}
 --- !u!114 &3507194721900780085
 MonoBehaviour:
   m_ObjectHideFlags: 0
