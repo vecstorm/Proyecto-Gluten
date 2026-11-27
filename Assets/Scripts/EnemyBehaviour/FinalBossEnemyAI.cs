@@ -842,7 +842,9 @@ public class FinalBossEnemyAI : BossAI
     {
         FlashColor();
 
-        ParticleManager.SpawnParticles("AttackImpact", head.transform.position, Quaternion.identity);
+        Vector3 damageDirection = (head.transform.position - characterStats.LastDamagePosition).normalized;
+
+        ParticleManager.SpawnParticles("AttackImpact", head.transform.position, new Vector3(damageDirection.x, 0, 0));
         // SONIDO ---------> Head Hurt //
 
         if (state == BOSS_STATE.STUNNED)
