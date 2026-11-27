@@ -50,6 +50,8 @@ public class MeleeEnemyAI : TroopAI
 
     private float timer;
 
+    private bool collidedWhileSearching = false;
+
     #region MAIN LOOP
 
     private void Awake()
@@ -289,6 +291,18 @@ public class MeleeEnemyAI : TroopAI
                 InvokeAnimationTrigger(ENEMY_STATE.IDLE);
             }
             
+            movementPosition = transform.position;
+        } 
+        else if (collidedWhileSearching)
+        {
+            collidedWhileSearching = false;
+
+            if (!alreadyStopped)
+            {
+                alreadyStopped = true;
+                InvokeAnimationTrigger(ENEMY_STATE.IDLE);
+            }
+
             movementPosition = transform.position;
         }
 
@@ -583,6 +597,12 @@ public class MeleeEnemyAI : TroopAI
 
             if (Mathf.Abs(contact.normal.x) > 0.5f)
             {
+                if (state == ENEMY_STATE.SEARCHING)
+                {
+                    collidedWhileSearching = true;
+                    return;
+                }
+
                 Flip();
             }
         }
