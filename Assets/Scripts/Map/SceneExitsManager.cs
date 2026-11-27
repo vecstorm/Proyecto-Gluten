@@ -7,7 +7,6 @@ public class SceneExitsManager : MonoBehaviour
 {
     [SerializeField] private List<GameObject> sceneExits = new List<GameObject>();
 
-
     public Transform GetSceneExitPosition(int sceneExitId)
     {
         foreach (GameObject sceneExit in sceneExits)

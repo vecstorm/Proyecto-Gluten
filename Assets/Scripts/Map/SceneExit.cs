@@ -6,13 +6,14 @@ public class SceneExit : MonoBehaviour
     [SerializeField] private int destinationIndex;
     [SerializeField] private int destinationSceneExitId;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!other.CompareTag("Player"))
+        if (!collision.CompareTag("Player"))
             return;
 
         ChangeSceneManager.Instance.ChangeScene(destinationIndex, destinationSceneExitId);
     }
+
 
     public int GetsceneExitId() => sceneExitId;
 }
