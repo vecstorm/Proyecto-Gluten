@@ -88,7 +88,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -4063179237020649569, guid: a304d24a7b4492a47841f05f2cb4959b, type: 3}
-  m_Color: {r: 0.9014319, g: 0.49127805, b: 0.9056604, a: 1}
+  m_Color: {r: 0.9198171, g: 0.49411762, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -181,9 +181,11 @@ MonoBehaviour:
   followParticlesPrefab: {fileID: 4456599969128602532, guid: 8d7163db06a52224997730c5b88dd459, type: 3}
   impactParticlesPrefab: {fileID: 3865445661941537655, guid: 29b8d0f11c05d384d82a449eddf6ce8d, type: 3}
   onSurface: 1
+  rayDistance: 1
   collisionLayer:
     serializedVersion: 2
     m_Bits: 136
+  scaleWithLocalScale: 0
 --- !u!114 &6466342410616007357
 MonoBehaviour:
   m_ObjectHideFlags: 0
