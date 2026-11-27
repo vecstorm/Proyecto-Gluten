@@ -73,7 +73,6 @@ public enum PatrolEnemySFX
 public enum MeleeEnemySFX
 {
     Footstep,
-    FastFootstep,
     Hurt,
     Death,
     Stun,

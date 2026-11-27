@@ -116,4 +116,14 @@ public class EnemyAnimationController : MonoBehaviour
 
         return false;
     }
+
+    public void OnPatrolStep()
+    {
+        AudioController.Instance.PlayPatrolEnemy(PatrolEnemySFX.Footstep);
+    }
+
+    public void OnMeleeStep()
+    {
+        AudioController.Instance.PlayMeleeEnemy(MeleeEnemySFX.Footstep);
+    }
 }

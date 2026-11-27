@@ -421,7 +421,7 @@ public class MeleeEnemyAI : TroopAI
         timer = stunnedTimerDuration;
         stunnedIcon.SetActive(true);
 
-        // SONIDO ---------> Stun //
+        AudioController.Instance.PlayMeleeEnemy(MeleeEnemySFX.Stun);
         InvokeAnimationTrigger(ENEMY_STATE.STUNNED);
 
         state = ENEMY_STATE.STUNNED;
@@ -448,7 +448,7 @@ public class MeleeEnemyAI : TroopAI
         localMovement = Vector3.zero;
 
         InvokeAnimationTrigger(ENEMY_STATE.DEAD);
-        // SONIDO ---------> Death //
+        AudioController.Instance.PlayMeleeEnemy(MeleeEnemySFX.Death);
     }
 
     #endregion
@@ -462,12 +462,12 @@ public class MeleeEnemyAI : TroopAI
     {
         alreadyAttacking = true;
 
-        // SONIDO ---------> Attack Prepare //
+        AudioController.Instance.PlayMeleeEnemy(MeleeEnemySFX.AttackPrepare);
         InvokeAnimationTrigger(ENEMY_STATE.ATTACK);
 
         yield return new WaitForSeconds(attackPreparationTime);
 
-        // SONIDO ---------> Attack //
+        AudioController.Instance.PlayMeleeEnemy(MeleeEnemySFX.Attack);
 
         hitboxCreated = true;
 
@@ -581,7 +581,7 @@ public class MeleeEnemyAI : TroopAI
 
     private void DamageReaction()
     {
-        // SONIDO ---------> Hurt //
+        AudioController.Instance.PlayMeleeEnemy(MeleeEnemySFX.Hurt);
         FlashColor();
         ToChasing();
     }

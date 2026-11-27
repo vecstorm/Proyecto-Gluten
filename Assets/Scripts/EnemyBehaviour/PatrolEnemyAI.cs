@@ -94,7 +94,7 @@ public class PatrolEnemyAI : TroopAI
 
         localMovement = Vector3.zero;
 
-        // SONIDO ---------> Death //
+        AudioController.Instance.PlayPatrolEnemy(PatrolEnemySFX.Death);
 
         isDead = true;
         state = ENEMY_STATE.DEAD;
@@ -164,7 +164,7 @@ public class PatrolEnemyAI : TroopAI
     // Como reacciona el enemigo al recibir daño
     private void DamageReaction()
     {
-        // SONIDO ---------> Hurt //
+        AudioController.Instance.PlayPatrolEnemy(PatrolEnemySFX.Hurt);
         FlashColor();
     }
 
